@@ -4,6 +4,8 @@ import { QuestService } from "./quest.service.js";
 import { UserRepository } from "../user/user.repository.js";
 import { QuestRepository } from "./quest.repository.js";
 import { HttpResponse } from "../../common/utils/response.js";
+import { sValidator } from "@hono/standard-validator";
+import { CreateQuestValidation } from "./quest.validation.js";
 
 
 const questRepository = new QuestRepository()
@@ -28,5 +30,25 @@ export const questController = new Hono()
             const userId = c.get("user").id
             const result = await questService.updateCompleteQuest(questId, userId)
             return HttpResponse(c, 200, "Quest updated successfully", result)
+        }
+    )
+    .post(
+        "/",
+        authMiddleware,
+        sValidator("json", CreateQuestValidation),
+        async (c) => {
+            const userId = c.get("user").id
+            const {deadline,description,folderId,title} = c.req.valid("json")
+            const result = await questService.createQuest(userId, folderId, title, description, deadline)
+            return HttpResponse(c, 201, "Quest created successfully", result)
+        }
+    )
+    .delete(
+        "/:questId",
+        authMiddleware,
+        async (c) => {
+            const { questId } = c.req.param()
+            const result = await questService.deleteQuest(questId)
+            return HttpResponse(c, 200, "Quest deleted successfully", result)
         }
     )

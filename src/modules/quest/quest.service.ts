@@ -29,4 +29,22 @@ export class QuestService {
         return quest;
 
     }
+
+    public async createQuest(userId: string, folderId: string,title: string, description: string, deadline: Date) {
+        // Cek apakah user dengan userId yang diberikan ada
+        const user = await this.userRepository.findUserById(userId);
+        if (!user) throw new HTTPException(404, { message: "User tidak ditemukan" });
+
+        const result = await this.questRepository.createQuest(folderId, title, description, deadline);
+        if (!result) throw new HTTPException(400, { message: "Gagal membuat quest" });
+        return result;
+    }
+
+    public async deleteQuest(questId: string) {
+        const quest = await this.questRepository.findById(questId);
+        if (!quest) throw new HTTPException(404, { message: "Quest tidak ditemukan" });
+        const result = await this.questRepository.deleteQuest(questId);
+        if (!result) throw new HTTPException(400, { message: "Gagal menghapus quest" });
+        return result;
+    }
 }
