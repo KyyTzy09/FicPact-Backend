@@ -12,9 +12,9 @@ declare module "hono" {
 
 export const authMiddleware: MiddlewareHandler = async (c, next) => {
     const token = await getCookie(c, "token");
-    if (!token) throw new HTTPException(401);
-    const payload = await verify(token, JWT_SECRET, {alg:'HS256'});
-    if (!payload) throw new HTTPException(401);
-    c.set("user", payload as { id: string; email: string});
+    if (!token) throw new HTTPException(401, { message: "Token tidak ada" });
+    const payload = await verify(token, JWT_SECRET, { alg: 'HS256' });
+    if (!payload) throw new HTTPException(401, { message: "payload tidak tersedia" });
+    c.set("user", payload as { id: string; email: string });
     await next();
 };

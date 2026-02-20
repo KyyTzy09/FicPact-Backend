@@ -18,32 +18,22 @@ model User {
   password String
   phone    String?
 
-  level           Int       @default(1)
-  currentExp      Int       @default(0)
-  expToNextLevel  Int       @default(100)
-  totalExp        Int       @default(0)
+  level          Int @default(1)
+  currentExp     Int @default(0)
+  expToNextLevel Int @default(100)
+  totalExp       Int @default(0)
 
   questFolders QuestFolder[]
-  reflections  Reflection[]
- 
+  // reflections  Reflection[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-
-
-
-enum FolderStatus {
-  PENDING
-  COMPLETED
-  FAILED
-  EXPIRED
-}
 model QuestFolder {
-  id          String  @id @default(uuid())
-  name        String  @unique
-  description String? @db.Text
+  id          String       @id @default(uuid())
+  name        String
+  description String?      @db.Text
   status      FolderStatus @default(PENDING)
 
   userId String
@@ -53,32 +43,49 @@ model QuestFolder {
   createdAt DateTime @default(now())
   endedAt   DateTime
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
 }
 
-
+enum FolderStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  EXPIRED
+}
 
 model Quest {
   id          String  @id @default(uuid())
   name        String  @unique
   description String? @db.Text
-  expReward   Int     @default(10)      // 10 EXP
-  isSuccess Boolean @default(false)
+  expReward   Int     @default(10) // 10 EXP
+  isSuccess   Boolean @default(false)
 
   folderId String
   folder   QuestFolder @relation(fields: [folderId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  endedAt   DateTime
+  createdAt   DateTime  @default(now())
+  deadLineAt  DateTime
+  completedAt DateTime?
+
+  @@unique([folderId, name])
 }
 
-model Reflection {
-  id      String @id @default(uuid())
-  content String @db.Text
+// model Reflection {
+//   id      String         @id @default(uuid())
+//   content String         @db.Text
+//   type    ReflectionType @default(USER)
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+//   userId        String
+//   questFolderId String?
+//   user          User         @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+//   questFolder   QuestFolder? @relation(fields: [questFolderId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
-  reflectionedAt DateTime
-  updatedAt      DateTime @updatedAt
-}
+//   startPeriod DateTime?
+//   endPeriod  DateTime?
+// }
 
+// enum ReflectionType {
+//   USER
+//   AI
+// }
