@@ -6,7 +6,6 @@ import { HTTPException } from 'hono/http-exception'
 import { folderController } from './modules/folder/folder.controller.js'
 
 const app = new Hono()
-
 app.get('/', (c) => {
   return c.text('Hello Hono!')
 })
@@ -17,12 +16,11 @@ app.route("/folder", folderController)
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) {
-    return c.json({ success: false, message: err.message }, { status: err.status })
+    return c.json({ success: false, status: err.status, message: err.message }, { status: err.status })
   }
 
-  return c.json({ success: false, message: err.message }, { status: 500 });
+  return c.json({ success: false, status: 500, message: err.message }, { status: 500 });
 })
-
 
 serve({
   fetch: app.fetch,
