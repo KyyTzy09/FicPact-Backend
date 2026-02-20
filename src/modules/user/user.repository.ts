@@ -1,11 +1,19 @@
-import { prisma } from "../../shared/utils/prisma.js";
+import { prisma } from "../../common/utils/prisma.js"
 
 export class UserRepository {
-    public async createUser(email: string, password: string){
+    public async createUser(email: string, password: string) {
         return prisma.user.create({
             data: {
                 email,
                 password
+            }
+        })
+    }
+
+    public async findUserById(userId: string) {
+        return await prisma.user.findUnique({
+            where: {
+                id: userId
             }
         })
     }
