@@ -8,7 +8,7 @@ import { createFolderValidation, updateFolderValidation } from "./folder.validat
 
 const folderRepository = new FolderRepository()
 const folderService = new FolderService(folderRepository)
-export const FolderController = new Hono()
+export const folderController = new Hono()
     .get("/",
         authMiddleware,
         async (c) => {

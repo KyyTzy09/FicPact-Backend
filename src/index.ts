@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { userController } from './modules/user/user.controller.js'
 import { authController } from './modules/auth/auth.controller.js'
 import { HTTPException } from 'hono/http-exception'
+import { folderController } from './modules/folder/folder.controller.js'
 
 const app = new Hono()
 
@@ -20,6 +21,7 @@ app.onError((err, c) => {
 
 app.route("/user", userController)
 app.route("/auth", authController)
+app.route("/folder", folderController)
 
 serve({
   fetch: app.fetch,
