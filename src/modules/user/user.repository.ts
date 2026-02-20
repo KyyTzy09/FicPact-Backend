@@ -25,4 +25,17 @@ export class UserRepository {
             }
         })
     }
+
+    public async updateUserLevelAndExp(userId: string, newLevel: number, remainingExp: number, totalExp: number) {
+        return await prisma.user.update({
+            where: {
+                id: userId
+            },
+            data: {
+                level: newLevel,
+                currentExp: remainingExp,
+                totalExp
+            }
+        })
+    }
 }
