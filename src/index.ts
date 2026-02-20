@@ -11,6 +11,10 @@ app.get('/', (c) => {
   return c.text('Hello Hono!')
 })
 
+app.route("/user", userController)
+app.route("/auth", authController)
+app.route("/folder", folderController)
+
 app.onError((err, c) => {
   if (err instanceof HTTPException) {
     return c.json({ success: false, message: err.message }, { status: err.status })
@@ -19,9 +23,6 @@ app.onError((err, c) => {
   return c.json({ success: false, message: err.message }, { status: 500 });
 })
 
-app.route("/user", userController)
-app.route("/auth", authController)
-app.route("/folder", folderController)
 
 serve({
   fetch: app.fetch,

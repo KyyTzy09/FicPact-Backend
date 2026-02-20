@@ -19,7 +19,7 @@ export class FolderService {
         return existingFolder
     }
 
-    public async CreateQuestFolder(userId: string, name: string, endedAt: Date, description?: string) {
+    public async CreateQuestFolder(userId: string, name: string, endedAt: string, description?: string) {
         const existingFolder = await this.folderRepository.findFolderByName(userId, name)
         if (existingFolder) throw new HTTPException(409, { message: "Folder dengan nama ini sudah ada" })
 

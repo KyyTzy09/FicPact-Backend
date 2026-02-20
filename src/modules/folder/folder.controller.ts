@@ -32,7 +32,7 @@ export const folderController = new Hono()
         async (c) => {
             const { name, description, endedAt } = c.req.valid("json")
             const userId = c.get("user").id
-            const result = folderService.CreateQuestFolder(userId, name, endedAt, description)
+            const result = await folderService.CreateQuestFolder(userId, name, endedAt, description)
             return HttpResponse(c, 201, "Quest folder created successfully", result)
         }
     )
@@ -43,7 +43,7 @@ export const folderController = new Hono()
             const { name, description } = c.req.valid("json")
             const { folderId } = c.req.param()
             const userId = c.get("user").id
-            const result = folderService.UpdateQuestFolder(folderId, userId, name, description)
+            const result = await folderService.UpdateQuestFolder(folderId, userId, name, description)
             return HttpResponse(c, 200, "Quest folder updated successfully", result)
         }
     )
@@ -52,7 +52,7 @@ export const folderController = new Hono()
         async (c) => {
             const { folderId } = c.req.param()
             const userId = c.get("user").id
-            const result = folderService.DeleteQuestFolderById(folderId, userId)
+            const result = await folderService.DeleteQuestFolderById(folderId, userId)
             return HttpResponse(c, 200, "Quest folder deleted successfully", result)
         }
     )
