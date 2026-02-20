@@ -13,11 +13,72 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  phone     String?
-  
+  id       String  @id @default(uuid())
+  email    String  @unique
+  password String
+  phone    String?
+
+  level           Int       @default(1)
+  currentExp      Int       @default(0)
+  expToNextLevel  Int       @default(100)
+  totalExp        Int       @default(0)
+
+  questFolders QuestFolder[]
+  reflections  Reflection[]
+ 
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+
+
+
+enum FolderStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  EXPIRED
+}
+model QuestFolder {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String? @db.Text
+  status      FolderStatus @default(PENDING)
+
+  userId String
+  user   User    @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  quests Quest[]
+
+  createdAt DateTime @default(now())
+  endedAt   DateTime
+  updatedAt DateTime @updatedAt
+}
+
+
+
+model Quest {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String? @db.Text
+  expReward   Int     @default(10)      // 10 EXP
+  isSuccess Boolean @default(false)
+
+  folderId String
+  folder   QuestFolder @relation(fields: [folderId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  endedAt   DateTime
+}
+
+model Reflection {
+  id      String @id @default(uuid())
+  content String @db.Text
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  reflectionedAt DateTime
+  updatedAt      DateTime @updatedAt
+}
+
