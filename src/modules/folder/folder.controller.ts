@@ -44,6 +44,15 @@ export const FolderController = new Hono()
             const { folderId } = c.req.param()
             const userId = c.get("user").id
             const result = folderService.UpdateQuestFolder(folderId, userId, name, description)
-            return HttpResponse(c, 201, "Quest folder created successfully", result)
+            return HttpResponse(c, 200, "Quest folder updated successfully", result)
+        }
+    )
+    .delete("/:folderId",
+        authMiddleware,
+        async (c) => {
+            const { folderId } = c.req.param()
+            const userId = c.get("user").id
+            const result = folderService.DeleteQuestFolderById(folderId, userId)
+            return HttpResponse(c, 200, "Quest folder deleted successfully", result)
         }
     )

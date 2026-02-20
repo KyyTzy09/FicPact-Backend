@@ -57,4 +57,12 @@ export class FolderRepository {
             }
         })
     }
+
+    public async deleteFolderById(folderId: string) {
+        return await prisma.questFolder.delete({
+            where: {
+                id: folderId
+            }
+        })
+    }
 }
