@@ -12,6 +12,29 @@ export class FolderRepository {
         })
     }
 
+    public async findFolderByUserIdAndId(userId: string, folderId: string) {
+        return await prisma.questFolder.findUnique({
+            where: {
+                userId,
+                id: folderId
+            }
+        })
+    }
+
+    public async findFolderByUserId(userId: string) {
+        return await prisma.questFolder.findMany({
+            where: {
+                userId
+            },
+            include: {
+                quests: true
+            },
+            orderBy: {
+                name: "asc"
+            }
+        })
+    }
+
     public async createFolder(userId: string, name: string, description?: string) {
         return await prisma.questFolder.create({
             data: {

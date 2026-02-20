@@ -9,6 +9,23 @@ import { createFolderValidation } from "./folder.validation.js";
 const folderRepository = new FolderRepository()
 const folderService = new FolderService(folderRepository)
 export const FolderController = new Hono()
+    .get("/",
+        authMiddleware,
+        async (c) => {
+            const userId = c.get("user").id
+            const result = await folderService.GetUserQuestFolder(userId)
+            return HttpResponse(c, 200, "User Quest Folder data retrieved successfully", result)
+        }
+    )
+    .get("/:folderId",
+        authMiddleware,
+        async (c) => {
+            const { folderId } = c.req.param()
+            const userId = c.get("user").id
+            const result = await folderService.GetFolderById(userId, folderId)
+            return HttpResponse(c, 200, "Quest Folder data retrieved successfully", result)
+        }
+    )
     .post("/",
         authMiddleware,
         sValidator("json", createFolderValidation),
