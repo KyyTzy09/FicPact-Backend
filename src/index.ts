@@ -1,11 +1,25 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
+import { userController } from './modules/user/user.controller.js'
+import { authController } from './modules/auth/auth.controller.js'
+import { HTTPException } from 'hono/http-exception'
 
 const app = new Hono()
 
 app.get('/', (c) => {
   return c.text('Hello Hono!')
 })
+
+app.onError((err, c) => {
+  if (err instanceof HTTPException) {
+    return c.json({ success: false, message: err.message }, { status: err.status })
+  }
+
+  return c.json({ success: false, message: err.message }, { status: 500 });
+})
+
+app.route("/user", userController)
+app.route("/auth", authController)
 
 serve({
   fetch: app.fetch,
