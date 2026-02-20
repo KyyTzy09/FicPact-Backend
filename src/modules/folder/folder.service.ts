@@ -28,4 +28,14 @@ export class FolderService {
 
         return createdFolder
     }
+
+    public async UpdateQuestFolder(folderId: string, userId: string, name: string, description?: string) {
+        const existingFolder = await this.folderRepository.findFolderByName(userId, name)
+        if (existingFolder) throw new HTTPException(409, { message: "Folder dengan nama ini sudah ada" })
+
+        const createdFolder = await this.folderRepository.updateFolder(folderId, userId, name, description)
+        if (!createdFolder) throw new HTTPException(400, { message: "Gagal membuat user" })
+
+        return createdFolder
+    }
 }

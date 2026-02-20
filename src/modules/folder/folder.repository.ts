@@ -44,4 +44,17 @@ export class FolderRepository {
             }
         })
     }
+
+    public async updateFolder(folderId: string, userId: string, name: string, description?: string) {
+        return await prisma.questFolder.update({
+            where: {
+                id: folderId,
+                userId
+            },
+            data: {
+                name,
+                description
+            }
+        })
+    }
 }
