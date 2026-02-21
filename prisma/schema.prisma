@@ -56,7 +56,7 @@ enum FolderStatus {
 
 model Quest {
   id          String  @id @default(uuid())
-  name        String  @unique
+  name        String
   description String? @db.Text
   expReward   Int     @default(10) // 10 EXP
   isSuccess   Boolean @default(false)
