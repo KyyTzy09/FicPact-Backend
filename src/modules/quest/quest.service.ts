@@ -23,17 +23,20 @@ export class QuestService {
         if (!user) throw new HTTPException(404, { message: "User tidak ditemukan" });
 
         // Leveling up solo leveling
-        const levelUpUser = processExpGain({ ...user}, quest.expReward);
+        const levelUpUser = processExpGain({ ...user }, quest.expReward);
         await this.userRepository.updateUserLevelAndExp(userId, levelUpUser.newLevel, levelUpUser.remainingExp, levelUpUser.totalExp);
 
         return quest;
 
     }
 
-    public async createQuest(userId: string, folderId: string,title: string, description: string, deadline: Date) {
+    public async createQuest(userId: string, folderId: string, title: string, description: string, deadline: Date) {
         // Cek apakah user dengan userId yang diberikan ada
         const user = await this.userRepository.findUserById(userId);
         if (!user) throw new HTTPException(404, { message: "User tidak ditemukan" });
+
+        const existingQuest = await this.questRepository.findByUnique(folderId, title)
+        if (existingQuest) throw new HTTPException(409, { message: "Quest dengan nama ini sudah ada di dalam folder" })
 
         const result = await this.questRepository.createQuest(folderId, title, description, deadline);
         if (!result) throw new HTTPException(400, { message: "Gagal membuat quest" });

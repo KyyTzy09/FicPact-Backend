@@ -11,6 +11,17 @@ export class QuestRepository {
         });
     }
 
+    public async findByUnique(folderId: string, questName: string) {
+        return await prisma.quest.findUnique({
+            where: {
+                folderId_name: {
+                    folderId,
+                    name: questName
+                }
+            }
+        })
+    }
+
     public async findById(questId: string) {
         return await prisma.quest.findUnique({
             where: {
@@ -30,7 +41,7 @@ export class QuestRepository {
         });
     }
 
-    public async createQuest(folderId: string, title: string, description: string,  deadline: Date) {
+    public async createQuest(folderId: string, title: string, description: string, deadline: Date) {
         return await prisma.quest.create({
             data: {
                 folderId,
