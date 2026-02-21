@@ -1,11 +1,21 @@
-FROM node:24-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
+# install deps
 COPY package*.json ./
-RUN npm i
+RUN npm install
 
+# prisma client
+COPY prisma ./prisma
+RUN npx prisma generate
+
+# source
 COPY . .
+
+# build ts → js
+RUN npm run build
+
 EXPOSE 8080
 
-CMD [ "npm", "run" ,"dev" ]
+CMD ["node", "dist/src/index.js"]
