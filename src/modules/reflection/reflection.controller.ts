@@ -12,6 +12,14 @@ const userRepository = new UserRepository()
 const reflectionService = new ReflectionService(reflectionRepository, userRepository)
 
 export const reflectionController = new Hono()
+    .get("/latest",
+        authMiddleware,
+        async (c) => {
+            const userId = c.get("user").id
+            const result = await reflectionService.GetLatestReflection(userId)
+            return HttpResponse(c, 200, "Reflection retrieved successfully", result)
+        }
+    )
     .post("/create-failed",
         authMiddleware,
         sValidator("json", createUserFailedReflectionValidation),
