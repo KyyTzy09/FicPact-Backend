@@ -24,10 +24,10 @@ model User {
   totalExp       Int @default(0)
 
   questFolders QuestFolder[]
-  // reflections  Reflection[]
+  reflections  Reflection[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
 
 model QuestFolder {
@@ -40,9 +40,9 @@ model QuestFolder {
   user   User    @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   quests Quest[]
 
-  createdAt DateTime @default(now())
-  endedAt   DateTime
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime     @default(now())
+  endedAt     DateTime
+  updatedAt   DateTime     @updatedAt
 
   @@unique([userId, name])
 }
@@ -71,21 +71,19 @@ model Quest {
   @@unique([folderId, name])
 }
 
-// model Reflection {
-//   id      String         @id @default(uuid())
-//   content String         @db.Text
-//   type    ReflectionType @default(USER)
+model Reflection {
+  id      String         @id @default(uuid())
+  content String         @db.Text
+  type    ReflectionType @default(USER)
 
-//   userId        String
-//   questFolderId String?
-//   user          User         @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-//   questFolder   QuestFolder? @relation(fields: [questFolderId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  userId        String
+  user          User         @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
-//   startPeriod DateTime?
-//   endPeriod  DateTime?
-// }
+  startPeriod DateTime?
+  endPeriod   DateTime?
+}
 
-// enum ReflectionType {
-//   USER
-//   AI
-// }
+enum ReflectionType {
+  USER
+  AI
+}
