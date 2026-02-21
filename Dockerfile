@@ -2,19 +2,13 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# install deps
 COPY package*.json ./
-RUN npm install
+RUN npm install --omit=dev
 
-# prisma client
-COPY prisma ./prisma
-RUN npx prisma generate
-
-# source
 COPY . .
 
-# build ts → js
 RUN npm run build
+RUN npx prisma generate
 
 EXPOSE 8080
 

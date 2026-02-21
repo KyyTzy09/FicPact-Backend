@@ -1,14 +1,14 @@
 services:
   task-quest-api:
     build: .
+    container_name: task-quest-api
     ports:
       - "8080:8080"
     env_file:
-      - .env
+      - .env.production
     depends_on:
       task-quest-db:
         condition: service_healthy
-    restart: always
     command: >
       sh -c "
       npx prisma migrate deploy &&
@@ -17,10 +17,13 @@ services:
 
   task-quest-db:
     image: postgres:16-alpine
+    container_name: task-quest-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: taskquest
+    ports:
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
