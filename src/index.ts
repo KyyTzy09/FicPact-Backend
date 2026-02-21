@@ -4,6 +4,7 @@ import { userController } from './modules/user/user.controller.js'
 import { authController } from './modules/auth/auth.controller.js'
 import { HTTPException } from 'hono/http-exception'
 import { folderController } from './modules/folder/folder.controller.js'
+import { questController } from './modules/quest/quest.controller.js'
 
 const app = new Hono()
 app.get('/', (c) => {
@@ -13,6 +14,7 @@ app.get('/', (c) => {
 app.route("/user", userController)
 app.route("/auth", authController)
 app.route("/folder", folderController)
+app.route("/quest", questController)
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) {
