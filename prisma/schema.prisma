@@ -26,8 +26,8 @@ model User {
   questFolders QuestFolder[]
   reflections  Reflection[]
 
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model QuestFolder {
@@ -40,9 +40,9 @@ model QuestFolder {
   user   User    @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   quests Quest[]
 
-  createdAt   DateTime     @default(now())
-  endedAt     DateTime
-  updatedAt   DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  endedAt   DateTime
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, name])
 }
@@ -61,8 +61,9 @@ model Quest {
   expReward   Int     @default(10) // 10 EXP
   isSuccess   Boolean @default(false)
 
-  folderId String
-  folder   QuestFolder @relation(fields: [folderId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  folderId   String
+  folder     QuestFolder       @relation(fields: [folderId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  reflection QuestReflection[]
 
   createdAt   DateTime  @default(now())
   deadLineAt  DateTime
@@ -71,19 +72,32 @@ model Quest {
   @@unique([folderId, name])
 }
 
-model Reflection {
-  id      String         @id @default(uuid())
-  content String         @db.Text
-  type    ReflectionType @default(USER)
+model QuestReflection {
+  id String @id @default(uuid())
 
-  userId        String
-  user          User         @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  questLevel QuestLevel @default(LOW)
+  reason     String
+  questId    String     @unique
+  quest      Quest      @relation(fields: [questId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
-  startPeriod DateTime?
-  endPeriod   DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-enum ReflectionType {
-  USER
-  AI
+enum QuestLevel {
+  LOW
+  NORMAL
+  HIGH
+}
+
+model Reflection {
+  id      String @id @default(uuid())
+  content String @db.Text
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  createdAt   DateTime  @default(now())
+  startPeriod DateTime?
+  endPeriod   DateTime?
 }
