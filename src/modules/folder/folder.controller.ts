@@ -3,10 +3,8 @@ import { FolderService } from "./folder.service.js";
 import { FolderRepository } from "./folder.repository.js";
 import { authMiddleware } from "../../common/middlewares/auth.middleware.js";
 import { HttpResponse } from "../../common/utils/response.js";
-import { sValidator } from "@hono/standard-validator";
 import { createFolderValidation, updateFolderValidation } from "./folder.validation.js";
 import { describeRoute, validator } from "hono-openapi";
-import z from "zod";
 
 const folderRepository = new FolderRepository()
 const folderService = new FolderService(folderRepository)
