@@ -9,7 +9,6 @@ import {
 import { AuthService } from "./auth.service.js";
 import { UserRepository } from "../user/user.repository.js";
 import { setCookie } from "hono/cookie";
-import { sValidator } from "@hono/standard-validator";
 
 const userRepository = new UserRepository();
 const authService = new AuthService(userRepository);

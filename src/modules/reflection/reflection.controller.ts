@@ -4,8 +4,8 @@ import { ReflectionService } from "./reflection.service.js";
 import { authMiddleware } from "../../common/middlewares/auth.middleware.js";
 import { HttpResponse } from "../../common/utils/response.js";
 import { UserRepository } from "../user/user.repository.js";
-import { sValidator } from "@hono/standard-validator";
 import { createUserFailedReflectionValidation } from "./reflection.validation.js";
+import { describeRoute, validator } from "hono-openapi";
 
 const reflectionRepository = new ReflectionRepository()
 const userRepository = new UserRepository()
@@ -14,7 +14,12 @@ const reflectionService = new ReflectionService(reflectionRepository, userReposi
 export const reflectionController = new Hono()
     .post("/create-failed",
         authMiddleware,
-        sValidator("json", createUserFailedReflectionValidation),
+        describeRoute({
+            tags: ["Reflection"],
+            summary: "Create User Failed Reflection",
+            security: [{ bearerAuth: [] }],
+        }),
+        validator("json", createUserFailedReflectionValidation),
         async (c) => {
             const { reason, addOns } = c.req.valid("json")
             const userId = c.get("user").id

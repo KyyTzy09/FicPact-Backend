@@ -13,9 +13,7 @@ import { reflectionController } from './modules/reflection/reflection.controller
 
 const app = new Hono()
 
-// --- 1. SETUP DOKUMENTASI (OPENAPI & SCALAR) ---
 
-// Endpoint untuk JSON OpenAPI (Ini yang men-generate spec otomatis)
 app.get(
   '/openapi.json',
   openAPIRouteHandler(app, {
@@ -26,19 +24,15 @@ app.get(
   })
 )
 
-// --- 2. SETUP SCALAR (VERSI FIX ERROR 'spec') ---
 app.get(
   '/docs',
   apiReference({
-    // JANGAN PAKAI 'spec: { url: ... }'
-    // Langsung tulis 'url' di sini sesuai dokumentasi terbaru:
     url: '/openapi.json', 
     theme: 'purple',
     pageTitle: 'Quest API Reference'
   })
 )
 
-// --- 2. ROUTES ---
 
 app.get('/', (c) => c.text('Hello Hono!'))
 
