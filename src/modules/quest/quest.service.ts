@@ -30,7 +30,7 @@ export class QuestService {
 
     }
 
-    public async createQuest(userId: string, folderId: string, title: string, description: string, deadline: Date) {
+    public async createQuest(userId: string, folderId: string, title: string, description: string, deadline: string) {
         // Cek apakah user dengan userId yang diberikan ada
         const user = await this.userRepository.findUserById(userId);
         if (!user) throw new HTTPException(404, { message: "User tidak ditemukan" });

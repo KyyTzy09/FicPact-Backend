@@ -41,7 +41,7 @@ export class QuestRepository {
         });
     }
 
-    public async createQuest(folderId: string, title: string, description: string, deadline: Date) {
+    public async createQuest(folderId: string, title: string, description: string, deadline: string) {
         return await prisma.quest.create({
             data: {
                 folderId,
