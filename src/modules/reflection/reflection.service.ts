@@ -2,9 +2,12 @@ import { HTTPException } from "hono/http-exception";
 import { reflectionFormatter } from "../../common/utils/reflection.js";
 import type { UserRepository } from "../user/user.repository.js";
 import type { ReflectionRepository } from "./reflection.repository.js";
+import { QuestLevel, QuestReflectionType } from "@prisma/client";
+import type { QuestRepository } from "../quest/quest.repository.js";
 
 export class ReflectionService {
     constructor(
+        private readonly questRepository: QuestRepository,
         private readonly reflectionRepository: ReflectionRepository,
         private readonly userRepository: UserRepository
     ) { }
@@ -15,6 +18,14 @@ export class ReflectionService {
 
         const latestReflection = await this.reflectionRepository.findLatestReflection(userId, 2)
         return latestReflection
+    }
+
+    async CreateQuestReflection(questId: string, reasons: string[], questStatus: boolean, questLevel: "HIGH" | "NORMAL" | "LOW") {
+        const existingUser = await this.questRepository.findById(questId)
+        if (!existingUser) throw new HTTPException(404, { message: "Quest tidak ditemukan" })
+
+        const createdReflections = await this.reflectionRepository.createManyQuestReflection(questId, reasons, QuestLevel[questLevel], !questStatus ? QuestReflectionType.FAILED : QuestReflectionType.SUCCESS)
+        return createdReflections
     }
 
     async CreateUserFailedReflection(userId: string, reason: string[], addOns?: string) {

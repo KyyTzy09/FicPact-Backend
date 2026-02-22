@@ -4,3 +4,10 @@ export const createUserFailedReflectionValidation = z.object({
     reason: z.array(z.string(), { error: "Alasan harus bertype array string" }),
     addOns: z.string().optional()
 })
+
+export const createQuestReflectionValidation = z.object({
+    questId: z.string(),
+    reasons: z.array(z.string()),
+    questStatus: z.boolean(),
+    questLevel: z.enum(["HIGH", "NORMAL", "LOW"], { error: "Quest level tidak diisi sembarangan" })
+})
