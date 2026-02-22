@@ -9,6 +9,14 @@ export class ReflectionService {
         private readonly userRepository: UserRepository
     ) { }
 
+    async GetLatestReflection(userId: string) {
+        const existingUser = await this.userRepository.findUserById(userId)
+        if (!existingUser) throw new HTTPException(404, { message: "Pengguna tidak ditemukan" })
+
+        const latestReflection = await this.reflectionRepository.findLatestReflection(userId, 2)
+        return latestReflection
+    }
+
     async CreateUserFailedReflection(userId: string, reason: string[], addOns?: string) {
         const existingUser = await this.userRepository.findUserById(userId)
         if (!existingUser) throw new HTTPException(404, { message: "Pengguna tidak ditemukan" })
