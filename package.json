@@ -11,11 +11,12 @@
     "@hono/standard-validator": "^0.2.2",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
+    "@scalar/hono-api-reference": "^0.9.44",
     "argon2": "^0.44.0",
     "dotenv": "^17.2.4",
     "hono": "^4.11.9",
-    "pg": "^8.18.0",
-    "zod": "^4.3.6"
+    "hono-openapi": "^1.2.0",
+    "pg": "^8.18.0"
   },
   "devDependencies": {
     "@types/node": "^20.19.33",

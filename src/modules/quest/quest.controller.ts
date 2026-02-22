@@ -4,8 +4,8 @@ import { QuestService } from "./quest.service.js";
 import { UserRepository } from "../user/user.repository.js";
 import { QuestRepository } from "./quest.repository.js";
 import { HttpResponse } from "../../common/utils/response.js";
-import { sValidator } from "@hono/standard-validator";
 import { CreateQuestValidation } from "./quest.validation.js";
+import { describeRoute, validator } from "hono-openapi";
 
 
 const questRepository = new QuestRepository()
@@ -15,6 +15,11 @@ const questService = new QuestService(questRepository, userRepository)
 export const questController = new Hono()
     .get(
         "/",
+        describeRoute({
+            tags: ["Quest"],
+            summary: "Get User Quest",
+            security: [{ bearerAuth: [] }],
+        }),
         authMiddleware,
         async (c) => {
             const userId = c.get("user").id
@@ -24,6 +29,11 @@ export const questController = new Hono()
     )
     .put(
         "/:questId/complete",
+        describeRoute({
+            tags: ["Quest"],
+            summary: "Update Quest Complete",
+            security: [{ bearerAuth: [] }],
+        }),
         authMiddleware,
         async (c) => {
             const { questId } = c.req.param()
@@ -35,7 +45,12 @@ export const questController = new Hono()
     .post(
         "/",
         authMiddleware,
-        sValidator("json", CreateQuestValidation),
+        describeRoute({
+            tags: ["Quest"],
+            summary: "Create Quest",
+            security: [{ bearerAuth: [] }],
+        }),
+        validator("json", CreateQuestValidation),
         async (c) => {
             const userId = c.get("user").id
             const {deadline,description,folderId,title} = c.req.valid("json")
@@ -45,6 +60,11 @@ export const questController = new Hono()
     )
     .delete(
         "/:questId",
+        describeRoute({
+            tags: ["Quest"],
+            summary: "Delete Quest",
+            security: [{ bearerAuth: [] }],
+        }),
         authMiddleware,
         async (c) => {
             const { questId } = c.req.param()

@@ -3,13 +3,18 @@ import { FolderService } from "./folder.service.js";
 import { FolderRepository } from "./folder.repository.js";
 import { authMiddleware } from "../../common/middlewares/auth.middleware.js";
 import { HttpResponse } from "../../common/utils/response.js";
-import { sValidator } from "@hono/standard-validator";
 import { createFolderValidation, updateFolderValidation } from "./folder.validation.js";
+import { describeRoute, validator } from "hono-openapi";
 
 const folderRepository = new FolderRepository()
 const folderService = new FolderService(folderRepository)
 export const folderController = new Hono()
     .get("/",
+        describeRoute({
+            tags: ["Folder"],
+            summary: "Get User Quest Folder",
+            security: [{ bearerAuth: [] }],
+        }),
         authMiddleware,
         async (c) => {
             const userId = c.get("user").id
@@ -18,6 +23,11 @@ export const folderController = new Hono()
         }
     )
     .get("/:folderId",
+        describeRoute({
+            tags: ["Folder"],
+            summary: "Get Quest Folder By ID",
+            security: [{ bearerAuth: [] }],
+        }),
         authMiddleware,
         async (c) => {
             const { folderId } = c.req.param()
@@ -27,8 +37,13 @@ export const folderController = new Hono()
         }
     )
     .post("/",
+        describeRoute({
+            tags: ["Folder"],
+            summary: "Create Quest Folder",
+            security: [{ bearerAuth: [] }],
+        }),
         authMiddleware,
-        sValidator("json", createFolderValidation),
+        validator("json", createFolderValidation),
         async (c) => {
             const { name, description, endedAt } = c.req.valid("json")
             const userId = c.get("user").id
@@ -37,8 +52,13 @@ export const folderController = new Hono()
         }
     )
     .patch("/:folderId",
+        describeRoute({
+            tags: ["Folder"],
+            summary: "Update Quest Folder",
+            security: [{ bearerAuth: [] }],
+        }),
         authMiddleware,
-        sValidator("json", updateFolderValidation),
+        validator("json", updateFolderValidation),
         async (c) => {
             const { name, description } = c.req.valid("json")
             const { folderId } = c.req.param()
@@ -48,6 +68,11 @@ export const folderController = new Hono()
         }
     )
     .delete("/:folderId",
+        describeRoute({
+            tags: ["Folder"],
+            summary: "Delete Quest Folder",
+            security: [{ bearerAuth: [] }],
+        }),
         authMiddleware,
         async (c) => {
             const { folderId } = c.req.param()
