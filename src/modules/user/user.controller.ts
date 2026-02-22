@@ -3,6 +3,7 @@ import { UserRepository } from "./user.repository.js";
 import { UserService } from "./user.service.js";
 import { authMiddleware } from "../../common/middlewares/auth.middleware.js";
 import { HttpResponse } from "../../common/utils/response.js";
+import { describeRoute, validator } from "hono-openapi";
 
 const userRepository = new UserRepository()
 const userService = new UserService(userRepository)
@@ -10,6 +11,11 @@ const userService = new UserService(userRepository)
 export const userController = new Hono()
     .get(
         "/session",
+        describeRoute({
+            tags: ["User"],
+            summary: "Get User Session",
+            security: [{ bearerAuth: [] }],
+        }),
         authMiddleware,
         async (c) => {
             const userId = c.get("user").id
