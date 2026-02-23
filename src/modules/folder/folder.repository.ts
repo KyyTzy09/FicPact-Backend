@@ -24,7 +24,13 @@ export class FolderRepository {
             include: {
                 quests: {
                     include: {
-                        reflection: true
+                        reflection: {
+                            select: {
+                                questLevel: true,
+                                reason: true,
+                                type: true
+                            }
+                        }
                     }
                 }
             }
