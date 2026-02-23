@@ -30,13 +30,14 @@ export class QuestRepository {
         });
     }
 
-    public async updateComplete(questId: string) {
+    public async updateComplete(questId: string, completedDate: Date) {
         return await prisma.quest.update({
             where: {
                 id: questId,
             },
             data: {
                 isSuccess: true,
+                completedAt: completedDate
             },
         });
     }
