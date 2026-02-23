@@ -15,7 +15,7 @@ export class QuestService {
 
     public async updateCompleteQuest(questId: string, userId: string) {
         // Cek apakah quest dengan questId dan userId yang diberikan ada
-        const quest = await this.questRepository.updateComplete(questId);
+        const quest = await this.questRepository.updateComplete(questId, new Date());
         if (!quest) throw new HTTPException(400, { message: "Gagal memperbarui quest" });
 
         // Cek apakah user dengan userId yang diberikan ada

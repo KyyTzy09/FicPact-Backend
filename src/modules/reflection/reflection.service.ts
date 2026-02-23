@@ -4,9 +4,11 @@ import type { UserRepository } from "../user/user.repository.js";
 import type { ReflectionRepository } from "./reflection.repository.js";
 import { QuestLevel, QuestReflectionType } from "@prisma/client";
 import type { QuestRepository } from "../quest/quest.repository.js";
+import type { FolderRepository } from "../folder/folder.repository.js";
 
 export class ReflectionService {
     constructor(
+        private readonly folderRepository: FolderRepository,
         private readonly questRepository: QuestRepository,
         private readonly reflectionRepository: ReflectionRepository,
         private readonly userRepository: UserRepository
@@ -40,5 +42,12 @@ export class ReflectionService {
         if (!createdReflection) throw new HTTPException(400, { message: "Gagal membuat refleksi" })
 
         return createdReflection
+    }
+
+    async CreateUserWeklyReflection(userId: string) {
+        const endPeriod = new Date();
+        const startPeriod = new Date(endPeriod.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const existingQuest = await this.folderRepository.findUserFolderWithQuestReflection(userId, startPeriod, endPeriod)
+        return existingQuest
     }
 }
