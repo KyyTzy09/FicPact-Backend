@@ -40,9 +40,9 @@ model QuestFolder {
   user   User    @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   quests Quest[]
 
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   endedAt   DateTime?
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime  @updatedAt
 
   @@unique([userId, name])
 }
@@ -78,11 +78,13 @@ model QuestReflection {
   questLevel QuestLevel          @default(LOW)
   reason     String
   type       QuestReflectionType
-  questId    String              @unique
+  questId    String
   quest      Quest               @relation(fields: [questId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([questId, reason])
 }
 
 enum QuestLevel {
