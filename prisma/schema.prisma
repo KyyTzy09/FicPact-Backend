@@ -18,10 +18,11 @@ model User {
   password String
   phone    String?
 
-  level          Int @default(1)
-  currentExp     Int @default(0)
-  expToNextLevel Int @default(100)
-  totalExp       Int @default(0)
+  level          Int      @default(1)
+  currentExp     Int      @default(0)
+  expToNextLevel Int      @default(100)
+  totalExp       Int      @default(0)
+  lastReflection DateTime @default(now())
 
   questFolders QuestFolder[]
   reflections  Reflection[]
