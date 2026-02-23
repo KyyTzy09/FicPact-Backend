@@ -10,7 +10,7 @@ export function reflectionFormatter(reason: string[], addOns?: string) {
     return result
 }
 
-type QuestFolderType = Prisma.QuestFolderGetPayload<{ include: { quests: { include: { reflection: true } } } }>
+type QuestFolderType = Prisma.QuestFolderGetPayload<{ include: { quests: { include: { reflection: { select: { reason: true, type: true, questLevel: true } } } } } }>
 export function ReflectionGroupper(reflectionData: QuestFolderType[]) {
     return reflectionData.flatMap((folder) =>
         folder.quests.map((quest) => {

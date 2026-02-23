@@ -8,12 +8,14 @@ import { createQuestReflectionValidation, createUserFailedReflectionValidation }
 import { describeRoute, validator } from "hono-openapi";
 import { QuestRepository } from "../quest/quest.repository.js";
 import { FolderRepository } from "../folder/folder.repository.js";
+import { AIService } from "../ai/ai.service.js";
 
 const reflectionRepository = new ReflectionRepository()
 const userRepository = new UserRepository()
 const folderRepository = new FolderRepository()
 const questRepository = new QuestRepository()
-const reflectionService = new ReflectionService(folderRepository, questRepository, reflectionRepository, userRepository)
+const aiService = new AIService()
+const reflectionService = new ReflectionService(folderRepository, questRepository, reflectionRepository, userRepository, aiService)
 
 export const reflectionController = new Hono()
     .get("/latest",

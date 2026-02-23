@@ -5,13 +5,15 @@ import type { ReflectionRepository } from "./reflection.repository.js";
 import { QuestLevel, QuestReflectionType, type Quest } from "@prisma/client";
 import type { QuestRepository } from "../quest/quest.repository.js";
 import type { FolderRepository } from "../folder/folder.repository.js";
+import type { AIService } from "../ai/ai.service.js";
 
 export class ReflectionService {
     constructor(
         private readonly folderRepository: FolderRepository,
         private readonly questRepository: QuestRepository,
         private readonly reflectionRepository: ReflectionRepository,
-        private readonly userRepository: UserRepository
+        private readonly userRepository: UserRepository,
+        private readonly aiService: AIService
     ) { }
 
     async GetLatestReflection(userId: string) {
@@ -50,7 +52,9 @@ export class ReflectionService {
         const existingQuest = await this.folderRepository.findUserFolderWithQuestReflection(userId, startPeriod, endPeriod)
 
         const groupedResult = ReflectionGroupper(existingQuest)
+        if (groupedResult.length === 0) throw new HTTPException(404, { message: "Data tidak ada" })
 
-        return groupedResult
+        const AIResult = await this.aiService.FetchAIReflection(groupedResult)
+        return AIResult
     }
 }
