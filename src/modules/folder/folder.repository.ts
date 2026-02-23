@@ -12,6 +12,25 @@ export class FolderRepository {
         })
     }
 
+    public async findUserFolderWithQuestReflection(userId: string, startDate: Date, endDate: Date) {
+        return await prisma.questFolder.findMany({
+            where: {
+                userId,
+                createdAt: {
+                    lt: endDate,
+                    gte: startDate
+                },
+            },
+            include: {
+                quests: {
+                    include: {
+                        reflection: true
+                    }
+                }
+            }
+        })
+    }
+
     public async findFolderByUserIdAndId(userId: string, folderId: string) {
         return await prisma.questFolder.findUnique({
             where: {

@@ -7,11 +7,13 @@ import { UserRepository } from "../user/user.repository.js";
 import { createQuestReflectionValidation, createUserFailedReflectionValidation } from "./reflection.validation.js";
 import { describeRoute, validator } from "hono-openapi";
 import { QuestRepository } from "../quest/quest.repository.js";
+import { FolderRepository } from "../folder/folder.repository.js";
 
 const reflectionRepository = new ReflectionRepository()
 const userRepository = new UserRepository()
+const folderRepository = new FolderRepository()
 const questRepository = new QuestRepository()
-const reflectionService = new ReflectionService(questRepository, reflectionRepository, userRepository)
+const reflectionService = new ReflectionService(folderRepository, questRepository, reflectionRepository, userRepository)
 
 export const reflectionController = new Hono()
     .get("/latest",
@@ -22,7 +24,7 @@ export const reflectionController = new Hono()
             return HttpResponse(c, 200, "Reflection retrieved successfully", result)
         }
     )
-    .post("/create-quest",
+    .post("/quest",
         authMiddleware,
         describeRoute({
             tags: ["Reflection"],
@@ -50,5 +52,13 @@ export const reflectionController = new Hono()
             const userId = c.get("user").id
             const result = await reflectionService.CreateUserFailedReflection(userId, reason, addOns)
             return HttpResponse(c, 201, "Reflection created successfully", result)
+        }
+    )
+    .post("/weekly",
+        authMiddleware,
+        async (c) => {
+            const userId = c.get("user").id
+            const result = await reflectionService.CreateUserWeklyReflection(userId)
+            return HttpResponse(c, 200, "Reflection retrieved successfully", result)
         }
     )
