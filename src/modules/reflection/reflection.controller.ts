@@ -9,6 +9,7 @@ import { describeRoute, validator } from "hono-openapi";
 import { QuestRepository } from "../quest/quest.repository.js";
 import { FolderRepository } from "../folder/folder.repository.js";
 import { AIService } from "../ai/ai.service.js";
+import { bearerAuth } from "hono/bearer-auth";
 
 const reflectionRepository = new ReflectionRepository()
 const userRepository = new UserRepository()
@@ -58,6 +59,11 @@ export const reflectionController = new Hono()
     )
     .post("/weekly",
         authMiddleware,
+        describeRoute({
+            tags: ["Reflection"],
+            summary: "Create User Weekly Reflection",
+            security: [{ bearerAuth: [] }]
+        }),
         async (c) => {
             const userId = c.get("user").id
             const result = await reflectionService.CreateUserWeklyReflection(userId)
