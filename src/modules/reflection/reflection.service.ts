@@ -55,6 +55,12 @@ export class ReflectionService {
         if (groupedResult.length === 0) throw new HTTPException(404, { message: "Data tidak ada" })
 
         const AIResult = await this.aiService.FetchAIReflection(groupedResult)
-        return AIResult
+        if (!AIResult) throw new HTTPException(500, { message: "Refleksi tidak ada" })
+
+        const createdReflection = await this.reflectionRepository.CretesAIReflection(userId, AIResult, startPeriod, endPeriod)
+        if (!createdReflection) throw new HTTPException(400, { message: "Gagal membuat refleksi" })
+
+        await this.userRepository.updateUserLastReflection(userId, new Date(createdReflection.endPeriod || endPeriod))
+        return createdReflection
     }
 }

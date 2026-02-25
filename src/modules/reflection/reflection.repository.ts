@@ -14,6 +14,17 @@ export class ReflectionRepository {
         })
     }
 
+    async CretesAIReflection(userId: string, content: string, startPeriod: Date, endPeriod: Date) {
+        return await prisma.reflection.create({
+            data: {
+                userId,
+                content,
+                startPeriod,
+                endPeriod
+            }
+        })
+    }
+
     async createManyQuestReflection(questId: string, reasons: string[], questLevel: QuestLevel, type: QuestReflectionType,) {
         return await prisma.questReflection.createManyAndReturn({
             data: reasons.map((reason) => ({
