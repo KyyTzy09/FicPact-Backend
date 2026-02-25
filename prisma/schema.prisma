@@ -26,6 +26,7 @@ model User {
 
   questFolders QuestFolder[]
   reflections  Reflection[]
+  reflectionTriggers ReflectionTrigger[]
   //profile     Profile?
 
   createdAt DateTime @default(now())
@@ -124,4 +125,14 @@ model Reflection {
   createdAt   DateTime  @default(now())
   startPeriod DateTime?
   endPeriod   DateTime?
+}
+
+model ReflectionTrigger {
+  id String @id @default(uuid())
+  isReflection Boolean @default(false)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
