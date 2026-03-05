@@ -22,8 +22,17 @@ export class AuthService {
     public async login(email: string, password: string) {
         const user = await this.userRepository.findUserByEmail(email)
         if (!user) throw new HTTPException(404, { message: "User tidak di temukan" })
-        const isPasswordMatch = await verifyPassword(user.password, password)
+        const isPasswordMatch = await verifyPassword(user?.password || "", password)
         if (!isPasswordMatch) throw new HTTPException(401, { message: "Password salah" })
+        const payload = { id: user.id, email: user.email };
+        const token = await generateToken(payload, JWT_SECRET);
+        return { token };
+    }
+
+    public async loginWithGoogle(email: string) {
+        const user = await this.userRepository.upsertUser(email)
+        if (!user) throw new HTTPException(400, { message: "Gagal membuat user" })
+
         const payload = { id: user.id, email: user.email };
         const token = await generateToken(payload, JWT_SECRET);
         return { token };

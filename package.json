@@ -8,13 +8,14 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9",
+    "@hono/oauth-providers": "^0.8.5",
     "@hono/standard-validator": "^0.2.2",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
     "@scalar/hono-api-reference": "^0.9.44",
     "argon2": "^0.44.0",
     "dotenv": "^17.2.4",
-    "hono": "^4.11.9",
+    "hono": "^4.12.5",
     "hono-openapi": "^1.2.0",
     "pg": "^8.18.0"
   },
