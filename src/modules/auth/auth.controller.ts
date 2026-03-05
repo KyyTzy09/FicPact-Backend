@@ -51,9 +51,12 @@ export const authController = new Hono()
             return HttpResponse(c, 201, "Register successful", result);
         }
     )
-
     .get(
         "/google",
+        describeRoute({
+            tags: ["Authentication"],
+            summary: "Google Login",
+        }),
         googleAuth({
             client_id: GOOGLE_CLIENT_ID,
             client_secret: GOOGLE_CLIENT_SECRET,
