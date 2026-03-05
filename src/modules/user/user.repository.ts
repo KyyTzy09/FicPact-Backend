@@ -26,6 +26,20 @@ export class UserRepository {
         })
     }
 
+    public async upsertUser(email: string) {
+        return await prisma.user.upsert({
+            where: {
+                email
+            },
+            create: {
+                email,
+            },
+            update: {
+                email
+            }
+        })
+    }
+
     public async updateUserLevelAndExp(userId: string, newLevel: number, remainingExp: number, totalExp: number) {
         return await prisma.user.update({
             where: {

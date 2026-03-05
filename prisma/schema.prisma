@@ -15,7 +15,7 @@ datasource db {
 model User {
   id       String  @id @default(uuid())
   email    String  @unique
-  password String
+  password String?
   phone    String?
 
   level          Int      @default(1)
@@ -24,8 +24,8 @@ model User {
   totalExp       Int      @default(0)
   lastReflection DateTime @default(now())
 
-  questFolders QuestFolder[]
-  reflections  Reflection[]
+  questFolders       QuestFolder[]
+  reflections        Reflection[]
   reflectionTriggers ReflectionTrigger[]
   //profile     Profile?
 
@@ -36,7 +36,7 @@ model User {
 // model Profile {
 //   id String @id @default(uuid())
 //   name String
-  
+
 //   avatarUrl String?
 //   userId String @unique
 //   user   User   @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
@@ -128,10 +128,10 @@ model Reflection {
 }
 
 model ReflectionTrigger {
-  id String @id @default(uuid())
+  id           String  @id @default(uuid())
   isReflection Boolean @default(false)
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  userId       String
+  user         User    @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
