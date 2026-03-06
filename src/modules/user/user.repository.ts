@@ -1,3 +1,4 @@
+import type { User } from "@prisma/client"
 import { prisma } from "../../common/utils/prisma.js"
 
 export class UserRepository {
@@ -29,6 +30,16 @@ export class UserRepository {
         })
     }
 
+    public async findUsersByLastReflectionDate(sevenDaysAgo: Date) {
+        return await prisma.user.findMany({
+            where: {
+                lastReflection: {
+                    lte: sevenDaysAgo
+                }
+            }
+        })
+    }
+
     public async findUserWithVerifyTokenExpiry(userId: string, expiredAt: Date) {
         return await prisma.user.findUnique({
             where: {
@@ -51,6 +62,19 @@ export class UserRepository {
                 resetPasswordExpiry: {
                     gt: resetPassTokenExpiry
                 }
+            }
+        })
+    }
+
+    public async updateUsersLastReflection(userIds: string[], reflectionDate: Date) {
+        return await prisma.user.updateMany({
+            where: {
+                id: {
+                    in: userIds.map((userId) => userId)
+                }
+            },
+            data: {
+                lastReflection: reflectionDate
             }
         })
     }

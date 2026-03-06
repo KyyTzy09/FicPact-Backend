@@ -1,4 +1,4 @@
-import type { QuestLevel, QuestReflection, QuestReflectionType } from "@prisma/client";
+import type { QuestLevel, QuestReflection, QuestReflectionType, User } from "@prisma/client";
 import { prisma } from "../../common/utils/prisma.js";
 
 export class ReflectionRepository {
@@ -22,6 +22,14 @@ export class ReflectionRepository {
                 startPeriod,
                 endPeriod
             }
+        })
+    }
+
+    async createManyReflectionTrigger(userIds: string[]) {
+        return await prisma.reflectionTrigger.createManyAndReturn({
+            data: userIds.map((userId) => ({
+                userId
+            })),
         })
     }
 
