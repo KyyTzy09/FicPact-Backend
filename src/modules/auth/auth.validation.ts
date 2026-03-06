@@ -24,4 +24,8 @@ export const resetPasswordValidation = z.object({
   password: z
     .string({ message: "Password wajib di isi" })
     .min(6, { message: "Minimal 6 karakter" }),
-});
+})
+
+export const verifyAccountValidation = z.object({
+  token: z.string(),
+})

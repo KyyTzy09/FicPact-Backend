@@ -14,6 +14,9 @@ export class UserRepository {
         return await prisma.user.findUnique({
             where: {
                 id: userId
+            },
+            omit: {
+                password: true
             }
         })
     }
@@ -22,6 +25,22 @@ export class UserRepository {
         return prisma.user.findUnique({
             where: {
                 email
+            }
+        })
+    }
+
+    public async findUserWithVerifyTokenExpiry(userId: string, expiredAt: Date) {
+        return await prisma.user.findUnique({
+            where: {
+                id: userId,
+                verificationTokenExpiry: {
+                    gt: expiredAt
+                }
+            },
+            omit: {
+                password: true,
+                resetPasswordToken: true,
+                resetPasswordExpiry: true
             }
         })
     }
@@ -46,6 +65,36 @@ export class UserRepository {
             },
             update: {
                 email
+            }
+        })
+    }
+
+    public async verifyUser(userId: string) {
+        return await prisma.user.update({
+            where: {
+                id: userId
+            },
+            data: {
+                isVerified: true,
+                verificationToken: null,
+                verificationTokenExpiry: null
+            }
+        })
+    }
+
+    public async updateUserVerificationToken(userId: string, verificationToken: string, verificationTokenExpiry: Date) {
+        return await prisma.user.update({
+            where: {
+                id: userId
+            },
+            data: {
+                verificationToken,
+                verificationTokenExpiry
+            },
+            omit: {
+                password: true,
+                resetPasswordToken: true,
+                resetPasswordExpiry: true
             }
         })
     }

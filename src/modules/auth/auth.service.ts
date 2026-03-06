@@ -1,6 +1,6 @@
 import { HTTPException } from "hono/http-exception";
 import type { UserRepository } from "../user/user.repository.js";
-import { hashPassword, tokenGenerator, verifyPassword } from "../../common/utils/hash.js";
+import { hashPassword, otpGenerator, tokenGenerator, verifyPassword } from "../../common/utils/hash.js";
 import { FRONTEND_BASE_URL, JWT_SECRET } from "../../common/utils/env.js";
 import { generateToken } from "../../common/utils/jwt.js";
 import { sendEmail } from "../../common/utils/email.js";
@@ -17,7 +17,13 @@ export class AuthService {
         const hashedPassword = await hashPassword(password);
         const create = await this.userRepository.createUser(email, hashedPassword);
         if (!create) throw new HTTPException(400, { message: "Gagal membuat user" })
-        return create;
+
+        const payload = { id: create.id, email: create.email };
+        const verificationToken = await otpGenerator();
+        const token = await generateToken(payload, JWT_SECRET);
+
+        await this.userRepository.updateUserVerificationToken(create.id, verificationToken, new Date(Date.now() + 1000 * 60 * 15))
+        return { token, create };
     }
 
     public async login(email: string, password: string) {
@@ -78,5 +84,38 @@ export class AuthService {
         const hashedPassword = await hashPassword(password);
         const updatedUserPassword = await this.userRepository.updateUserPassword(existingUser.id, hashedPassword)
         return { updatedUserPassword }
+    }
+
+    public async verifyAccount(userId: string, token: string) {
+        const existingUser = await this.userRepository.findUserWithVerifyTokenExpiry(userId, new Date());
+        if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
+
+        const isTokenMatched = await existingUser.verificationToken === token
+        if (!isTokenMatched) throw new HTTPException(400, { message: "Token salah" })
+
+        const verifiedUser = await this.userRepository.verifyUser(existingUser.id)
+        return { verifiedUser }
+    }
+
+    public async resendVerificationToken(userId: string) {
+        const existingUser = await this.userRepository.findUserById(userId);
+        if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
+
+        const token = await otpGenerator()
+        const updatedUserToken = await this.userRepository.updateUserVerificationToken(existingUser.id, token, new Date(Date.now() + 1000 * 60 * 15))
+
+        const html = `<h2>Verifikasi Akun</h2>
+        <p>Masukan token berikut untuk verifikasi akun kamu:</p> 
+        <p>${token}</p>
+        <p>Token berlaku 15 menit.</p>
+        `
+
+        await sendEmail({
+            to: existingUser.email,
+            subject: "Verifikasi Akun",
+            html
+        })
+
+        return { updatedUserToken }
     }
 }
