@@ -18,6 +18,9 @@ model User {
   password String?
   phone    String?
 
+  resetPasswordToken  String?   @db.Text
+  resetPasswordExpiry DateTime?
+
   level          Int      @default(1)
   currentExp     Int      @default(0)
   expToNextLevel Int      @default(100)

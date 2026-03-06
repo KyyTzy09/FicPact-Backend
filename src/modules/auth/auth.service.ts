@@ -1,8 +1,9 @@
 import { HTTPException } from "hono/http-exception";
 import type { UserRepository } from "../user/user.repository.js";
-import { hashPassword, verifyPassword } from "../../common/utils/hash.js";
-import { JWT_SECRET } from "../../common/utils/env.js";
+import { hashPassword, tokenGenerator, verifyPassword } from "../../common/utils/hash.js";
+import { FRONTEND_BASE_URL, JWT_SECRET } from "../../common/utils/env.js";
 import { generateToken } from "../../common/utils/jwt.js";
+import { sendEmail } from "../../common/utils/email.js";
 
 export class AuthService {
     constructor(
@@ -36,5 +37,46 @@ export class AuthService {
         const payload = { id: user.id, email: user.email };
         const token = await generateToken(payload, JWT_SECRET);
         return { token };
+    }
+
+    public async forgotPassword(email: string) {
+        const existingUser = await this.userRepository.findUserByEmail(email);
+        if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
+
+        const { rawToken, hashedToken } = await tokenGenerator();
+        const updatedUserToken = await this.userRepository.updateResetPassToken(email, hashedToken, new Date(Date.now() + 1000 * 60 * 15)) // 15 Minutes
+
+        const resetLink = `${FRONTEND_BASE_URL}/auth/reset-password?token=${rawToken}&email=${email}`
+        const html = `<h2>Reset Password</h2>
+    <p>Klik link di bawah untuk reset password:</p>
+    <a href="${resetLink}">${resetLink}</a>
+    <p>Link berlaku 15 menit.</p>`
+
+        await sendEmail({
+            to: email, subject: "Reset Password", html
+        })
+        return { updatedUserToken }
+    }
+
+    public async resetPassword(token: string, password: string, email?: string) {
+        let existingUser;
+
+        if (email) existingUser = await this.userRepository.findUserByEmail(email);
+        else {
+            const users = await this.userRepository.findUsersByResetPassTokenExpiry(new Date());
+            for (const user of users) {
+                const isPasswordMatch = await verifyPassword(user?.resetPasswordToken || "", token)
+                if (isPasswordMatch) {
+                    existingUser = user;
+                    break;
+                }
+            }
+        }
+
+        if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
+
+        const hashedPassword = await hashPassword(password);
+        const updatedUserPassword = await this.userRepository.updateUserPassword(existingUser.id, hashedPassword)
+        return { updatedUserPassword }
     }
 }

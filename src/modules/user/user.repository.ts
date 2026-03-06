@@ -26,6 +26,16 @@ export class UserRepository {
         })
     }
 
+    public async findUsersByResetPassTokenExpiry(resetPassTokenExpiry: Date) {
+        return prisma.user.findMany({
+            where: {
+                resetPasswordExpiry: {
+                    gt: resetPassTokenExpiry
+                }
+            }
+        })
+    }
+
     public async upsertUser(email: string) {
         return await prisma.user.upsert({
             where: {
@@ -36,6 +46,41 @@ export class UserRepository {
             },
             update: {
                 email
+            }
+        })
+    }
+
+    public async updateUserPassword(id: string, password: string) {
+        return await prisma.user.update({
+            where: {
+                id
+            },
+            data: {
+                password,
+                resetPasswordToken: null,
+                resetPasswordExpiry: null
+            },
+            select: {
+                id: true,
+                resetPasswordToken: true,
+                resetPasswordExpiry: true
+            }
+        })
+    }
+
+    public async updateResetPassToken(email: string, resetPassToken: string, resetPassTokenExp: Date) {
+        return await prisma.user.update({
+            where: {
+                email
+            },
+            data: {
+                resetPasswordToken: resetPassToken,
+                resetPasswordExpiry: resetPassTokenExp,
+            },
+            select: {
+                id: true,
+                resetPasswordToken: true,
+                resetPasswordExpiry: true
             }
         })
     }
