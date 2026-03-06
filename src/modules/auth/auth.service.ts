@@ -1,8 +1,9 @@
 import { HTTPException } from "hono/http-exception";
 import type { UserRepository } from "../user/user.repository.js";
-import { hashPassword, verifyPassword } from "../../common/utils/hash.js";
-import { JWT_SECRET } from "../../common/utils/env.js";
+import { hashPassword, tokenGenerator, verifyPassword } from "../../common/utils/hash.js";
+import { FRONTEND_BASE_URL, JWT_SECRET } from "../../common/utils/env.js";
 import { generateToken } from "../../common/utils/jwt.js";
+import { sendEmail } from "../../common/utils/email.js";
 
 export class AuthService {
     constructor(
@@ -36,5 +37,24 @@ export class AuthService {
         const payload = { id: user.id, email: user.email };
         const token = await generateToken(payload, JWT_SECRET);
         return { token };
+    }
+
+    public async forgotPassword(email: string) {
+        const existingUser = await this.userRepository.findUserByEmail(email);
+        if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
+
+        const { rawToken, hashedToken } = await tokenGenerator();
+        const updatedUserToken = ""
+
+        const resetLink = `${FRONTEND_BASE_URL}/auth/reset-password?token=${rawToken}`
+        const html = `<h2>Reset Password</h2>
+    <p>Klik link di bawah untuk reset password:</p>
+    <a href="${resetLink}">${resetLink}</a>
+    <p>Link berlaku 15 menit.</p>`
+
+        await sendEmail({
+            to: email, subject: "Reset Password", html
+        })
+        return { updatedUserToken }
     }
 }

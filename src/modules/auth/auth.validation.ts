@@ -13,3 +13,7 @@ export const loginAuthValidation = z.object({
     .string({ message: "Password wajib di isi" })
     .min(6, { message: "Minimal 6 karakter" }),
 });
+
+export const forgotPasswordValidation = z.object({
+  email: z.email(),
+})

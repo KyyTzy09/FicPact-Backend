@@ -10,7 +10,7 @@ import { AuthService } from "./auth.service.js";
 import { UserRepository } from "../user/user.repository.js";
 import { setCookie } from "hono/cookie";
 import { googleAuth } from "@hono/oauth-providers/google";
-import { FRONTEND_URL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from "../../common/utils/env.js";
+import { FRONTEND_DASHBOARD_URL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from "../../common/utils/env.js";
 
 const userRepository = new UserRepository();
 const authService = new AuthService(userRepository);
@@ -51,6 +51,14 @@ export const authController = new Hono()
             return HttpResponse(c, 201, "Register successful", result);
         }
     )
+    .post("/forgot-password",
+        validator("json", registerAuthValidation),
+        async (c) => {
+            const { email } = c.req.valid("json");
+            const result = await authService.forgotPassword(email)
+            return HttpResponse(c, 200, "Email sent successfully", result)
+        }
+    )
     .get(
         "/google",
         describeRoute({
@@ -73,6 +81,6 @@ export const authController = new Hono()
                 secure: true,
                 sameSite: "lax",
             });
-            return c.redirect(FRONTEND_URL)
+            return c.redirect(FRONTEND_DASHBOARD_URL)
         }
     )
