@@ -79,4 +79,15 @@ export class AuthService {
         const updatedUserPassword = await this.userRepository.updateUserPassword(existingUser.id, hashedPassword)
         return { updatedUserPassword }
     }
+
+    public async verifyAccount(userId: string, token: string) {
+        const existingUser = await this.userRepository.findUserWithVerifyTokenExpiry(userId, new Date());
+        if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
+
+        const isTokenMatched = await existingUser.verificationToken === token
+        if (!isTokenMatched) throw new HTTPException(400, { message: "Token salah" })
+
+        const verifiedUser = await this.userRepository.verifyUser(existingUser.id)
+        return { verifiedUser }
+    }
 }

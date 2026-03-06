@@ -29,6 +29,22 @@ export class UserRepository {
         })
     }
 
+    public async findUserWithVerifyTokenExpiry(userId: string, expiredAt: Date) {
+        return await prisma.user.findUnique({
+            where: {
+                id: userId,
+                verificationTokenExpiry: {
+                    gt: expiredAt
+                }
+            },
+            omit: {
+                password: true,
+                resetPasswordToken: true,
+                resetPasswordExpiry: true
+            }
+        })
+    }
+
     public async findUsersByResetPassTokenExpiry(resetPassTokenExpiry: Date) {
         return prisma.user.findMany({
             where: {
@@ -49,6 +65,19 @@ export class UserRepository {
             },
             update: {
                 email
+            }
+        })
+    }
+
+    public async verifyUser(userId: string) {
+        return await prisma.user.update({
+            where: {
+                id: userId
+            },
+            data: {
+                isVerified: true,
+                verificationToken: null,
+                verificationTokenExpiry: null
             }
         })
     }

@@ -7,12 +7,14 @@ import {
     loginAuthValidation,
     registerAuthValidation,
     resetPasswordValidation,
+    verifyAccountValidation,
 } from "./auth.validation.js";
 import { AuthService } from "./auth.service.js";
 import { UserRepository } from "../user/user.repository.js";
 import { setCookie } from "hono/cookie";
 import { googleAuth } from "@hono/oauth-providers/google";
 import { FRONTEND_DASHBOARD_URL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from "../../common/utils/env.js";
+import { authMiddleware } from "../../common/middlewares/auth.middleware.js";
 
 const userRepository = new UserRepository();
 const authService = new AuthService(userRepository);
@@ -94,4 +96,13 @@ export const authController = new Hono()
             return HttpResponse(c, 200, "Password reset successfully", result)
         }
     )
-    .post("/")
+    .post("/verify-account",
+        authMiddleware,
+        validator("json", verifyAccountValidation),
+        async (c) => {
+            const userId = c.get("user").id
+            const { token } = c.req.valid("json");
+            const result = await authService.verifyAccount(userId, token)
+            return HttpResponse(c, 200, "Account verified successfully", result)
+        }
+    )
