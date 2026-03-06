@@ -100,7 +100,7 @@ export class AuthService {
 
     public async verifyAccount(userId: string, token: string) {
         const existingUser = await this.userRepository.findUserWithVerifyTokenExpiry(userId, new Date());
-        if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
+        if (!existingUser) throw new HTTPException(404, { message: "User token tidak ditemukan atau sudah kadaluarsa" })
 
         const isTokenMatched = await existingUser.verificationToken === token
         if (!isTokenMatched) throw new HTTPException(400, { message: "Token salah" })
