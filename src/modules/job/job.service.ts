@@ -1,4 +1,3 @@
-import { sendWhatsApp } from "../../common/utils/fonnte.js";
 import type { ReflectionRepository } from "../reflection/reflection.repository.js";
 import type { UserRepository } from "../user/user.repository.js";
 
@@ -17,9 +16,5 @@ export class JobService {
         const updateLastReflection = await this.userRepository.updateUsersLastReflection(userIds, now)
 
         return { trigger, updateLastReflection }
-    }
-
-    public async whatshappNotification() {
-        return await sendWhatsApp("6281287601201", "Halo, Testing ini dari backend")
     }
 }

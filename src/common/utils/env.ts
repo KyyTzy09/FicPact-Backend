@@ -20,7 +20,3 @@ export const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL!
 // NodeMailer
 export const EMAIL_ADMIN = process.env.EMAIL_ADMIN!
 export const EMAIL_PASS = process.env.EMAIL_PASS!
-
-// Fonte
-export const FONNTE_BASE_URL = process.env.FONNTE_BASE_URL!
-export const FONNTE_API_KEY = process.env.FONNTE_API_KEY!
