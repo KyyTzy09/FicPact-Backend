@@ -17,3 +17,11 @@ export const loginAuthValidation = z.object({
 export const forgotPasswordValidation = z.object({
   email: z.email(),
 })
+
+export const resetPasswordValidation = z.object({
+  email: z.email().optional(),
+  token: z.string(),
+  password: z
+    .string({ message: "Password wajib di isi" })
+    .min(6, { message: "Minimal 6 karakter" }),
+});

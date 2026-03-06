@@ -57,4 +57,26 @@ export class AuthService {
         })
         return { updatedUserToken }
     }
+
+    public async resetPassword(token: string, password: string, email?: string) {
+        let existingUser;
+
+        if (email) existingUser = await this.userRepository.findUserByEmail(email);
+        else {
+            const users = await this.userRepository.findUsersByResetPassTokenExpiry(new Date());
+            for (const user of users) {
+                const isPasswordMatch = await verifyPassword(user?.resetPasswordToken || "", token)
+                if (isPasswordMatch) {
+                    existingUser = user;
+                    break;
+                }
+            }
+        }
+
+        if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
+
+        const hashedPassword = await hashPassword(password);
+        const updatedUserPassword = await this.userRepository.updateUserPassword(existingUser.id, hashedPassword)
+        return { updatedUserPassword }
+    }
 }

@@ -5,6 +5,7 @@ import { describeRoute, validator } from "hono-openapi";
 import {
     loginAuthValidation,
     registerAuthValidation,
+    resetPasswordValidation,
 } from "./auth.validation.js";
 import { AuthService } from "./auth.service.js";
 import { UserRepository } from "../user/user.repository.js";
@@ -57,6 +58,14 @@ export const authController = new Hono()
             const { email } = c.req.valid("json");
             const result = await authService.forgotPassword(email)
             return HttpResponse(c, 200, "Email sent successfully", result)
+        }
+    )
+    .post("/reset-password",
+        validator("json", resetPasswordValidation),
+        async (c) => {
+            const { email, password, token } = c.req.valid("json");
+            const result = await authService.resetPassword(token, password, email)
+            return HttpResponse(c, 200, "Password reset successfully", result)
         }
     )
     .get(
