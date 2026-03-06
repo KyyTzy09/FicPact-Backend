@@ -18,6 +18,8 @@ model User {
   password String?
   phone    String?
 
+  isVerified Boolean @default(false)
+
   verificationToken       String?   @db.VarChar(6)
   verificationTokenExpiry DateTime?
 

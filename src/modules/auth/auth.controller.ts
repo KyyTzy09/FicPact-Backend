@@ -18,6 +18,31 @@ const userRepository = new UserRepository();
 const authService = new AuthService(userRepository);
 
 export const authController = new Hono()
+    .get(
+        "/google",
+        describeRoute({
+            tags: ["Authentication"],
+            summary: "Google Login",
+        }),
+        googleAuth({
+            client_id: GOOGLE_CLIENT_ID,
+            client_secret: GOOGLE_CLIENT_SECRET,
+            scope: ['openid', 'email', 'profile']
+        }),
+        async (c) => {
+            const user = c.get('user-google') as { email: string }
+            const result = await authService.loginWithGoogle(user?.email)
+
+            setCookie(c, "token", result.token, {
+                path: "/",
+                maxAge: 60 * 60 * 24 * 2,
+                httpOnly: true,
+                secure: true,
+                sameSite: "lax",
+            });
+            return c.redirect(FRONTEND_DASHBOARD_URL)
+        }
+    )
     .post(
         "/login",
         describeRoute({
@@ -69,28 +94,4 @@ export const authController = new Hono()
             return HttpResponse(c, 200, "Password reset successfully", result)
         }
     )
-    .get(
-        "/google",
-        describeRoute({
-            tags: ["Authentication"],
-            summary: "Google Login",
-        }),
-        googleAuth({
-            client_id: GOOGLE_CLIENT_ID,
-            client_secret: GOOGLE_CLIENT_SECRET,
-            scope: ['openid', 'email', 'profile']
-        }),
-        async (c) => {
-            const user = c.get('user-google') as { email: string }
-            const result = await authService.loginWithGoogle(user?.email)
-
-            setCookie(c, "token", result.token, {
-                path: "/",
-                maxAge: 60 * 60 * 24 * 2,
-                httpOnly: true,
-                secure: true,
-                sameSite: "lax",
-            });
-            return c.redirect(FRONTEND_DASHBOARD_URL)
-        }
-    )
+    .post("/")
