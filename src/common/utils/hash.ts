@@ -17,3 +17,15 @@ export async function tokenGenerator() {
     const hashedToken = await hashPassword(rawToken)
     return { rawToken, hashedToken }
 }
+
+export async function otpGenerator() {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    let result = ""
+
+    for (let i = 0; i < length; i++) {
+        const index = crypto.randomInt(0, chars.length)
+        result += chars[index]
+    }
+
+    return result
+}
