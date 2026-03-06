@@ -65,22 +65,33 @@ export class AuthService {
     }
 
     public async resetPassword(token: string, password: string, email?: string) {
-        let existingUser;
+        // let existingUser;
 
-        if (email) existingUser = await this.userRepository.findUserByEmail(email);
-        else {
-            const users = await this.userRepository.findUsersByResetPassTokenExpiry(new Date());
-            for (const user of users) {
-                const isPasswordMatch = await verifyPassword(user?.resetPasswordToken || "", token)
-                if (isPasswordMatch) {
-                    existingUser = user;
-                    break;
-                }
-            }
-        }
+        // if (email) existingUser = await this.userRepository.findUserByEmail(email);
+        // else {
+        //     const users = await this.userRepository.findUsersByResetPassTokenExpiry(new Date());
+        //     for (const user of users) {
+        //         const isPasswordMatch = await verifyPassword(user?.resetPasswordToken || "", token)
+        //         if (isPasswordMatch) {
+        //             existingUser = user;
+        //             break;
+        //         }
+        //     }
+        // }
 
+        // Cek User berdasarkan email
+        const existingUser = await this.userRepository.findUserByEmail(email || "")
         if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
 
+        // Cek apakah token sudah expired
+        const isTokenExpired = !existingUser?.resetPasswordExpiry || existingUser.resetPasswordExpiry < new Date()
+        if (!existingUser || isTokenExpired) throw new HTTPException(404, { message: "User tidak ditemukan atau token sudah expired" })
+
+        // Cek apakah token cocok dengan yang di database
+        const isTokenMatch = await verifyPassword(existingUser.resetPasswordToken || "", token)
+        if (!isTokenMatch) throw new HTTPException(400, { message: "Token salah" })
+
+        // Hash password baru dan update ke database
         const hashedPassword = await hashPassword(password);
         const updatedUserPassword = await this.userRepository.updateUserPassword(existingUser.id, hashedPassword)
         return { updatedUserPassword }
