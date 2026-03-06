@@ -10,6 +10,8 @@ import { authController } from './modules/auth/auth.controller.js'
 import { folderController } from './modules/folder/folder.controller.js'
 import { questController } from './modules/quest/quest.controller.js'
 import { reflectionController } from './modules/reflection/reflection.controller.js'
+import { cors } from 'hono/cors'
+import { logger } from 'hono/logger'
 
 const app = new Hono()
 
@@ -33,6 +35,16 @@ app.get(
   })
 )
 
+app.use(logger())
+
+app.use(
+  "*",
+  cors({
+    origin: ["http://localhost:3000"],
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+)
 
 app.get('/', (c) => c.text('Hello Hono!'))
 
