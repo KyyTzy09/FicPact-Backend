@@ -23,6 +23,7 @@ export class AuthService {
         const token = await generateToken(payload, JWT_SECRET);
 
         await this.userRepository.updateUserVerificationToken(create.id, verificationToken, new Date(Date.now() + 1000 * 60 * 15))
+        await this.sendEmailVerificationToken(email, verificationToken)
         return { token, create };
     }
 
@@ -128,5 +129,19 @@ export class AuthService {
         })
 
         return { updatedUserToken }
+    }
+
+    private async sendEmailVerificationToken(email: string, token: string) {
+        const html = `<h2>Verifikasi Akun</h2>
+        <p>Masukan token berikut untuk verifikasi akun kamu:</p> 
+        <p>${token}</p>
+        <p>Token berlaku 15 menit.</p>
+        `
+
+        await sendEmail({
+            to: email,
+            subject: "Verifikasi Akun",
+            html
+        })
     }
 }
