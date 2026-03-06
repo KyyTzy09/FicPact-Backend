@@ -17,7 +17,13 @@ export class AuthService {
         const hashedPassword = await hashPassword(password);
         const create = await this.userRepository.createUser(email, hashedPassword);
         if (!create) throw new HTTPException(400, { message: "Gagal membuat user" })
-        return create;
+
+        const payload = { id: create.id, email: create.email };
+        const verificationToken = await otpGenerator();
+        const token = await generateToken(payload, JWT_SECRET);
+
+        await this.userRepository.updateUserVerificationToken(create.id, verificationToken, new Date(Date.now() + 1000 * 60 * 15))
+        return { token, create };
     }
 
     public async login(email: string, password: string) {

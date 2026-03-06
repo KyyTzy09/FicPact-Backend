@@ -77,7 +77,14 @@ export const authController = new Hono()
             const { email, password } = c.req.valid("json");
             const result = await authService.register(email, password);
 
-            return HttpResponse(c, 201, "Register successful", result);
+            setCookie(c, "token", result.token, {
+                path: "/",
+                maxAge: 60 * 60 * 24 * 2,
+                httpOnly: true,
+                secure: true,
+                sameSite: "lax",
+            });
+            return HttpResponse(c, 201, "Register successful", result.create);
         }
     )
     .post("/forgot-password",
