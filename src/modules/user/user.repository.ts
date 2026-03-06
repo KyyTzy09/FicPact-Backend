@@ -40,6 +40,23 @@ export class UserRepository {
         })
     }
 
+    public async updateResetPassToken(email: string, resetPassToken: string, resetPassTokenExp: Date) {
+        return await prisma.user.update({
+            where: {
+                email
+            },
+            data: {
+                resetPasswordToken: resetPassToken,
+                resetPasswordExpiry: resetPassTokenExp,
+            },
+            select: {
+                id: true,
+                resetPasswordToken: true,
+                resetPasswordExpiry: true
+            }
+        })
+    }
+
     public async updateUserLevelAndExp(userId: string, newLevel: number, remainingExp: number, totalExp: number) {
         return await prisma.user.update({
             where: {

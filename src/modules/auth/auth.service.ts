@@ -44,9 +44,9 @@ export class AuthService {
         if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
 
         const { rawToken, hashedToken } = await tokenGenerator();
-        const updatedUserToken = ""
+        const updatedUserToken = await this.userRepository.updateResetPassToken(email, hashedToken, new Date(Date.now() + 1000 * 60 * 15)) // 15 Minutes
 
-        const resetLink = `${FRONTEND_BASE_URL}/auth/reset-password?token=${rawToken}`
+        const resetLink = `${FRONTEND_BASE_URL}/auth/reset-password?token=${rawToken}&email=${email}`
         const html = `<h2>Reset Password</h2>
     <p>Klik link di bawah untuk reset password:</p>
     <a href="${resetLink}">${resetLink}</a>
