@@ -85,7 +85,7 @@ export const authController = new Hono()
         async (c) => {
             const { email } = c.req.valid("json");
             const result = await authService.forgotPassword(email)
-            return HttpResponse(c, 200, "Email sent successfully", result)
+            return HttpResponse(c, 200, "Email sent successfully", result.updatedUserToken)
         }
     )
     .post("/reset-password",
@@ -93,7 +93,7 @@ export const authController = new Hono()
         async (c) => {
             const { email, password, token } = c.req.valid("json");
             const result = await authService.resetPassword(token, password, email)
-            return HttpResponse(c, 200, "Password reset successfully", result)
+            return HttpResponse(c, 200, "Password reset successfully", result.updatedUserPassword)
         }
     )
     .post("/verify-account",
@@ -103,6 +103,14 @@ export const authController = new Hono()
             const userId = c.get("user").id
             const { token } = c.req.valid("json");
             const result = await authService.verifyAccount(userId, token)
-            return HttpResponse(c, 200, "Account verified successfully", result)
+            return HttpResponse(c, 200, "Account verified successfully", result.verifiedUser)
+        }
+    )
+    .post("/resend-verification-code",
+        authMiddleware,
+        async (c) => {
+            const userId = c.get("user").id
+            const result = await authService.resendVerificationToken(userId)
+            return HttpResponse(c, 200, "Verification code sent successfully", result.updatedUserToken)
         }
     )

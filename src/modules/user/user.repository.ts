@@ -82,6 +82,23 @@ export class UserRepository {
         })
     }
 
+    public async updateUserVerificationToken(userId: string, verificationToken: string, verificationTokenExpiry: Date) {
+        return await prisma.user.update({
+            where: {
+                id: userId
+            },
+            data: {
+                verificationToken,
+                verificationTokenExpiry
+            },
+            omit: {
+                password: true,
+                resetPasswordToken: true,
+                resetPasswordExpiry: true
+            }
+        })
+    }
+
     public async updateUserPassword(id: string, password: string) {
         return await prisma.user.update({
             where: {
