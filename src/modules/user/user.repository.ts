@@ -59,6 +59,11 @@ export class UserRepository {
                 password,
                 resetPasswordToken: null,
                 resetPasswordExpiry: null
+            },
+            select: {
+                id: true,
+                resetPasswordToken: true,
+                resetPasswordExpiry: true
             }
         })
     }

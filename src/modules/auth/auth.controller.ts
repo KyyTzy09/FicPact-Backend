@@ -3,6 +3,7 @@ import { HttpResponse } from "../../common/utils/response.js";
 // Ganti ke validator milik hono-openapi supaya otomatis masuk Docs
 import { describeRoute, validator } from "hono-openapi";
 import {
+    forgotPasswordValidation,
     loginAuthValidation,
     registerAuthValidation,
     resetPasswordValidation,
@@ -53,7 +54,7 @@ export const authController = new Hono()
         }
     )
     .post("/forgot-password",
-        validator("json", registerAuthValidation),
+        validator("json", forgotPasswordValidation),
         async (c) => {
             const { email } = c.req.valid("json");
             const result = await authService.forgotPassword(email)
