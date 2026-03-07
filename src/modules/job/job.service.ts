@@ -1,9 +1,11 @@
+import { FRONTEND_BASE_URL } from "../../common/utils/env.js";
 import { sendWhatsApp } from "../../common/utils/fonnte.js";
+import type { QuestRepository } from "../quest/quest.repository.js";
 import type { ReflectionRepository } from "../reflection/reflection.repository.js";
 import type { UserRepository } from "../user/user.repository.js";
 
 export class JobService {
-    constructor(private readonly userRepository: UserRepository, private readonly reflectionRepository: ReflectionRepository) { }
+    constructor(private readonly userRepository: UserRepository, private readonly reflectionRepository: ReflectionRepository, private readonly questRepository: QuestRepository) { }
 
     public async reflectionTrigger() {
         const now = new Date()
@@ -20,6 +22,30 @@ export class JobService {
     }
 
     public async whatshappNotification() {
-        return await sendWhatsApp("6281287601201", "Halo, Testing ini dari backend")
+        const now = new Date()
+        const sevenDaysAgo = new Date(now)
+        sevenDaysAgo.setDate(now.getDate() - 7)
+        // Cari semua User dengan LTE last reflection
+        const users = await this.userRepository.findUsersByLastReflectionDate(sevenDaysAgo)
+        const userIds = users
+            .filter((user) => user.phone)
+            .map((user) => user.id)
+
+        const twoHoursAgo = new Date(now)
+        twoHoursAgo.setHours(now.getHours() - 2)
+
+        const quests = await this.questRepository.findPendingQuestsBetweenDates(userIds, twoHoursAgo, now)
+        for (const quest of quests) {
+            const { id, name, deadLineAt, folder: { name: folderName, userId } } = quest
+            const user = users.find((user) => user.id === userId)
+            if (!user) continue
+
+            const message = `Quest: ${name} dari folder ${folderName} belum selesai!!
+
+${deadLineAt}
+
+${FRONTEND_BASE_URL}/quest/${id}`
+            await sendWhatsApp(user?.phone || "", message)
+        }
     }
 }
