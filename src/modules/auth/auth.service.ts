@@ -19,7 +19,7 @@ export class AuthService {
         if (!create) throw new HTTPException(400, { message: "Gagal membuat user" })
 
         const payload = { id: create.id, email: create.email };
-        const verificationToken = await otpGenerator();
+        const verificationToken = await otpGenerator(6);
         const token = await generateToken(payload, JWT_SECRET);
 
         await this.userRepository.updateUserVerificationToken(create.id, verificationToken, new Date(Date.now() + 1000 * 60 * 15))
@@ -112,7 +112,7 @@ export class AuthService {
         const existingUser = await this.userRepository.findUserById(userId);
         if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
 
-        const token = await otpGenerator()
+        const token = await otpGenerator(6);
         const updatedUserToken = await this.userRepository.updateUserVerificationToken(existingUser.id, token, new Date(Date.now() + 1000 * 60 * 15))
 
         const html = `<h2>Verifikasi Akun</h2>
