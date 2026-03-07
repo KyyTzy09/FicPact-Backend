@@ -11,3 +11,4 @@ export const createQuestReflectionValidation = z.object({
     questStatus: z.boolean(),
     questLevel: z.enum(["HIGH", "NORMAL", "LOW"], { error: "Quest level tidak diisi sembarangan" })
 })
+

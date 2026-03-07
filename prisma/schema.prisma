@@ -35,6 +35,7 @@ model User {
   questFolders       QuestFolder[]
   reflections        Reflection[]
   reflectionTriggers ReflectionTrigger[]
+  userAchievements   UserAchievement[]
   //profile     Profile?
 
   createdAt DateTime @default(now())
@@ -54,6 +55,34 @@ model User {
 
 //   @@unique([userId, name])
 // }
+
+model Achievement {
+  id          String   @id @default(uuid())
+  name        String
+  description String?  @db.Text
+  expReward   Int      @default(0) // optional EXP reward
+  criteria    String?  // contoh: "Reach level 5" atau "Complete 10 quests"
+  
+  users UserAchievement[] // relasi many-to-many ke user
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name])
+}
+
+
+model UserAchievement {
+  id            String      @id @default(uuid())
+  userId        String
+  achievementId String
+  achievedAt    DateTime    @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+}
 
 model QuestFolder {
   id          String       @id @default(uuid())
