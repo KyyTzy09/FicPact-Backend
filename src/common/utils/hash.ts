@@ -18,7 +18,7 @@ export async function tokenGenerator() {
     return { rawToken, hashedToken }
 }
 
-export async function otpGenerator(length: number = 6): Promise<string> {
+export async function otpGenerator(length: numberlength: number = 6): Promise<string> {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     let result = ""
 

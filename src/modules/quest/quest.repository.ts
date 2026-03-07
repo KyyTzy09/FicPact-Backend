@@ -30,6 +30,26 @@ export class QuestRepository {
         });
     }
 
+    public async findPendingQuestsBetweenDates(userIds: string[], startDate: Date, endDate: Date) {
+        return await prisma.quest.findMany({
+            where: {
+                folder: {
+                    userId: {
+                        in: userIds
+                    },
+                },
+                deadLineAt: {
+                    gte: startDate,
+                    lte: endDate,
+                },
+                isSuccess: false,
+            },
+            include: {
+                folder: true
+            }
+        })
+    }
+
     public async updateComplete(questId: string, completedDate: Date) {
         return await prisma.quest.update({
             where: {
