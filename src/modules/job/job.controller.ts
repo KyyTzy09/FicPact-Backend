@@ -22,7 +22,6 @@ export const jobController = new Hono()
     .post(
         "/whatsapp-notification",
         async (c) => {
-            const result = await jobService.whatshappNotification()
-            return HttpResponse(c, 200, "Notification sent successfully", result)
+            // 
         }
     )

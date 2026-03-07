@@ -39,7 +39,7 @@ export const authController = new Hono()
                 path: "/",
                 maxAge: 60 * 60 * 24 * 2,
                 httpOnly: true,
-                secure: true,
+                secure: false,
                 sameSite: "lax",
             });
             return c.redirect(FRONTEND_DASHBOARD_URL)
@@ -59,7 +59,7 @@ export const authController = new Hono()
                 path: "/",
                 maxAge: 60 * 60 * 24 * 2,
                 httpOnly: true,
-                secure: true,
+                secure: false,
                 sameSite: "lax",
             });
 
@@ -81,7 +81,7 @@ export const authController = new Hono()
                 path: "/",
                 maxAge: 60 * 60 * 24 * 2,
                 httpOnly: true,
-                secure: true,
+                secure: false,
                 sameSite: "lax",
             });
             return HttpResponse(c, 201, "Register successful", result.create);
