@@ -12,7 +12,6 @@ import { questController } from './modules/quest/quest.controller.js'
 import { reflectionController } from './modules/reflection/reflection.controller.js'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
-import { jobController } from './modules/job/job.controller.js'
 
 const app = new Hono()
 
@@ -54,7 +53,6 @@ app.route("/auth", authController)
 app.route("/folder", folderController)
 app.route("/quest", questController)
 app.route("/reflection", reflectionController)
-app.route("/job", jobController)
 
 // --- 3. ERROR HANDLER ---
 
