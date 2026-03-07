@@ -86,9 +86,11 @@ export class UserRepository {
             },
             create: {
                 email,
+                isVerified: true
             },
             update: {
-                email
+                email,
+                isVerified: true
             }
         })
     }
