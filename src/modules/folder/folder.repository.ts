@@ -60,13 +60,15 @@ export class FolderRepository {
         })
     }
 
-    public async createFolder(userId: string, name: string, endedAt: string, description?: string) {
+    public async createFolder(userId: string, name: string, endedAt: string, description?: string, icon?: string, color?: string) {
         return await prisma.questFolder.create({
             data: {
                 name,
                 description,
                 userId,
-                endedAt
+                endedAt,
+                icon,
+                color
             }
         })
     }

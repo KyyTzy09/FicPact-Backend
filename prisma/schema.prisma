@@ -87,6 +87,8 @@ model UserAchievement {
 model QuestFolder {
   id          String       @id @default(uuid())
   name        String
+  icon        String?
+  color       String?      @db.Text
   description String?      @db.Text
   status      FolderStatus @default(PENDING)
 
