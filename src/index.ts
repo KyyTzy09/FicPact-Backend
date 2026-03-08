@@ -50,8 +50,8 @@ app.get('/', (c) => c.text('Hello Hono!'))
 
 app.route("/user", userController)
 app.route("/auth", authController)
-app.route("/folder", folderController)
-app.route("/quest", questController)
+app.route("/folders", folderController)
+app.route("/quests", questController)
 app.route("/reflection", reflectionController)
 
 // --- 3. ERROR HANDLER ---
