@@ -1,12 +1,14 @@
 import { HTTPException } from "hono/http-exception";
 import type { UserRepository } from "../user/user.repository.js";
 import type { QuestRepository } from "./quest.repository.js";
+import type { FolderRepository } from "../folder/folder.repository.js";
 import { processExpGain } from "../../common/utils/leveling.js";
 
 export class QuestService {
     constructor(
         private readonly questRepository: QuestRepository,
         private readonly userRepository: UserRepository,
+        private readonly folderRepository: FolderRepository,
     ) { }
 
     public async findAllQuest(userId: string) {
@@ -21,6 +23,12 @@ export class QuestService {
         // Cek apakah user dengan userId yang diberikan ada
         const user = await this.userRepository.findUserById(userId);
         if (!user) throw new HTTPException(404, { message: "User tidak ditemukan" });
+        
+        // cek apakah semua quest dalam folder telah selesai
+        const remainingQuest = await this.questRepository.checkAllQuestInFolder(quest.folderId);
+        if (remainingQuest.length > 0) {
+            
+        }
 
         // Leveling up solo leveling
         const levelUpUser = processExpGain({ ...user }, quest.expReward);
