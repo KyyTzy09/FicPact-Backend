@@ -77,6 +77,7 @@ model UserAchievement {
   userId        String
   achievementId String
   achievedAt    DateTime    @default(now())
+  isClaimed     Boolean     @default(false)
 
   user        User        @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   achievement Achievement @relation(fields: [achievementId], references: [id], onUpdate: Cascade, onDelete: Cascade)

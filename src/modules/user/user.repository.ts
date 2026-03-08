@@ -21,6 +21,21 @@ export class UserRepository {
             }
         })
     }
+    
+    public async findUserQuests(userId: string) {
+        return await prisma.user.findUnique({
+            where: {
+                id: userId
+            },
+            include: {
+                questFolders: {
+                    include: {
+                        quests: true
+                    }
+                }
+            }
+        })
+    }
 
     public async findUserByEmail(email: string) {
         return prisma.user.findUnique({
