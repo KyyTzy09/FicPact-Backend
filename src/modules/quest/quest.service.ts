@@ -25,10 +25,9 @@ export class QuestService {
         const user = await this.userRepository.findUserQuests(userId);
         if (!user) throw new HTTPException(404, { message: "User tidak ditemukan" });
 
-        // =========================
-        // EXP + LEVEL SYSTEM
-        // =========================
+ 
 
+        // level up user
         const levelUpUser = processExpGain({ ...user }, quest.expReward);
 
         await this.userRepository.updateUserLevelAndExp(
