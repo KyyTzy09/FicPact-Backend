@@ -2,6 +2,8 @@ import z from "zod";
 
 export const createFolderValidation = z.object({
     name: z.string().min(3),
+    icon: z.string().optional(),
+    color: z.string().optional(),
     description: z.string().optional(),
     endedAt: z.string().datetime()
 })

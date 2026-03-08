@@ -45,9 +45,9 @@ export const folderController = new Hono()
         authMiddleware,
         validator("json", createFolderValidation),
         async (c) => {
-            const { name, description, endedAt } = c.req.valid("json")
+            const { name, description, endedAt, icon, color } = c.req.valid("json")
             const userId = c.get("user").id
-            const result = await folderService.CreateQuestFolder(userId, name, endedAt, description)
+            const result = await folderService.CreateQuestFolder(userId, name, endedAt, description, icon, color)
             return HttpResponse(c, 201, "Quest folder created successfully", result)
         }
     )

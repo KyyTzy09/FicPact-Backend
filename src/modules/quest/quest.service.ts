@@ -1,12 +1,16 @@
 import { HTTPException } from "hono/http-exception";
 import type { UserRepository } from "../user/user.repository.js";
 import type { QuestRepository } from "./quest.repository.js";
+import type { FolderRepository } from "../folder/folder.repository.js";
 import { processExpGain } from "../../common/utils/leveling.js";
+import type { AchievementRepository } from "../achievement/achievement.repository.js";
 
 export class QuestService {
     constructor(
         private readonly questRepository: QuestRepository,
         private readonly userRepository: UserRepository,
+        private readonly folderRepository: FolderRepository,
+        private readonly achievementRepository: AchievementRepository,
     ) { }
 
     public async findAllQuest(userId: string) {
@@ -14,22 +18,56 @@ export class QuestService {
     }
 
     public async updateCompleteQuest(questId: string, userId: string) {
-        // Cek apakah quest dengan questId dan userId yang diberikan ada
+
         const quest = await this.questRepository.updateComplete(questId, new Date());
         if (!quest) throw new HTTPException(400, { message: "Gagal memperbarui quest" });
 
-        // Cek apakah user dengan userId yang diberikan ada
-        const user = await this.userRepository.findUserById(userId);
+        const user = await this.userRepository.findUserQuests(userId);
         if (!user) throw new HTTPException(404, { message: "User tidak ditemukan" });
 
-        // Leveling up solo leveling
+ 
+
+        // level up user
         const levelUpUser = processExpGain({ ...user }, quest.expReward);
-        await this.userRepository.updateUserLevelAndExp(userId, levelUpUser.newLevel, levelUpUser.remainingExp, levelUpUser.totalExp);
+
+        await this.userRepository.updateUserLevelAndExp(
+            userId,
+            levelUpUser.newLevel,
+            levelUpUser.remainingExp,
+            levelUpUser.totalExp
+        );
+
+        // ambil user terbaru setelah level up
+        const updatedUser = await this.userRepository.findUserQuests(userId);
+
+        const completedQuests = updatedUser!.questFolders
+            .flatMap(folder => folder.quests)
+            .filter(q => q.isSuccess).length;
+
+        const achievements = await this.achievementRepository.getAchievements();
+
+        for (const achievement of achievements) {
+            let unlocked = false;
+
+            if (achievement.criteria === "complete_quest_1") {
+                unlocked = completedQuests >= 1;
+            }
+
+            if (achievement.criteria === "complete_quest_5") {
+                unlocked = completedQuests >= 5;
+            }
+
+            if (achievement.criteria === "reach_level_5") {
+                unlocked = updatedUser!.level >= 5;
+            }
+
+            if (!unlocked) continue;
+
+            await this.achievementRepository.unlockAchievement(userId, achievement.id);
+        }
 
         return quest;
-
     }
-
     public async createQuest(userId: string, folderId: string, title: string, description: string, deadline: string) {
         // Cek apakah user dengan userId yang diberikan ada
         const user = await this.userRepository.findUserById(userId);

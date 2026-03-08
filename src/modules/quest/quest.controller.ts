@@ -3,6 +3,8 @@ import { authMiddleware } from "../../common/middlewares/auth.middleware.js";
 import { QuestService } from "./quest.service.js";
 import { UserRepository } from "../user/user.repository.js";
 import { QuestRepository } from "./quest.repository.js";
+import { FolderRepository } from "../folder/folder.repository.js";
+import { AchievementRepository } from "../achievement/achievement.repository.js";
 import { HttpResponse } from "../../common/utils/response.js";
 import { CreateQuestValidation } from "./quest.validation.js";
 import { describeRoute, validator } from "hono-openapi";
@@ -10,7 +12,10 @@ import { describeRoute, validator } from "hono-openapi";
 
 const questRepository = new QuestRepository()
 const userRepository = new UserRepository()
-const questService = new QuestService(questRepository, userRepository)
+const folderRepository = new FolderRepository()
+const achievementRepository = new AchievementRepository()
+
+const questService = new QuestService(questRepository, userRepository, folderRepository, achievementRepository)
 
 export const questController = new Hono()
     .get(
