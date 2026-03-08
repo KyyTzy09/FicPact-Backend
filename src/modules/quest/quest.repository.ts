@@ -62,6 +62,15 @@ export class QuestRepository {
         });
     }
 
+    public async checkAllQuestInFolder(folderId: string) {
+        return await prisma.quest.findMany({
+            where: {
+                folderId,
+                isSuccess: false,
+            },
+        });
+    }
+
     public async createQuest(folderId: string, title: string, description: string, deadline: string) {
         return await prisma.quest.create({
             data: {

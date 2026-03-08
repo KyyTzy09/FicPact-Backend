@@ -1,3 +1,4 @@
+import type { FolderStatus } from "@prisma/client";
 import { prisma } from "../../common/utils/prisma.js";
 
 export class FolderRepository {
@@ -58,6 +59,12 @@ export class FolderRepository {
                 name: "asc"
             }
         })
+    }
+    public async updateStatus(folderId: string, status: FolderStatus) {
+        return await prisma.questFolder.update({
+            where: { id: folderId },
+            data: { status: status },
+        });
     }
 
     public async createFolder(userId: string, name: string, endedAt: string, description?: string, icon?: string, color?: string) {
