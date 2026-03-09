@@ -3,36 +3,58 @@ name: CI/CD Task-Quest API
 on:
   push:
     branches:
-      - main   # tiap push ke main branch
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      # 1️⃣ Checkout repository
+      - uses: actions/checkout@v3
 
-    - name: Setup Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: 20
+      # 2️⃣ Setup Node.js
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
 
-    - name: Install dependencies
-      run: npm ci
+      # 3️⃣ Install dependencies backend
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./backend
 
-    - name: Build
-      run: npm run build
+      # 4️⃣ Build backend
+      - name: Build backend
+        run: npm run build
+        working-directory: ./backend
 
-    - name: Generate Prisma client
-      run: npx prisma generate
+      # 5️⃣ Generate Prisma client
+      - name: Generate Prisma client
+        run: npx prisma generate
+        working-directory: ./backend
 
-    - name: Build Docker image
-      run: docker build -t project-root_task-quest-api .
+      # 6️⃣ Setup SSH agent untuk deploy
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.VPS_KEY }}
 
-    - name: Push & Deploy to VPS
-      env:
-        VPS_USER: ${{ secrets.VPS_USER }}
-        VPS_HOST: ${{ secrets.VPS_HOST }}
-      run: |
-        scp docker-compose.yml $VPS_USER@$VPS_HOST:/home/$VPS_USER/project-root/
-        ssh $VPS_USER@$VPS_HOST "cd ~/project-root && docker-compose pull && docker-compose up -d --build"
+      # 7️⃣ Deploy backend ke VPS
+      - name: Deploy backend to VPS
+        env:
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          # Buat folder project kalau belum ada
+          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST "mkdir -p ~/project-root"
+
+          # Copy backend + docker-compose.yml
+          scp -o StrictHostKeyChecking=no -r ./backend $VPS_USER@$VPS_HOST:~/project-root/
+          scp -o StrictHostKeyChecking=no docker-compose.yml $VPS_USER@$VPS_HOST:~/project-root/
+
+          # Stop container lama backend (jika ada)
+          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST "cd ~/project-root && docker-compose stop task-quest-api || true"
+
+          # Build & run hanya backend service
+          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST "cd ~/project-root && docker-compose up -d --build task-quest-api"
