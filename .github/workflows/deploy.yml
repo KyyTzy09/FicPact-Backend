@@ -36,7 +36,7 @@ jobs:
 
       # 6️⃣ Setup SSH agent untuk deploy
       - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.8.1
+        uses: webfactory/ssh-agent@v0.8
         with:
           ssh-private-key: ${{ secrets.VPS_KEY }}
 
