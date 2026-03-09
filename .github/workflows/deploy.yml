@@ -11,7 +11,8 @@ jobs:
 
     steps:
       # 1️⃣ Checkout repository
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
 
       # 2️⃣ Setup Node.js
       - name: Setup Node
@@ -34,27 +35,26 @@ jobs:
         run: npx prisma generate
         working-directory: ./backend
 
-      # 6️⃣ Setup SSH agent untuk deploy
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0
+      # 6️⃣ Copy backend + docker-compose.yml ke VPS
+      - name: Copy backend to VPS
+        uses: appleboy/scp-action@v0.1.7
         with:
-          ssh-private-key: ${{ secrets.VPS_KEY }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          source: |
+            backend
+            docker-compose.yml
+          target: ~/project-root
 
-      # 7️⃣ Deploy backend ke VPS
-      - name: Deploy backend to VPS
-        env:
-          VPS_USER: ${{ secrets.VPS_USER }}
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-        run: |
-          # Buat folder project kalau belum ada
-          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST "mkdir -p ~/project-root"
-
-          # Copy backend + docker-compose.yml
-          scp -o StrictHostKeyChecking=no -r ./backend $VPS_USER@$VPS_HOST:~/project-root/
-          scp -o StrictHostKeyChecking=no docker-compose.yml $VPS_USER@$VPS_HOST:~/project-root/
-
-          # Stop container lama backend (jika ada)
-          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST "cd ~/project-root && docker-compose stop task-quest-api || true"
-
-          # Build & run hanya backend service
-          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST "cd ~/project-root && docker-compose up -d --build task-quest-api"
+      # 7️⃣ Stop & rebuild backend service di VPS
+      - name: Deploy backend on VPS
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          script: |
+            cd ~/project-root
+            docker-compose stop task-quest-api || true
+            docker-compose up -d --build task-quest-api
