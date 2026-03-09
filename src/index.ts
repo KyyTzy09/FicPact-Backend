@@ -47,6 +47,8 @@ app.use(
 )
 
 app.get('/', (c) => c.text('Hello Hono!'))
+app.get('/test/deploy', (c) => c.text('Hello Hono!'))
+
 
 app.route("/user", userController)
 app.route("/auth", authController)
