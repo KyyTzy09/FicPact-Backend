@@ -14,7 +14,20 @@ export class QuestService {
     ) { }
 
     public async findAllQuest(userId: string) {
-        return await this.questRepository.findAll(userId);
+        const quests = await this.questRepository.findAll(userId);
+        return await Promise.all(
+            quests.map(async (quest) => {
+                if (!quest.completedAt && quest.deadLineAt <= new Date()) {
+                    return { ...quest, status: "FAILED" }
+                }
+
+                if (quest.completedAt) {
+                    return { ...quest, status: "COMPLETED" }
+                }
+
+                return { ...quest, status: "ONGOING" }
+            })
+        )
     }
 
     public async updateCompleteQuest(questId: string, userId: string) {
