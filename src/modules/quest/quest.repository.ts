@@ -8,8 +8,12 @@ export class QuestRepository {
                     userId,
                 },
             },
+            omit: {
+                isSuccess: true
+            }
         });
     }
+
 
     public async findByUnique(folderId: string, questName: string) {
         return await prisma.quest.findUnique({
@@ -71,6 +75,17 @@ export class QuestRepository {
                 completedAt: completedDate
             },
         });
+    }
+
+    public async updateQuestStatus(questId: string) {
+        return await prisma.quest.update({
+            where: {
+                id: questId
+            },
+            data: {
+                isSuccess: false
+            }
+        })
     }
 
     public async checkAllQuestInFolder(folderId: string) {
