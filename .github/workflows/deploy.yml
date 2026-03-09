@@ -37,17 +37,22 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_KEY }}
           script: |
-            # Masuk ke folder project, kalau belum ada kita clone atau mkdir
+            # Masuk ke folder root project
             mkdir -p ~/project-root
             cd ~/project-root
 
-            # Tarik kode terbaru dari repo (Pastikan VPS sudah ada akses git ke repo ini)
-            # Atau kalau lu mau tetep pakai cara copy, kita asumsikan file sudah di-push ke main
-            git pull origin main
+            # Cek apakah folder ini sudah ada git-nya, kalau belum kita clone
+            if [ ! -d ".git" ]; then
+              echo "Repo not found, cloning..."
+              git clone git@github.com:KyyTzy09/FicPact-Backend.git .
+            else
+              echo "Repo exists, pulling latest changes..."
+              git pull origin main
+            fi
 
-            # Build dan jalankan service
-            # Kita pakai --build biar dia nge-refresh image backend-nya
-            docker-compose up -d --build task-quest-api
+            # Build dan jalankan service pake DOCKER COMPOSE (SPASI)
+            # Karena versi 1.29 (strip) sudah kita hapus tadi
+            docker compose up -d --build task-quest-api
 
-            # Opsional: Jalankan migrasi database di dalam container
-            # docker-compose exec -T task-quest-api npx prisma db push
+            # Jalankan migrasi prisma biar database-nya sinkron
+            docker compose exec -T task-quest-api npx prisma migrate deploy
