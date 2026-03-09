@@ -15,7 +15,7 @@ export class QuestService {
 
     public async findAllQuest(userId: string) {
         const quests = await this.questRepository.findAll(userId);
-        return await Promise.all(
+        const questWithStatus = await Promise.all(
             quests.map(async (quest) => {
                 if (!quest.completedAt && quest.deadLineAt <= new Date()) {
                     return { ...quest, status: "FAILED" }
@@ -28,6 +28,39 @@ export class QuestService {
                 return { ...quest, status: "ONGOING" }
             })
         )
+        
+        const groupedQuest = questWithStatus.reduce((acc, quest) => {
+            const startOfToday = new Date()
+            startOfToday.setHours(0, 0, 0, 0)
+
+            const startOfTomorrow = new Date(startOfToday)
+            startOfTomorrow.setDate(startOfTomorrow.getDate() + 1)
+
+            const startOfDayAfterTomorrow = new Date(startOfTomorrow)
+            startOfDayAfterTomorrow.setDate(startOfDayAfterTomorrow.getDate() + 1)
+            const deadline = new Date(quest.deadLineAt)
+
+            let key = "ONGOING"
+
+            if (quest.status === "FAILED") {
+                key = "FAILED"
+            } else if (quest.status === "COMPLETED") {
+                key = "COMPLETED"
+            } else if (deadline >= startOfToday && deadline < startOfTomorrow) {
+                key = "TODAY"
+            } else if (deadline >= startOfTomorrow && deadline < startOfDayAfterTomorrow) {
+                key = "TOMORROW"
+            }
+
+            if (!acc[key]) {
+                acc[key] = []
+            }
+
+            acc[key].push(quest)
+            return acc
+        }, {} as Record<string, typeof questWithStatus>)
+
+        return Object.entries(groupedQuest).map(([key, quests]) => ({ key, quests }))
     }
 
     public async updateCompleteQuest(questId: string, userId: string) {
