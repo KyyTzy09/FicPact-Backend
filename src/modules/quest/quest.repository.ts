@@ -50,6 +50,17 @@ export class QuestRepository {
         })
     }
 
+    public async findPendingQuests(userId: string) {
+        return await prisma.quest.findMany({
+            where: {
+                folder: {
+                    userId,
+                },
+                isSuccess: false,
+            },
+        });
+    }
+
     public async updateComplete(questId: string, completedDate: Date) {
         return await prisma.quest.update({
             where: {

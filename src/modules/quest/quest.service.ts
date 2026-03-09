@@ -18,14 +18,14 @@ export class QuestService {
     }
 
     public async updateCompleteQuest(questId: string, userId: string) {
+        const existingQuest = await this.questRepository.findPendingQuests(questId);
+        if (!existingQuest) throw new HTTPException(404, { message: "Quest tidak ditemukan" });
 
         const quest = await this.questRepository.updateComplete(questId, new Date());
         if (!quest) throw new HTTPException(400, { message: "Gagal memperbarui quest" });
 
         const user = await this.userRepository.findUserQuests(userId);
         if (!user) throw new HTTPException(404, { message: "User tidak ditemukan" });
-
- 
 
         // level up user
         const levelUpUser = processExpGain({ ...user }, quest.expReward);
@@ -49,12 +49,12 @@ export class QuestService {
         for (const achievement of achievements) {
             let unlocked = false;
 
-            if (achievement.criteria === "complete_quest_1") {
+            if (achievement.criteria === "complete_first_quest") {
                 unlocked = completedQuests >= 1;
             }
 
-            if (achievement.criteria === "complete_quest_5") {
-                unlocked = completedQuests >= 5;
+            if (achievement.criteria === "complete_10_quests") {
+                unlocked = completedQuests >= 10;
             }
 
             if (achievement.criteria === "reach_level_5") {

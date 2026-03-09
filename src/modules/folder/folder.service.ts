@@ -9,7 +9,7 @@ export class FolderService {
     public async GetUserQuestFolder(userId: string) {
         // Ambil semua folder beserta quests milik user
         const folders = await this.folderRepository.findFolderByUserId(userId);
-        if (folders.length === 0) throw new HTTPException(404, { message: "Belum ada folder tersedia" });
+        if (!folders) return [];
 
         const now = new Date(); // Waktu sekarang untuk cek deadline / expired
 
@@ -53,6 +53,10 @@ export class FolderService {
 
         // Return semua folder user dengan status terbaru dan taskCount
         return updatedFolders;
+    }
+
+    public async GetUserAvailableFolders(userId: string) {
+        return await this.folderRepository.findAvailableFoldersByUserId(userId)
     }
 
     public async GetFolderById(userId: string, folderId: string) {
