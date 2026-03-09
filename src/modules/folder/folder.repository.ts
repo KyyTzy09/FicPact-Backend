@@ -60,6 +60,16 @@ export class FolderRepository {
             }
         })
     }
+
+    public async findAvailableFoldersByUserId(userId: string) {
+        return await prisma.questFolder.findMany({
+            where: {
+                userId,
+                status: "PENDING"
+            }
+        })
+    }
+
     public async updateStatus(folderId: string, status: FolderStatus) {
         return await prisma.questFolder.update({
             where: { id: folderId },

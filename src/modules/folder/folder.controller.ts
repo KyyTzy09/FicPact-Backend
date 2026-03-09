@@ -22,6 +22,19 @@ export const folderController = new Hono()
             return HttpResponse(c, 200, "User Quest Folder data retrieved successfully", result)
         }
     )
+    .get("/user/available",
+        describeRoute({
+            tags: ["Folder"],
+            summary: "Get User Available Quest Folder",
+            security: [{ bearerAuth: [] }],
+        }),
+        authMiddleware,
+        async (c) => {
+            const userId = c.get("user").id
+            const result = await folderService.GetUserAvailableFolders(userId)
+            return HttpResponse(c, 200, "User Available Quest Folder data retrieved successfully", result)
+        }
+    )
     .get("/:folderId",
         describeRoute({
             tags: ["Folder"],

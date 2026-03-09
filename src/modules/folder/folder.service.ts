@@ -55,6 +55,10 @@ export class FolderService {
         return updatedFolders;
     }
 
+    public async GetUserAvailableFolders(userId: string) {
+        return await this.folderRepository.findAvailableFoldersByUserId(userId)
+    }
+
     public async GetFolderById(userId: string, folderId: string) {
         const existingFolder = await this.folderRepository.findFolderByUserIdAndId(userId, folderId)
         if (!existingFolder) throw new HTTPException(404, { message: "Folder tidak ditemukan" })
