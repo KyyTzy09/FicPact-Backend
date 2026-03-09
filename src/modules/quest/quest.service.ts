@@ -28,7 +28,7 @@ export class QuestService {
                 return { ...quest, status: "ONGOING" }
             })
         )
-        
+
         const groupedQuest = questWithStatus.reduce((acc, quest) => {
             const startOfToday = new Date()
             startOfToday.setHours(0, 0, 0, 0)
@@ -40,23 +40,31 @@ export class QuestService {
             startOfDayAfterTomorrow.setDate(startOfDayAfterTomorrow.getDate() + 1)
             const deadline = new Date(quest.deadLineAt)
 
-            let key = "ONGOING"
+            const push = (key: string) => {
+                if (!acc[key]) acc[key] = []
+                acc[key].push(quest)
+            }
+
+            // ===== GROUP BY DATE =====
+            if (deadline >= startOfToday && deadline < startOfTomorrow) {
+                push("TODAY")
+            }
+            else if (deadline >= startOfTomorrow && deadline < startOfDayAfterTomorrow) {
+                push("TOMORROW")
+            }
+            else if (quest.status === "ONGOING") {
+                push("ONGOING")
+            }
+
+            // ===== GROUP BY STATUS =====
+            if (quest.status === "COMPLETED") {
+                push("COMPLETED")
+            }
 
             if (quest.status === "FAILED") {
-                key = "FAILED"
-            } else if (quest.status === "COMPLETED") {
-                key = "COMPLETED"
-            } else if (deadline >= startOfToday && deadline < startOfTomorrow) {
-                key = "TODAY"
-            } else if (deadline >= startOfTomorrow && deadline < startOfDayAfterTomorrow) {
-                key = "TOMORROW"
+                push("FAILED")
             }
 
-            if (!acc[key]) {
-                acc[key] = []
-            }
-
-            acc[key].push(quest)
             return acc
         }, {} as Record<string, typeof questWithStatus>)
 
