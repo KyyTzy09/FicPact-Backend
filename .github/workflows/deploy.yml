@@ -10,7 +10,8 @@ jobs:
 
     steps:
       # 1️⃣ Checkout repo
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       # 2️⃣ Setup Node.js
       - name: Setup Node
@@ -18,38 +19,35 @@ jobs:
         with:
           node-version: 20
 
-      # 3️⃣ Install dependencies (di root)
+      # 3️⃣ Install & Build (Biar yakin gak ada error code sebelum deploy)
       - name: Install dependencies
         run: npm ci
 
-      # 4️⃣ Build project
-      - name: Build backend
-        run: npm run build
-
-      # 5️⃣ Generate Prisma client
       - name: Generate Prisma client
         run: npx prisma generate
 
-      # 6️⃣ Setup SSH agent untuk deploy
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.8.3
-        with:
-          ssh-private-key: ${{ secrets.VPS_KEY }}
+      - name: Build project
+        run: npm run build
 
-      # 7️⃣ Deploy ke VPS
+      # 4️⃣ Deploy ke VPS menggunakan appleboy/ssh-action
       - name: Deploy to VPS
-        env:
-          VPS_USER: ${{ secrets.VPS_USER }}
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-        run: |
-          # Buat folder project kalau belum ada
-          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST "mkdir -p ~/project-root"
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          script: |
+            # Masuk ke folder project, kalau belum ada kita clone atau mkdir
+            mkdir -p ~/project-root
+            cd ~/project-root
 
-          # Copy semua file dari root repo ke VPS
-          scp -o StrictHostKeyChecking=no -r ./ $VPS_USER@$VPS_HOST:~/project-root/
+            # Tarik kode terbaru dari repo (Pastikan VPS sudah ada akses git ke repo ini)
+            # Atau kalau lu mau tetep pakai cara copy, kita asumsikan file sudah di-push ke main
+            git pull origin main
 
-          # Stop service lama
-          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST "cd ~/project-root && docker-compose stop task-quest-api || true"
+            # Build dan jalankan service
+            # Kita pakai --build biar dia nge-refresh image backend-nya
+            docker-compose up -d --build task-quest-api
 
-          # Build & jalankan hanya service backend
-          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST "cd ~/project-root && docker-compose up -d --build task-quest-api"
+            # Opsional: Jalankan migrasi database di dalam container
+            # docker-compose exec -T task-quest-api npx prisma db push
