@@ -151,9 +151,15 @@ export class AuthService {
     })
   }
 
-  public async updatePhone(userId: string, phone: string) {
+  public async updatePhone(userId: string, phone: string, token: string) {
     const existingUser = await this.userRepository.findUserById(userId);
     if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
+
+    const existingToken = await this.userRepository.findLatestToken(existingUser.id, VerificationTokenType.PHONE, new Date())
+    if (!existingToken) throw new HTTPException(400, { message: "Token tidak ditemukan" })
+
+    const isTokenMatched = existingToken.code === token
+    if (!isTokenMatched) throw new HTTPException(400, { message: "Token salah" })
 
     const updatedUser = await this.userRepository.updateUserPhone(userId, phone)
     return { updatedUser }

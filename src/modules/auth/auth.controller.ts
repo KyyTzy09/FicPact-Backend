@@ -231,8 +231,8 @@ export const authController = new Hono()
         validator("json", updatePhoneValidation),
         async (c) => {
             const userId = c.get("user").id
-            const { phone } = c.req.valid("json");
-            const result = await authService.updatePhone(userId, phone)
+            const { phone, token } = c.req.valid("json");
+            const result = await authService.updatePhone(userId, phone, token)
             return HttpResponse(c, 200, "Phone number updated successfully", result.updatedUser)
         }
     )
