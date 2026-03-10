@@ -198,4 +198,20 @@ export class UserRepository {
             }
         })
     }
+
+    public async updateUserPhone(userId: string, phone: string) {
+        return await prisma.user.update({
+            where: {
+                id: userId
+            },
+            data: {
+                phone
+            },
+            omit: {
+                password: true,
+                resetPasswordToken: true,
+                resetPasswordExpiry: true
+            }
+        })
+    }
 }

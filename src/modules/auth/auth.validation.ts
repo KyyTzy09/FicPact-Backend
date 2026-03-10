@@ -29,3 +29,9 @@ export const resetPasswordValidation = z.object({
 export const verifyAccountValidation = z.object({
   token: z.string(),
 })
+
+export const updatePhoneValidation = z.object({
+  phone: z
+    .string({ message: "Nomor telepon wajib di isi" })
+    .regex(/^(\+62|0)[0-9]{9,12}$/, { message: "Nomor telepon tidak valid. Format: 0812xxxx atau +6282xxxx" }),
+})

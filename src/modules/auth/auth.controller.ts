@@ -8,6 +8,7 @@ import {
     registerAuthValidation,
     resetPasswordValidation,
     verifyAccountValidation,
+    updatePhoneValidation,
 } from "./auth.validation.js";
 import { AuthService } from "./auth.service.js";
 import { UserRepository } from "../user/user.repository.js";
@@ -25,6 +26,12 @@ export const authController = new Hono()
         describeRoute({
             tags: ["Authentication"],
             summary: "Google Login",
+            description: "Login menggunakan akun Google. Email dari Google akan digunakan untuk login atau registrasi otomatis.",
+            responses: {
+                "302": {
+                    description: "Redirect ke dashboard frontend setelah login berhasil"
+                }
+            }
         }),
         googleAuth({
             client_id: GOOGLE_CLIENT_ID,
@@ -50,6 +57,23 @@ export const authController = new Hono()
         describeRoute({
             tags: ["Authentication"],
             summary: "User Login",
+            description: "Login dengan email dan password. Token akan disimpan di cookie.",
+            responses: {
+                "200": {
+                    description: "Login berhasil",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    token: { type: "string", description: "JWT token" },
+                                    user: { type: "object", description: "Data user" }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }),
         validator("json", loginAuthValidation),
         async (c) => {
@@ -71,6 +95,23 @@ export const authController = new Hono()
         describeRoute({
             tags: ["Authentication"],
             summary: "User Register",
+            description: "Registrasi user baru dengan email dan password. Token akan disimpan di cookie.",
+            responses: {
+                "201": {
+                    description: "Registrasi berhasil",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    id: { type: "string", description: "User ID" },
+                                    email: { type: "string", description: "Email user" }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }),
         validator("json", registerAuthValidation),
         async (c) => {
@@ -88,6 +129,16 @@ export const authController = new Hono()
         }
     )
     .post("/forgot-password",
+        describeRoute({
+            tags: ["Authentication"],
+            summary: "Forgot Password",
+            description: "Mengirim email dengan token reset password ke email user.",
+            responses: {
+                "200": {
+                    description: "Email reset password berhasil dikirim"
+                }
+            }
+        }),
         validator("json", forgotPasswordValidation),
         async (c) => {
             const { email } = c.req.valid("json");
@@ -96,6 +147,16 @@ export const authController = new Hono()
         }
     )
     .post("/reset-password",
+        describeRoute({
+            tags: ["Authentication"],
+            summary: "Reset Password",
+            description: "Reset password user menggunakan token yang dikirim via email.",
+            responses: {
+                "200": {
+                    description: "Password berhasil direset"
+                }
+            }
+        }),
         validator("json", resetPasswordValidation),
         async (c) => {
             const { email, password, token } = c.req.valid("json");
@@ -104,6 +165,17 @@ export const authController = new Hono()
         }
     )
     .post("/verify-account",
+        describeRoute({
+            tags: ["Authentication"],
+            summary: "Verify Account",
+            description: "Verifikasi akun user menggunakan token verifikasi. Memerlukan login.",
+            security: [{ bearerAuth: [] }],
+            responses: {
+                "200": {
+                    description: "Akun berhasil diverifikasi"
+                }
+            }
+        }),
         authMiddleware,
         validator("json", verifyAccountValidation),
         async (c) => {
@@ -114,10 +186,53 @@ export const authController = new Hono()
         }
     )
     .post("/resend-verification-code",
+        describeRoute({
+            tags: ["Authentication"],
+            summary: "Resend Verification Code",
+            description: "Mengirim ulang kode verifikasi ke email user. Memerlukan login.",
+            security: [{ bearerAuth: [] }],
+            responses: {
+                "200": {
+                    description: "Kode verifikasi berhasil dikirim ulang"
+                }
+            }
+        }),
         authMiddleware,
         async (c) => {
             const userId = c.get("user").id
             const result = await authService.resendVerificationToken(userId)
             return HttpResponse(c, 200, "Verification code sent successfully", result.updatedUserToken)
+        }
+    )
+    .post("/update-phone",
+        describeRoute({
+            tags: ["Authentication"],
+            summary: "Update Phone Number",
+            description: "Memperbarui nomor WhatsApp/HP user. Format: 0812xxxx atau +6282xxxx. Memerlukan login.",
+            security: [{ bearerAuth: [] }],
+            responses: {
+                "200": {
+                    description: "Nomor telepon berhasil diperbarui",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    id: { type: "string", description: "User ID" },
+                                    phone: { type: "string", description: "Nomor telepon yang baru" }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }),
+        authMiddleware,
+        validator("json", updatePhoneValidation),
+        async (c) => {
+            const userId = c.get("user").id
+            const { phone } = c.req.valid("json");
+            const result = await authService.updatePhone(userId, phone)
+            return HttpResponse(c, 200, "Phone number updated successfully", result.updatedUser)
         }
     )

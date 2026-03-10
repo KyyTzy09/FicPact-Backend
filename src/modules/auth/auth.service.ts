@@ -144,4 +144,12 @@ export class AuthService {
             html
         })
     }
+
+    public async updatePhone(userId: string, phone: string) {
+        const existingUser = await this.userRepository.findUserById(userId);
+        if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
+
+        const updatedUser = await this.userRepository.updateUserPhone(userId, phone)
+        return { updatedUser }
+    }
 }
