@@ -5,6 +5,8 @@ import { FRONTEND_BASE_URL, JWT_SECRET } from "../../common/utils/env.js";
 import { generateToken } from "../../common/utils/jwt.js";
 import { sendEmail } from "../../common/utils/email.js";
 import { VerificationTokenType } from "@prisma/client";
+import { sendWhatsApp } from "../../common/utils/fonnte.js";
+import { normalizePhone } from "../../common/utils/phone.js";
 
 export class AuthService {
   constructor(
@@ -161,7 +163,30 @@ export class AuthService {
     const isTokenMatched = existingToken.code === token
     if (!isTokenMatched) throw new HTTPException(400, { message: "Token salah" })
 
-    const updatedUser = await this.userRepository.updateUserPhone(userId, phone)
+    const normalizedPhone = normalizePhone(phone)
+    const updatedUser = await this.userRepository.updateUserPhone(userId, normalizedPhone)
     return { updatedUser }
+  }
+
+  public async resendPhoneVerificationToken(userId: string, phone: string) {
+    const existingUser = await this.userRepository.findUserById(userId);
+    if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
+
+    const token = await otpGenerator(6);
+    const updatedUserToken = await this.userRepository.createToken(existingUser.id, token, new Date(Date.now() + 1000 * 60 * 15), VerificationTokenType.PHONE)
+
+    const normalizedPhone = normalizePhone(phone)
+    const message = `📲 Verifikasi Nomor Telepon
+
+    Hai! Gunakan kode berikut untuk memverifikasi nomor telepon kamu:
+
+    ➡️ Kode OTP: ${token}
+
+    ⚠️ Token ini berlaku selama 15 menit.
+
+    Terima kasih telah menggunakan layanan kami!`
+
+    await sendWhatsApp(normalizedPhone, message)
+    return { updatedUserToken }
   }
 }
