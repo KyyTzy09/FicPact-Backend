@@ -41,11 +41,12 @@ export class JobService {
             if (!user) continue
 
             const message = `Quest: ${name} dari folder ${folderName} belum selesai!!
+            ${deadLineAt}
+            ${FRONTEND_BASE_URL}/quest/${id}`
 
-${deadLineAt}
-
-${FRONTEND_BASE_URL}/quest/${id}`
             await sendWhatsApp(user?.phone || "", message)
         }
+
+        return users.filter((user) => user.phone)
     }
 }
