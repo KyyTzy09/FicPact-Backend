@@ -9,6 +9,7 @@ import {
     resetPasswordValidation,
     verifyAccountValidation,
     updatePhoneValidation,
+    resendPhoneVerificationValidation,
 } from "./auth.validation.js";
 import { AuthService } from "./auth.service.js";
 import { UserRepository } from "../user/user.repository.js";
@@ -231,8 +232,39 @@ export const authController = new Hono()
         validator("json", updatePhoneValidation),
         async (c) => {
             const userId = c.get("user").id
-            const { phone } = c.req.valid("json");
-            const result = await authService.updatePhone(userId, phone)
+            const { phone, token } = c.req.valid("json");
+            const result = await authService.updatePhone(userId, phone, token)
             return HttpResponse(c, 200, "Phone number updated successfully", result.updatedUser)
+        }
+    )
+    .post("/resend-phone-verification",
+        describeRoute({
+            tags: ["Authentication"],
+            summary: "Phone Verification",
+            description: "Membuat kode verifikasi nomor WhatsApp/HP user. Format: 0812xxxx atau +6282xxxx. Memerlukan login.",
+            security: [{ bearerAuth: [] }],
+            responses: {
+                "200": {
+                    description: "Kode verifikasi berhasil dikirimkan",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    token: { type: "string", description: "Kode verifikasi" }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }),
+        authMiddleware,
+        validator("json", resendPhoneVerificationValidation),
+        async (c) => {
+            const userId = c.get("user").id
+            const { phone } = c.req.valid("json");
+            const result = await authService.resendPhoneVerificationToken(userId, phone)
+            return HttpResponse(c, 200, "Verification code sent successfully", result.updatedUserToken)
         }
     )
