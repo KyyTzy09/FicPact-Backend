@@ -1,0 +1,64 @@
+name: CI/CD Task-Quest API
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Ambil kode terbaru dari repo GitHub (Runner)
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2️⃣ Siapkan Node.js di Runner
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      # 3️⃣ Cek Error: Install & Build dulu di Runner biar yakin gak ada typo/error
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Build project
+        run: npm run build
+
+      # 4️⃣ Eksekusi Deploy ke VPS via SSH
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          script: |
+            # 1. Pastikan folder root project ada
+            mkdir -p ~/project-root
+            cd ~/project-root
+
+            # 2. Kelola folder BACKEND (biar masuk ke project-root/backend/)
+            if [ ! -d "backend/.git" ]; then
+              echo "Folder backend belum ada git, cloning baru..."
+              # Hapus folder backend kalau ada isinya biar bisa clone bersih
+              rm -rf backend
+              git clone git@github.com:KyyTzy09/FicPact-Backend.git backend
+            else
+              echo "Repo backend sudah ada, pulling latest changes..."
+              # Masuk ke folder backend, tarik update, balik lagi ke root
+              cd backend && git pull origin main && cd ..
+            fi
+
+            # 3. Jalankan Docker Compose dari ROOT (tempat docker-compose.yml berada)
+            # Kita pake 'docker compose' (spasi) karena V2 sudah terinstall
+            docker compose up -d --build task-quest-api
+
+            # 4. Sinkronisasi Database Prisma (Migrate Deploy)
+            docker compose exec -T task-quest-api npx prisma migrate deploy
+
+            # 5. Opsional: Bersihkan image lama yang nggak kepake (biar disk gak penuh)
+            docker image prune -f
