@@ -20,6 +20,7 @@ export const userController = new Hono()
         async (c) => {
             const userId = c.get("user").id
             const result = await userService.getSession(userId)
+            if (!result) return HttpResponse(c, 404, "Session not found", null)
             return HttpResponse(c, 200, "Session Retrieved successfully", result)
         }
     )

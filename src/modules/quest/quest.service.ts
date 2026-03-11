@@ -72,8 +72,8 @@ export class QuestService {
     }
 
     public async updateCompleteQuest(questId: string, userId: string) {
-        const existingQuest = await this.questRepository.findPendingQuests(questId);
-        if (!existingQuest) throw new HTTPException(404, { message: "Quest tidak ditemukan" });
+        // const existingQuest = await this.questRepository.findPendingQuests(questId);
+        // if (!existingQuest) throw new HTTPException(404, { message: "Quest tidak ditemukan" });
 
         const quest = await this.questRepository.updateComplete(questId, new Date());
         if (!quest) throw new HTTPException(400, { message: "Gagal memperbarui quest" });
@@ -88,7 +88,8 @@ export class QuestService {
             userId,
             levelUpUser.newLevel,
             levelUpUser.remainingExp,
-            levelUpUser.totalExp
+            levelUpUser.totalExp,
+            levelUpUser.expToNextLevel
         );
 
         // ambil user terbaru setelah level up
