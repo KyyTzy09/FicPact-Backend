@@ -31,4 +31,38 @@ export class AIService {
         return result.data as string
 
     }
+
+    public async command(text: string) {
+        // nanti di sini data kirim ke AI
+        //
+        //
+        // HARAPAN DATA DARI AI ITU DATA JSON SEPERTI INI
+        //
+        //
+        // {
+        //   "action": "create_folder_with_quests",
+        //   "folder": {
+        //     "name": "Belajar Ulangan",
+        //     "description": "Persiapan ulangan"
+        //   },
+        //   "quests": [
+        //     {
+        //       "name": "Belajar Matematika",
+        //       "description": "Review materi integral",
+        //       "expReward": 20,
+        //       "deadLineAt": "2026-03-20T18:00:00Z"
+        //     },
+        //     {
+        //       "name": "Belajar Fisika",
+        //       "description": "Latihan soal mekanika",
+        //       "expReward": 20,
+        //       "deadLineAt": "2026-03-20T18:00:00Z"
+        //     }
+        //   ]
+        // }
+        //
+        //
+        //
+        // Kirim data ke DB
+    }
 }
