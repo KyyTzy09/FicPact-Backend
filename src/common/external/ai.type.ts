@@ -25,6 +25,9 @@ export type AICreateQuestResponse = {
   folder?: {
     name: string
     description: string | null
+    icon: string | null
+    color: string | null
+    endDate: Date | null
   }
   quests: {
     name: string
