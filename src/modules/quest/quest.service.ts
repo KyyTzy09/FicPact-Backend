@@ -75,19 +75,72 @@ export class QuestService {
     return Object.entries(groupedQuest).map(([key, quests]) => ({ key, quests }))
   }
 
-  public async createQuestWithVoice(userId: string, text: string, mode: "with-folder" | "task-only") {
-    const createFolder = mode === "with-folder";
-    const availableFolders = await this.folderRepository.findPendingFolderByUserId(userId)
+  public async createQuestWithVoice(
+    userId: string,
+    text: string,
+    mode: "with-folder" | "task-only"
+  ) {
+    const createFolder = mode === "with-folder"
 
-    const AIResult = await this.aiService.FetchAICreateQuest({ text, folders: availableFolders, create_folder: createFolder })
-    if (!AIResult) throw new HTTPException(500, { message: "Gagal menghubungkan ke AI" });
+    const availableFolders =
+      await this.folderRepository.findPendingFolderByUserId(userId)
+
+    const AIResult = await this.aiService.FetchAICreateQuest({
+      text,
+      folder: availableFolders,
+      create_folder: createFolder
+    })
+
+    if (!AIResult) {
+      throw new HTTPException(500, { message: "Gagal menghubungkan ke AI" })
+    }
 
     if (AIResult.action === "create_folder_with_quests") {
-      const existingFolders = await this.folderRepository.findFolderByNames(userId, AIResult.folder?.name!)
-      const name = getNextFolderName(AIResult.folder!.name!, existingFolders.map(f => f.name))
+      if (!AIResult.folder?.name) {
+        throw new HTTPException(400, { message: "AI tidak memberikan nama folder" })
+      }
 
-      const folder = await this.folderRepository.createFolder(userId, name, new Date().toISOString())
+      const existingFolders =
+        await this.folderRepository.findFolderByNames(userId, AIResult.folder.name)
+
+      const name = getNextFolderName(
+        AIResult.folder.name,
+        existingFolders.map(f => f.name)
+      )
+
+      const createdFolder = await this.folderRepository.createFolder(
+        userId,
+        name,
+        AIResult.folder.endDate || "",
+        AIResult.folder.description || "",
+        AIResult.folder.icon || "",
+        AIResult.folder.color || ""
+      )
+
+      await this.questRepository.createBatchQuest(
+        createdFolder.id,
+        AIResult.quests || []
+      )
+
+      return createdFolder
     }
+
+    if (!AIResult.folderId) {
+      throw new HTTPException(400, { message: "AI tidak memberikan folderId" })
+    }
+
+    const folder = await this.folderRepository.findFolderByUserIdAndId(
+      userId,
+      AIResult.folderId
+    )
+
+    if (!folder) {
+      throw new HTTPException(404, { message: "Folder tidak ditemukan" })
+    }
+
+    await this.questRepository.createBatchQuest(folder.id, AIResult.quests || [])
+
+    return folder
   }
 
   public async updateCompleteQuest(questId: string, userId: string) {

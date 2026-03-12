@@ -87,6 +87,18 @@ export class QuestRepository {
     })
   }
 
+  public async createBatchQuest(folderId: string, quests: { name: string; description: string | null; deadLineAt: Date; expReward: number; }[]) {
+    return await prisma.quest.createMany({
+      data: quests.map((quest) => ({
+        folderId,
+        name: quest.name,
+        description: quest.description,
+        expReward: quest.expReward,
+        deadLineAt: quest.deadLineAt,
+      })),
+    });
+  }
+
   public async checkAllQuestInFolder(folderId: string) {
     return await prisma.quest.findMany({
       where: {

@@ -19,7 +19,7 @@ export class AIService {
   }
 
   public async FetchAICreateQuest(payload: AICreateQuestPayload): Promise<AICreateQuestResponse> {
-    const response = await fetch(`${AI_API_BASE_URL}/quest`, {
+    const response = await fetch(`${AI_API_BASE_URL}/quest/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
