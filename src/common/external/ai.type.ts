@@ -14,8 +14,8 @@ export type AIReflectionPayload = {
 }
 
 export type AICreateQuestPayload = {
-  title: string
-  folders: Prisma.QuestFolderGetPayload<{ include: { quests: true } }>
+  text: string
+  folders: Prisma.QuestFolderGetPayload<{ include: { quests: true } }>[]
   create_folder: boolean
 }
 

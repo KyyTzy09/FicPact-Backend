@@ -1,7 +1,5 @@
-import type { Prisma, QuestLevel, QuestReflectionType } from "@prisma/client"
 import { AI_API_BASE_URL, AI_API_TOKEN } from "../../common/utils/env.js"
 import type { AICreateQuestPayload, AICreateQuestResponse, AIReflectionPayload } from "../../common/external/ai.type.js";
-
 
 export class AIService {
   async FetchAIReflection(data: AIReflectionPayload[]): Promise<string> {
@@ -18,11 +16,10 @@ export class AIService {
 
     const result = await response.json();
     return result.data as string
-
   }
 
   public async FetchAICreateQuest(payload: AICreateQuestPayload): Promise<AICreateQuestResponse> {
-    const response = await fetch(`${AI_API_BASE_URL}/create-quest`, {
+    const response = await fetch(`${AI_API_BASE_URL}/quest`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -32,6 +29,6 @@ export class AIService {
     });
 
     const result = await response.json();
-    return result.data
+    return result.data as AICreateQuestResponse
   }
 }
