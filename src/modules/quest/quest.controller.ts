@@ -66,12 +66,12 @@ export const questController = new Hono()
     }
   )
   .post("/create-with-voice",
-    authMiddleware,
     describeRoute({
       tags: ["Quest"],
       summary: "Create Quest with Voice",
       security: [{ bearerAuth: [] }],
     }),
+    authMiddleware,
     validator("json", CreateQuestWithVoiceValidation),
     async (c) => {
       const userId = c.get("user").id
