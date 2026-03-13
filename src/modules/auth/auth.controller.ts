@@ -268,3 +268,38 @@ export const authController = new Hono()
             return HttpResponse(c, 200, "Verification code sent successfully", result.updatedUserToken)
         }
     )
+    .delete(
+        "/logout",
+        describeRoute({
+            tags: ["Authentication"],
+            summary: "Logout",
+            description: "Logout user. Memerlukan login.",
+            security: [{ bearerAuth: [] }],
+            responses: {
+                "200": {
+                    description: "Logout berhasil",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    message: { type: "string", description: "Logout berhasil" }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }),
+        authMiddleware,
+        async (c) => {
+            setCookie(c, "token", "", {
+                path: "/",
+                maxAge: -1,
+                httpOnly: true,
+                secure: false,
+                sameSite: "lax",
+            })
+            return HttpResponse(c, 200, "Logout berhasil", { message: "Logout berhasil" })
+        }
+    )

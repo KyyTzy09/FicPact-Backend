@@ -13,8 +13,10 @@ import { reflectionController } from './modules/reflection/reflection.controller
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import { aiController } from './modules/ai/ai.controller.js'
+import { fullLogger } from './common/middlewares/logger.middleware.js'
 
 const app = new Hono()
+app.use("*", fullLogger)
 
 
 app.get(
@@ -36,7 +38,6 @@ app.get(
     })
 )
 
-app.use(logger())
 
 app.use(
     "*",
