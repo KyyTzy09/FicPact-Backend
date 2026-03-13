@@ -55,7 +55,7 @@ jobs:
 
             # 3. Jalankan Docker Compose dari ROOT (tempat docker-compose.yml berada)
             # Kita pake 'docker compose' (spasi) karena V2 sudah terinstall
-            docker compose up -d --build task-quest-api
+            docker compose up -d --backend
 
             # 4. Sinkronisasi Database Prisma (Migrate Deploy)
             docker compose exec -T task-quest-api npx prisma migrate deploy
