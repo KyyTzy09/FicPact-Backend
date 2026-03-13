@@ -25,7 +25,11 @@ export class AIService {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${AI_API_TOKEN}`,
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        text: payload.text,
+        folder: payload.folder,
+        create_folder: payload.create_folder,
+      }),
     });
 
     const result = await response.json();
