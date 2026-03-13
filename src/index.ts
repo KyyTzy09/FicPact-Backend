@@ -1,7 +1,6 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { openAPIRouteHandler } from 'hono-openapi'
-import { apiReference } from '@scalar/hono-api-reference'
 import { HTTPException } from 'hono/http-exception'
 
 // Import Controller Anda
@@ -11,9 +10,9 @@ import { folderController } from './modules/folder/folder.controller.js'
 import { questController } from './modules/quest/quest.controller.js'
 import { reflectionController } from './modules/reflection/reflection.controller.js'
 import { cors } from 'hono/cors'
-import { logger } from 'hono/logger'
 import { aiController } from './modules/ai/ai.controller.js'
 import { fullLogger } from './common/middlewares/logger.middleware.js'
+import { apiReference } from '@scalar/hono-api-reference'
 
 const app = new Hono()
 app.use("*", fullLogger)
@@ -50,6 +49,7 @@ app.use(
 
 app.get('/', (c) => c.text('Hello Hono!'))
 app.get('/test', (c) => c.text('Hello Hono!'))
+app.get('/health', (c) => c.json({ status: 'OK' }))
 
 
 app.route("/user", userController)
