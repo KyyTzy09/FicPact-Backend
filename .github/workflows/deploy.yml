@@ -18,8 +18,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
+          cache: "npm"
 
-      # 3️⃣ Cek Error: Install & Build dulu di Runner biar yakin gak ada typo/error
+      # 3️⃣ Cek Error: Install & Build dulu di Runner (Biar gak deploy code rusak)
       - name: Install dependencies
         run: npm ci
 
@@ -37,25 +38,36 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_KEY }}
           script: |
-            # 1. Pastikan folder root project ada
-            mkdir -p ~/project-root
-            cd ~/project-root
+            # Masuk ke folder root project
+            cd ~/project-root || { echo "Folder project-root tidak ditemukan"; exit 1; }
 
-            # 2. Kelola folder BACKEND (biar masuk ke project-root/backend/)
+            # 1. Update kode di folder backend
             if [ ! -d "backend/.git" ]; then
-              echo "Folder backend belum ada git, cloning baru..."
-              # Hapus folder backend kalau ada isinya biar bisa clone bersih
+              echo "Cloning backend repository..."
               rm -rf backend
               git clone git@github.com:KyyTzy09/FicPact-Backend.git backend
             else
-              echo "Repo backend sudah ada, pulling latest changes..."
-              # Masuk ke folder backend, tarik update, balik lagi ke root
+              echo "Pulling latest changes for backend..."
               cd backend && git pull origin main && cd ..
             fi
 
-            # 3. Jalankan Docker Compose dari ROOT (tempat docker-compose.yml berada)
-            # Kita pake 'docker compose' (spasi) karena V2 sudah terinstall
-            docker compose up -d --build backend
+            # 2. Re-deploy Backend & DB secara bersih
+            # --build: paksa build image baru dari code yang baru di-pull
+            # --force-recreate: abaikan cache container lama, buat ulang dari nol
+            echo "Restarting services..."
+            docker compose up -d --build --force-recreate backend task-quest-db
 
-            # 4. Opsional: Bersihkan image lama yang nggak kepake (biar disk gak penuh)
+            # 3. Tunggu Database siap (agar tidak error P1000 saat migrasi)
+            echo "Waiting for database to be ready (15s)..."
+            sleep 15
+
+            # 4. Jalankan Migrasi Database otomatis
+            echo "Running database migrations..."
+            docker exec task-quest-api npx prisma migrate deploy
+
+            # 5. Maintenance: Hapus image "dangling" (image lama yang gak kepake)
+            # Ini krusial agar RAM dan Disk VPS kamu gak penuh
+            echo "Cleaning up old images..."
             docker image prune -f
+
+            echo "🚀 Deployment Success!"
