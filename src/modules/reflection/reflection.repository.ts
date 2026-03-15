@@ -8,7 +8,7 @@ export class ReflectionRepository {
                 userId
             },
             orderBy: {
-                endPeriod: "desc"
+                createdAt: "desc"
             },
             take
         })
@@ -19,8 +19,6 @@ export class ReflectionRepository {
             data: {
                 userId,
                 content,
-                startPeriod,
-                endPeriod
             }
         })
     }
@@ -50,8 +48,6 @@ export class ReflectionRepository {
             data: {
                 userId,
                 content,
-                startPeriod,
-                endPeriod
             }
         })
     }

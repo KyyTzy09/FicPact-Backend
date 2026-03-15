@@ -22,6 +22,17 @@ export class UserRepository {
     });
   }
 
+  public async findUsersByNextReflectionDate(startDate: Date, endDate: Date) {
+    return await prisma.user.findMany({
+      where: {
+        nextReflection: {
+          gte: startDate,
+          lte: endDate,
+        }
+      }
+    })
+  }
+
   public async findUserQuests(userId: string) {
     return await prisma.user.findUnique({
       where: {
