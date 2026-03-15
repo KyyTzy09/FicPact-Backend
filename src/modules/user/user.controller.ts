@@ -26,6 +26,20 @@ export const userController = new Hono()
             return HttpResponse(c, 200, "Session Retrieved successfully", result)
         }
     )
+    .get(
+        "/profile",
+        describeRoute({
+            tags: ["User"],
+            summary: "Get User Profile",
+            security: [{ bearerAuth: [] }],
+        }),
+        authMiddleware,
+        async (c) => {
+            const userId = c.get("user").id
+            const result = await userService.getProfile(userId)
+            return HttpResponse(c, 200, "Profile Retrieved successfully", result)
+        }
+    )
     .patch("/reflection-time",
         describeRoute({
             tags: ["User"],

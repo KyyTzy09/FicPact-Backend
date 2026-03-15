@@ -22,6 +22,17 @@ export class UserRepository {
     });
   }
 
+  public async findUserWithProfileById(userId: string) {
+    return await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      omit: {
+        password: true,
+      },
+    });
+  }
+
   public async findUsersByNextReflectionDate(startDate: Date, endDate: Date) {
     return await prisma.user.findMany({
       where: {
