@@ -20,4 +20,17 @@ export class AchievementRepository {
             }
         })
     }
+
+    public async getUserAchievements(userId: string) {
+        return await prisma.userAchievement.findMany({
+            where: {
+                userId
+            },
+            select: {
+                id: true,
+                achievementId: true,
+                isClaimed: true
+            }
+        })
+    }
 }

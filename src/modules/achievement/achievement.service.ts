@@ -1,7 +1,8 @@
+import type { UserRepository } from "../user/user.repository.js";
 import type { AchievementRepository } from "./achievement.repository.js";
 
 export class AchievementService {
-    constructor(private achievementRepository: AchievementRepository) { }
+    constructor(private readonly achievementRepository: AchievementRepository, private readonly userRepository: UserRepository) { }
 
     public async getAllAchievements() {
         return await this.achievementRepository.getAchievements()
@@ -10,4 +11,21 @@ export class AchievementService {
     public async checkAchievement(userId: string) {
 
     }
-}
+
+    public async getUserAchievements(userId: string) {
+        const achievements = await this.achievementRepository.getAchievements()
+        const userAchievements = await this.achievementRepository.getUserAchievements(userId)
+
+        const userAchievementMap = new Map(userAchievements.map(ua => [ua.achievementId, ua]))
+
+        return achievements.map(achievement => {
+            const userAchievement = userAchievementMap.get(achievement.id)
+
+            return {
+                ...achievement,
+                isUnlocked: !!userAchievement,
+                isClaimed: userAchievement ? userAchievement.isClaimed : false,
+            }
+        })
+    }
+} 
