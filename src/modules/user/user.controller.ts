@@ -4,6 +4,8 @@ import { UserService } from "./user.service.js";
 import { authMiddleware } from "../../common/middlewares/auth.middleware.js";
 import { HttpResponse } from "../../common/utils/response.js";
 import { describeRoute, validator } from "hono-openapi";
+import { bearerAuth } from "hono/bearer-auth";
+import { updateUserReflectionTimeValidation } from "./user.validation.js";
 
 const userRepository = new UserRepository()
 const userService = new UserService(userRepository)
@@ -22,5 +24,20 @@ export const userController = new Hono()
             const result = await userService.getSession(userId)
             if (!result) return HttpResponse(c, 404, "Session not found", null)
             return HttpResponse(c, 200, "Session Retrieved successfully", result)
+        }
+    )
+    .patch("/reflection-time",
+        describeRoute({
+            tags: ["User"],
+            summary: "Update User Reflection Time",
+            security: [{ bearerAuth: [] }]
+        }),
+        authMiddleware,
+        validator("json", updateUserReflectionTimeValidation),
+        async (c) => {
+            const userId = c.get("user").id
+            const { days, hours } = c.req.valid("json")
+            const result = await userService.updateReflectionTime(userId, days, hours)
+            return HttpResponse(c, 200, "Reflection time updated successfully", result)
         }
     )

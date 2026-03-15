@@ -92,6 +92,24 @@ export class UserRepository {
     });
   }
 
+  public async updateUserReflectionTime(userId: string, nextReflection: Date, reflectionDays: number) {
+    return await prisma.user.update({
+      where: {
+        id: userId
+      },
+      data: {
+        nextReflection,
+        reflectionDays
+      },
+      select: {
+        id: true,
+        nextReflection: true,
+        reflectionDays: true,
+        lastReflection: true
+      }
+    })
+  }
+
   public async updateUsersLastReflection(
     userIds: string[],
     reflectionDate: Date,
