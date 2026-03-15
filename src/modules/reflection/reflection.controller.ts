@@ -4,7 +4,7 @@ import { ReflectionService } from "./reflection.service.js";
 import { authMiddleware } from "../../common/middlewares/auth.middleware.js";
 import { HttpResponse } from "../../common/utils/response.js";
 import { UserRepository } from "../user/user.repository.js";
-import { createQuestReflectionValidation, createUserFailedReflectionValidation } from "./reflection.validation.js";
+import { createQuestReflectionValidation, createUserFailedReflectionValidation, updateReflectionTriggerValidation } from "./reflection.validation.js";
 import { describeRoute, validator } from "hono-openapi";
 import { QuestRepository } from "../quest/quest.repository.js";
 import { FolderRepository } from "../folder/folder.repository.js";
@@ -57,16 +57,31 @@ export const reflectionController = new Hono()
             return HttpResponse(c, 201, "Reflection created successfully", result)
         }
     )
-    .post("/weekly",
+    .patch("/trigger-reflection",
+        describeRoute({
+            tags: ["Reflection"],
+            summary: "Update Reflection trigger",
+            security: [{ bearerAuth: [] }]
+        }),
+        authMiddleware,
+        validator("json", updateReflectionTriggerValidation),
+        async (c) => {
+            const userId = c.get("user").id
+            const { reflectionTriggerId, isReflection } = c.req.valid("json")
+            const result = await reflectionService.updateReflectionTrigger(userId, reflectionTriggerId, isReflection)
+            return HttpResponse(c, 200, "Reflection trigger updated successfully", result)
+        }
+    )
+    .post("/create-reflection",
         authMiddleware,
         describeRoute({
             tags: ["Reflection"],
-            summary: "Create User Weekly Reflection",
+            summary: "Create User Reflection",
             security: [{ bearerAuth: [] }]
         }),
         async (c) => {
             const userId = c.get("user").id
-            const result = await reflectionService.CreateUserWeklyReflection(userId)
+            const result = await reflectionService.CreateUserReflection(userId)
             return HttpResponse(c, 200, "Reflection retrieved successfully", result)
         }
     )

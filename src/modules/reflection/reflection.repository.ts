@@ -14,7 +14,7 @@ export class ReflectionRepository {
         })
     }
 
-    async CretesAIReflection(userId: string, content: string, startPeriod: Date, endPeriod: Date) {
+    async CretesAIReflection(userId: string, content: string) {
         return await prisma.reflection.create({
             data: {
                 userId,
@@ -48,6 +48,27 @@ export class ReflectionRepository {
             data: {
                 userId,
                 content,
+            }
+        })
+    }
+
+    async findReflectionTriggerById(userId: string, id: string) {
+        return await prisma.reflectionTrigger.findUnique({
+            where: {
+                id,
+                userId
+            }
+        })
+    }
+
+    async updateReflectionTrigger(userId: string, id: string, isReflection: boolean) {
+        return await prisma.reflectionTrigger.update({
+            where: {
+                id,
+                userId
+            },
+            data: {
+                isReflection
             }
         })
     }

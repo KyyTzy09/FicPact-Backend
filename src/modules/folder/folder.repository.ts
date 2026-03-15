@@ -13,7 +13,7 @@ export class FolderRepository {
         })
     }
 
-    public async findUserFolderWithQuestReflection(userId: string, startDate: Date, endDate: Date) {
+    public async findUserFolderWithQuestReflectionByPeriod(userId: string, startDate: Date, endDate: Date) {
         return await prisma.questFolder.findMany({
             where: {
                 userId,
