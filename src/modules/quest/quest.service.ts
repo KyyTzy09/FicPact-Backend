@@ -180,6 +180,10 @@ export class QuestService {
         unlocked = completedQuests >= 1;
       }
 
+      if (achievement.criteria === "complete_5_quests") {
+        unlocked = completedQuests >= 5;
+      }
+
       if (achievement.criteria === "complete_10_quests") {
         unlocked = completedQuests >= 10;
       }
