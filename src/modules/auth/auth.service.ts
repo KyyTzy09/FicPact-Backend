@@ -7,6 +7,7 @@ import { sendEmail } from "../../common/utils/email.js";
 import { VerificationTokenType } from "@prisma/client";
 import { sendWhatsApp } from "../../common/utils/fonnte.js";
 import { normalizePhone } from "../../common/utils/phone.js";
+import { getNextReflectionDate } from "../../common/utils/date.js";
 
 export class AuthService {
   constructor(
@@ -104,6 +105,7 @@ export class AuthService {
 
   public async verifyAccount(userId: string, token: string) {
     const existingUser = await this.userRepository.findUserById(userId);
+    const nextReflectionDate = getNextReflectionDate(7, 0, 0)
     if (!existingUser) throw new HTTPException(404, { message: "User token tidak ditemukan atau sudah kadaluarsa" })
 
     const existingToken = await this.userRepository.findUserVerificationToken(existingUser.id, token, VerificationTokenType.ACCOUNT, new Date())
@@ -112,7 +114,7 @@ export class AuthService {
     const isTokenMatched = existingToken.code === token
     if (!isTokenMatched) throw new HTTPException(400, { message: "Token salah" })
 
-    const verifiedUser = await this.userRepository.verifyUser(existingUser.id)
+    const verifiedUser = await this.userRepository.verifyUser(existingUser.id, nextReflectionDate)
     return { verifiedUser }
   }
 

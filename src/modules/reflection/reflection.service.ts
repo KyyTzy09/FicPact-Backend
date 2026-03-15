@@ -46,21 +46,41 @@ export class ReflectionService {
         return createdReflection
     }
 
-    async CreateUserWeklyReflection(userId: string) {
-        const endPeriod = new Date();
-        const startPeriod = new Date(endPeriod.getTime() - 7 * 24 * 60 * 60 * 1000);
-        const existingQuest = await this.folderRepository.findUserFolderWithQuestReflection(userId, startPeriod, endPeriod)
+    async updateReflectionTrigger(userId: string, reflectionTriggerId: string, isReflection: boolean) {
+        // Cari dulu RefleksiTrigger berdasarkan userId & id
+        const existingReflectionTrigger = await this.reflectionRepository.findReflectionTriggerById(userId, reflectionTriggerId)
+        if (!existingReflectionTrigger) throw new HTTPException(404, { message: "Reflection trigger tidak ditemukan" })
 
+        // Update status trigger
+        const updatedReflectionTrigger = await this.reflectionRepository.updateReflectionTrigger(userId, reflectionTriggerId, isReflection)
+        if (!updatedReflectionTrigger) throw new HTTPException(500, { message: "Gagal mengubah reflection trigger" })
+
+        // Jika true langsung buat refleksi (Saran optimasi sih jalanin di background)
+        if (updatedReflectionTrigger.isReflection) await this.CreateUserReflection(userId)
+        return updatedReflectionTrigger
+    }
+
+    async CreateUserReflection(userId: string) {
+        const existingUser = await this.userRepository.findUserById(userId)
+        if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
+
+        // Cari data quest sesuai dengan hari yang dipilih sebelumnya
+        const endPeriod = new Date();
+        const startPeriod = new Date(endPeriod.getTime() - existingUser.reflectionDays * 24 * 60 * 60 * 1000);
+        const existingQuest = await this.folderRepository.findUserFolderWithQuestReflectionByPeriod(userId, startPeriod, endPeriod)
+
+        // Grouping result jadi type yg di dukung AIService request
         const groupedResult = ReflectionGroupper(existingQuest)
         if (groupedResult.length === 0) throw new HTTPException(404, { message: "Data tidak ada" })
 
+        // AI Generate Reflection
         const AIResult = await this.aiService.FetchAIReflection(groupedResult)
         if (!AIResult) throw new HTTPException(500, { message: "Refleksi tidak ada" })
 
-        const createdReflection = await this.reflectionRepository.CretesAIReflection(userId, AIResult, startPeriod, endPeriod)
+        const createdReflection = await this.reflectionRepository.CreateAIReflection(userId, AIResult)
         if (!createdReflection) throw new HTTPException(400, { message: "Gagal membuat refleksi" })
 
-        await this.userRepository.updateUserLastReflection(userId, new Date(createdReflection.endPeriod || endPeriod))
+        await this.userRepository.updateUserLastReflection(userId, new Date(createdReflection.createdAt || endPeriod))
         return createdReflection
     }
 }

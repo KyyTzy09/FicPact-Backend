@@ -22,7 +22,7 @@ export const jobController = new Hono()
             security: [{ bearerAuth: [] }],
         }),
         async (c) => {
-            const result = await jobService.reflectionTrigger()
+            const result = await jobService.createReflectionTrigger()
             return HttpResponse(c, 200, "Reflection triggered successfully", result)
         }
     )

@@ -8,19 +8,17 @@ export class ReflectionRepository {
                 userId
             },
             orderBy: {
-                endPeriod: "desc"
+                createdAt: "desc"
             },
             take
         })
     }
 
-    async CretesAIReflection(userId: string, content: string, startPeriod: Date, endPeriod: Date) {
+    async CreateAIReflection(userId: string, content: string) {
         return await prisma.reflection.create({
             data: {
                 userId,
                 content,
-                startPeriod,
-                endPeriod
             }
         })
     }
@@ -50,8 +48,27 @@ export class ReflectionRepository {
             data: {
                 userId,
                 content,
-                startPeriod,
-                endPeriod
+            }
+        })
+    }
+
+    async findReflectionTriggerById(userId: string, id: string) {
+        return await prisma.reflectionTrigger.findUnique({
+            where: {
+                id,
+                userId
+            }
+        })
+    }
+
+    async updateReflectionTrigger(userId: string, id: string, isReflection: boolean) {
+        return await prisma.reflectionTrigger.update({
+            where: {
+                id,
+                userId
+            },
+            data: {
+                isReflection
             }
         })
     }

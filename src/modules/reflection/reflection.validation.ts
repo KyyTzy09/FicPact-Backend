@@ -12,3 +12,7 @@ export const createQuestReflectionValidation = z.object({
     questLevel: z.enum(["HIGH", "NORMAL", "LOW"], { error: "Quest level tidak diisi sembarangan" })
 })
 
+export const updateReflectionTriggerValidation = z.object({
+    reflectionTriggerId: z.uuid(),
+    isReflection: z.boolean()
+})
