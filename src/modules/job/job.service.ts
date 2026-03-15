@@ -12,8 +12,10 @@ export class JobService {
         const tenMinutesLater = new Date()
         tenMinutesLater.setMinutes(now.getMinutes() + 10)
 
+        // Cari user yang NextReflection nya kurang 10 menit lagi
         const users = await this.userRepository.findUsersByNextReflectionDate(now, tenMinutesLater)
         const userIds = users.map(({ id }) => { return id })
+        // Langsung buat reflectionTrigger
         const createdReflectionTrigger = await this.reflectionRepository.createManyReflectionTrigger(userIds)
 
         return { users, reflectionTrigger: createdReflectionTrigger }

@@ -14,7 +14,7 @@ export class ReflectionRepository {
         })
     }
 
-    async CretesAIReflection(userId: string, content: string) {
+    async CreateAIReflection(userId: string, content: string) {
         return await prisma.reflection.create({
             data: {
                 userId,
