@@ -12,6 +12,13 @@ export class UserService {
         return existingUser
     }
 
+    public async getProfile(userId: string) {
+        const existingUser = this.userRepository.findUserById(userId)
+        if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
+
+        return existingUser
+    }
+
     public async updateReflectionTime(userId: string, days: number, hours: number) {
         const existingUser = await this.userRepository.findUserById(userId)
         if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
