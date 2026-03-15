@@ -60,7 +60,7 @@ export class ReflectionService {
         const createdReflection = await this.reflectionRepository.CretesAIReflection(userId, AIResult, startPeriod, endPeriod)
         if (!createdReflection) throw new HTTPException(400, { message: "Gagal membuat refleksi" })
 
-        await this.userRepository.updateUserLastReflection(userId, new Date(createdReflection.endPeriod || endPeriod))
+        await this.userRepository.updateUserLastReflection(userId, new Date(createdReflection.createdAt || endPeriod))
         return createdReflection
     }
 }
