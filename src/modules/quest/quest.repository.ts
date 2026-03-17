@@ -27,6 +27,17 @@ export class QuestRepository {
     })
   }
 
+  public async countUserCompletedQuest(userId: string) {
+    return await prisma.quest.count({
+      where: {
+        folder: {
+          userId,
+        },
+        isSuccess: true
+      }
+    })
+  }
+
   public async findByUnique(folderId: string, questName: string) {
     return await prisma.quest.findUnique({
       where: {

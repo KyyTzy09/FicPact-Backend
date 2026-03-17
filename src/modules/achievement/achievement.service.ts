@@ -27,27 +27,38 @@ export class AchievementService {
         const achievements = await this.achievementRepository.getAchievements()
         const userAchievementMap = new Map(userAchievements.map(ua => [ua.achievementId, ua]))
         const countReflectedQuests = await this.questRepository?.countUserReflectedQuest(userId) || 0
+        const countUserCompletedQuests = await this.questRepository?.countUserCompletedQuest(userId)
 
         const results = achievements.map(achievement => {
             const userAchievement = userAchievementMap.get(achievement.id)
             let progress = 0
+            let current = 0
             const criteria = achievement.criteria as AchievementCriteria
             const target = criteria.target
 
             switch (criteria.type) {
                 case "folder":
-                    progress = target / userAchievement?.user.questFolders.length! || 0 * 100
+                    progress = (target / userAchievement?.user.questFolders.length! || 0) * 100
+                    current = userAchievement?.user.questFolders.length || 0
+                    break
                 case "level":
-                    progress = target / userAchievement?.user.level! || 0 * 100
+                    progress = (target / userAchievement?.user.level! || 0) * 100
+                    current = userAchievement?.user.level || 0
+                    break
                 case "quest":
-                    progress = target / userAchievement?.user.totalExp! || 0 * 100
+                    progress = (target / countReflectedQuests) * 100
+                    current = countReflectedQuests
+                    break
                 case "reflection":
-                    progress = target / countReflectedQuests || 0 * 100
+                    progress = (target / countReflectedQuests) * 100
+                    current = countReflectedQuests
+                    break
             }
 
             return {
                 ...achievement,
-                progress: Math.min(progress, 1),
+                progress: progress || 0,
+                current,
                 isUnlocked: !!userAchievement,
                 type: (achievement.criteria as AchievementCriteria).type,
                 isClaimed: userAchievement ? userAchievement.isClaimed : false,
@@ -58,9 +69,9 @@ export class AchievementService {
         return {
             total: results.length,
             achievements: results,
-            unclaimed: results.filter(a => a.isUnlocked && !a.isClaimed).length,
-            claimed: results.filter(a => a.isClaimed).length,
-            unlocked: results.filter(a => a.isUnlocked).length,
+            unclaimed: results.filter(a => a.isUnlocked && !a.isClaimed),
+            claimed: results.filter(a => a.isClaimed),
+            unlocked: results.filter(a => !a.isUnlocked),
         }
     }
 
