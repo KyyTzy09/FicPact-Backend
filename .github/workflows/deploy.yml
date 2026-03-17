@@ -37,10 +37,10 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_KEY }}
           script: |
-            # Masuk ke root project
+            # 1. Masuk ke folder root
             cd ~/project-root
 
-            # Update repository backend
+            # 2. Update Source Code Backend
             if [ ! -d "backend/.git" ]; then
               echo "Cloning backend..."
               git clone git@github.com:KyyTzy09/FicPact-Backend.git backend
@@ -48,24 +48,27 @@ jobs:
               echo "Syncing backend..."
               cd backend
               git fetch origin main
-              # Reset hard untuk menghapus perubahan lokal (seperti package.json yang error tadi)
               git reset --hard origin/main
               cd ..
             fi
 
-            # Restart Docker dengan menunjuk file env di dalam folder backend
+            # 3. Eksekusi Docker dari dalam folder BACKEND
+            # Ini cara paling aman agar Docker nemu .env.production tanpa drama path
             echo "Restarting Docker services..."
-            # Kita pakai flag --env-file agar docker-compose di root bisa baca .env.production di dalam backend/
-            docker compose --env-file backend/.env.production up -d --build backend
+            cd backend
 
-            # Jalankan migrasi Prisma agar database sinkron
+            # Kita jalankan docker compose sambil menunjuk file yaml di root (jika ada)
+            # atau biarkan dia pakai yang ada di folder backend.
+            # Menggunakan --env-file dengan nama file lokal
+            docker compose --env-file .env.production up -d --build backend
+
+            # 4. Jalankan Prisma Migration
             echo "Running database migrations..."
-            # Tunggu 5 detik memastikan DB sudah siap menerima koneksi
             sleep 5
-            docker compose exec -T backend npx prisma migrate deploy
+            # Gunakan --env-file lagi agar Prisma tahu DATABASE_URL-nya
+            docker compose --env-file .env.production exec -T backend npx prisma migrate deploy
 
-            # Bersihkan image lama untuk menghemat storage VPS
-            echo "Cleaning up old images..."
+            # 5. Cleanup & Selesai
+            echo "Cleaning up..."
             docker image prune -f
-
-            echo "✅ Deployment finished successfully!"
+            echo "✅ Deployment finished successfully dari folder backend!"
