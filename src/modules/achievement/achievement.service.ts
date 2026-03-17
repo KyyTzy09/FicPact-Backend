@@ -31,29 +31,30 @@ export class AchievementService {
 
         const results = achievements.map(achievement => {
             const userAchievement = userAchievementMap.get(achievement.id)
-            let progress = 0
             let current = 0
             const criteria = achievement.criteria as AchievementCriteria
             const target = criteria.target
 
             switch (criteria.type) {
                 case "folder":
-                    progress = (target / userAchievement?.user.questFolders.length! || 0) * 100
-                    current = userAchievement?.user.questFolders.length || 0
+                    current = userAchievement?.user.questFolders.length ?? 0
                     break
                 case "level":
-                    progress = (target / userAchievement?.user.level! || 0) * 100
-                    current = userAchievement?.user.level || 0
+                    current = userAchievement?.user.level ?? 0
                     break
                 case "quest":
-                    progress = (target / countReflectedQuests) * 100
-                    current = countReflectedQuests
+                    current = countUserCompletedQuests ?? 0
                     break
                 case "reflection":
-                    progress = (target / countReflectedQuests) * 100
-                    current = countReflectedQuests
+                    current = countReflectedQuests ?? 0
                     break
+                case "streak":
+                    current = 0
             }
+
+            const progress = target > 0
+                ? Math.min((current / target) * 100, 100)
+                : 0
 
             return {
                 ...achievement,
