@@ -63,6 +63,14 @@ export class AchievementRepository {
                 id: true,
                 achievementId: true,
                 isClaimed: true,
+                user: {
+                    select: {
+                        id: true,
+                        level: true,
+                        totalExp: true,
+                        questFolders: true,
+                    }
+                },
             }
         })
     }

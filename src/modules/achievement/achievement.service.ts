@@ -1,10 +1,12 @@
 import type { Achievement } from "@prisma/client";
-import type { AchievementCondition, AchievementCriteria, AchievementType } from "../../common/types/achievements.js";
+import type { AchievementCriteria, AchievementType } from "../../common/types/achievements.js";
 import type { AchievementRepository } from "./achievement.repository.js";
 import { HTTPException } from "hono/http-exception";
+import type { QuestRepository } from "../quest/quest.repository.js";
+import type { UserRepository } from "../user/user.repository.js";
 
 export class AchievementService {
-    constructor(private readonly achievementRepository: AchievementRepository) { }
+    constructor(private readonly achievementRepository: AchievementRepository, private readonly questRepository?: QuestRepository) { }
 
     public async getAllAchievements() {
         return await this.achievementRepository.getAchievements()
@@ -21,20 +23,45 @@ export class AchievementService {
     }
 
     public async getUserAchievements(userId: string) {
-        const achievements = await this.achievementRepository.getAchievements()
         const userAchievements = await this.achievementRepository.getUserAchievements(userId)
-
+        const achievements = await this.achievementRepository.getAchievements()
         const userAchievementMap = new Map(userAchievements.map(ua => [ua.achievementId, ua]))
-        return achievements.map(achievement => {
+        const countReflectedQuests = await this.questRepository?.countUserReflectedQuest(userId) || 0
+
+        const results = achievements.map(achievement => {
             const userAchievement = userAchievementMap.get(achievement.id)
+            let progress = 0
+            const criteria = achievement.criteria as AchievementCriteria
+            const target = criteria.target
+
+            switch (criteria.type) {
+                case "folder":
+                    progress = target / userAchievement?.user.questFolders.length! || 0 * 100
+                case "level":
+                    progress = target / userAchievement?.user.level! || 0 * 100
+                case "quest":
+                    progress = target / userAchievement?.user.totalExp! || 0 * 100
+                case "reflection":
+                    progress = target / countReflectedQuests || 0 * 100
+            }
 
             return {
                 ...achievement,
+                progress: Math.min(progress, 1),
                 isUnlocked: !!userAchievement,
                 type: (achievement.criteria as AchievementCriteria).type,
                 isClaimed: userAchievement ? userAchievement.isClaimed : false,
             }
+
         })
+
+        return {
+            total: results.length,
+            achievements: results,
+            unclaimed: results.filter(a => a.isUnlocked && !a.isClaimed).length,
+            claimed: results.filter(a => a.isClaimed).length,
+            unlocked: results.filter(a => a.isUnlocked).length,
+        }
     }
 
     public async unlockAchievements(
