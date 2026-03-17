@@ -3,11 +3,13 @@ import { describeRoute } from "hono-openapi";
 import { AchievementRepository } from "./achievement.repository.js";
 import { AchievementService } from "./achievement.service.js";
 import { HttpResponse } from "../../common/utils/response.js";
-import { UserRepository } from "../user/user.repository.js";
+
 import { authMiddleware } from "../../common/middlewares/auth.middleware.js";
+import { QuestRepository } from "../quest/quest.repository.js";
 
 const achievementRepository = new AchievementRepository()
-const achievementService = new AchievementService(achievementRepository)
+const questRepository = new QuestRepository()
+const achievementService = new AchievementService(achievementRepository, questRepository)
 
 export const achievementController = new Hono()
     .get("/all",

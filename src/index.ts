@@ -13,6 +13,7 @@ import { cors } from 'hono/cors'
 import { aiController } from './modules/ai/ai.controller.js'
 import { fullLogger } from './common/middlewares/logger.middleware.js'
 import { apiReference } from '@scalar/hono-api-reference'
+import { achievementController } from './modules/achievement/achievement.controller.js'
 
 const app = new Hono()
 app.use("*", fullLogger)
@@ -58,6 +59,7 @@ app.route("/folders", folderController)
 app.route("/quests", questController)
 app.route("/reflection", reflectionController)
 app.route("ai", aiController)
+app.route("/achievements", achievementController)
 
 
 app.onError((err, c) => {
