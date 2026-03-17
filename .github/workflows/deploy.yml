@@ -9,14 +9,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout kode ke Runner (GitHub)
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # 2️⃣ Setup Node.js untuk pengecekan build
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
+      # 3️⃣ Validasi Build (Mencegah deploy jika ada error coding)
       - name: Install dependencies
         run: npm ci
 
@@ -26,6 +29,7 @@ jobs:
       - name: Build project
         run: npm run build
 
+      # 4️⃣ Eksekusi Deploy ke VPS via SSH
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -33,11 +37,10 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_KEY }}
           script: |
-            # 1. Masuk ke folder root
-            mkdir -p ~/project-root
+            # Masuk ke root project
             cd ~/project-root
 
-            # 2. Update Source Code Backend
+            # Update repository backend
             if [ ! -d "backend/.git" ]; then
               echo "Cloning backend..."
               git clone git@github.com:KyyTzy09/FicPact-Backend.git backend
@@ -45,25 +48,24 @@ jobs:
               echo "Syncing backend..."
               cd backend
               git fetch origin main
+              # Reset hard untuk menghapus perubahan lokal (seperti package.json yang error tadi)
               git reset --hard origin/main
               cd ..
             fi
 
-            # 3. Sinkronisasi file docker-compose (Opsional)
-            # Jika docker-compose.yml ada di dalam repo backend, copy ke root
-            if [ -f "backend/docker-compose.yml" ]; then
-              cp backend/docker-compose.yml .
-            fi
+            # Restart Docker dengan menunjuk file env di dalam folder backend
+            echo "Restarting Docker services..."
+            # Kita pakai flag --env-file agar docker-compose di root bisa baca .env.production di dalam backend/
+            docker compose --env-file backend/.env.production up -d --build backend
 
-            # 4. Restart Docker Service
-            echo "Restarting services..."
-            # --force-recreate memastikan container backend dibuat ulang dengan env terbaru
-            docker compose up -d --build backend
-
-            # 5. Jalankan Prisma Migration di dalam Container
-            # Ini penting agar DB sync dengan skema terbaru setelah pull
+            # Jalankan migrasi Prisma agar database sinkron
             echo "Running database migrations..."
+            # Tunggu 5 detik memastikan DB sudah siap menerima koneksi
+            sleep 5
             docker compose exec -T backend npx prisma migrate deploy
 
-            # 6. Cleanup
+            # Bersihkan image lama untuk menghemat storage VPS
+            echo "Cleaning up old images..."
             docker image prune -f
+
+            echo "✅ Deployment finished successfully!"
