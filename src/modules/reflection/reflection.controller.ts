@@ -10,13 +10,17 @@ import { QuestRepository } from "../quest/quest.repository.js";
 import { FolderRepository } from "../folder/folder.repository.js";
 import { AIService } from "../ai/ai.service.js";
 import { bearerAuth } from "hono/bearer-auth";
+import { AchievementRepository } from "../achievement/achievement.repository.js";
+import { AchievementService } from "../achievement/achievement.service.js";
 
 const reflectionRepository = new ReflectionRepository()
 const userRepository = new UserRepository()
 const folderRepository = new FolderRepository()
 const questRepository = new QuestRepository()
 const aiService = new AIService()
-const reflectionService = new ReflectionService(folderRepository, questRepository, reflectionRepository, userRepository, aiService)
+const achievementRepository = new AchievementRepository()
+const achievementService = new AchievementService(achievementRepository)
+const reflectionService = new ReflectionService(folderRepository, questRepository, reflectionRepository, userRepository, achievementService, aiService)
 
 export const reflectionController = new Hono()
     .get("/latest",
@@ -36,8 +40,9 @@ export const reflectionController = new Hono()
         }),
         validator("json", createQuestReflectionValidation),
         async (c) => {
+            const userId = c.get("user").id
             const { questId, reasons, questStatus, questLevel } = c.req.valid("json")
-            const result = await reflectionService.CreateQuestReflection(questId, reasons, questStatus, questLevel)
+            const result = await reflectionService.CreateQuestReflection(userId, questId, reasons, questStatus, questLevel)
 
             return HttpResponse(c, 201, "Quest reflection created successfully", result)
         }

@@ -33,9 +33,8 @@ export class AchievementService {
         userId: string,
         progressValue: number,
         type: AchievementType,
-        condition: AchievementCondition
     ) {
-        const achievements = await this.achievementRepository.getAchievementsByCriteria(type, condition)
+        const achievements = await this.achievementRepository.getAchievementsByCriteria(type)
         const existing = await this.achievementRepository.getUserAchievements(userId)
         const existingIds = new Set(existing.map(a => a.achievementId))
 

@@ -45,24 +45,14 @@ export class AchievementRepository {
         })
     }
 
-    public async getAchievementsByCriteria(type: AchievementType, condition: AchievementCondition) {
+    public async getAchievementsByCriteria(type: AchievementType) {
         return await prisma.achievement.findMany({
             where: {
-                AND: [
-                    {
-                        criteria: {
-                            path: ["type"],
-                            equals: type
-                        }
-                    },
-                    {
-                        criteria: {
-                            path: ["condition"],
-                            equals: condition
-                        }
-                    }
-                ]
-            }
+                criteria: {
+                    path: ["type"],
+                    equals: type
+                }
+            },
         })
     }
 

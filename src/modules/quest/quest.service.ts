@@ -172,7 +172,9 @@ export class QuestService {
       .flatMap(folder => folder.quests)
       .filter(q => q.isSuccess).length;
 
-    await this.achievementService.unlockAchievements(userId, completedQuests, "quest", "complete")
+    if (completedQuests >= 1) {
+      await this.achievementService.unlockAchievements(userId, completedQuests, "quest")
+    }
     return quest;
   }
   public async createQuest(userId: string, folderId: string, title: string, description: string, deadline: string) {

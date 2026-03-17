@@ -75,10 +75,10 @@ export class FolderService {
         if (!createdFolder) throw new HTTPException(400, { message: "Gagal membuat folder" })
         const countUserFolders = await this.folderRepository.countFoldersByUserId(userId)
 
-        if (countUserFolders > 1) {
-            await this.achievementService.unlockAchievements(userId, countUserFolders, "folder", "create")
+        if (countUserFolders >= 1) {
+            await this.achievementService.unlockAchievements(userId, countUserFolders, "folder")
         }
-        
+
         return createdFolder
     }
 
