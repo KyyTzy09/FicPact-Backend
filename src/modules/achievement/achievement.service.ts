@@ -1,6 +1,7 @@
 import type { Achievement } from "@prisma/client";
 import type { AchievementCondition, AchievementCriteria, AchievementType } from "../../common/types/achievements.js";
 import type { AchievementRepository } from "./achievement.repository.js";
+import { HTTPException } from "hono/http-exception";
 
 export class AchievementService {
     constructor(private readonly achievementRepository: AchievementRepository) { }
@@ -9,8 +10,14 @@ export class AchievementService {
         return await this.achievementRepository.getAchievements()
     }
 
-    public async checkAchievement(userId: string) {
+    public async claimAchievement(userId: string, achievementId: string) {
+        const achievement = await this.achievementRepository.findAchievementById(achievementId)
+        if (!achievement) throw new HTTPException(404, { message: "Achievement tidak ditemukan" })
 
+        const claimedAchievement = await this.achievementRepository.claimAchievement(userId, achievementId)
+        if (!claimedAchievement) throw new HTTPException(500, { message: "Gagal mengklaim achievement" })
+
+        return claimedAchievement
     }
 
     public async getUserAchievements(userId: string) {
@@ -24,6 +31,7 @@ export class AchievementService {
             return {
                 ...achievement,
                 isUnlocked: !!userAchievement,
+                type: (achievement.criteria as AchievementCriteria).type,
                 isClaimed: userAchievement ? userAchievement.isClaimed : false,
             }
         })

@@ -6,6 +6,14 @@ export class AchievementRepository {
         return await prisma.achievement.findMany()
     }
 
+    public async findAchievementById(achievementId: string) {
+        return await prisma.achievement.findUnique({
+            where: {
+                id: achievementId
+            }
+        })
+    }
+
     public async unlockAchievement(userId: string, achievementId: string) {
         return await prisma.userAchievement.upsert({
             where: {
@@ -32,6 +40,20 @@ export class AchievementRepository {
         })
     }
 
+    public async claimUserAchievement(userId: string, achievementId: string) {
+        return await prisma.userAchievement.update({
+            where: {
+                userId_achievementId: {
+                    achievementId,
+                    userId
+                }
+            },
+            data: {
+                isClaimed: true
+            }
+        })
+    }
+
     public async getUserAchievements(userId: string) {
         return await prisma.userAchievement.findMany({
             where: {
@@ -40,7 +62,7 @@ export class AchievementRepository {
             select: {
                 id: true,
                 achievementId: true,
-                isClaimed: true
+                isClaimed: true,
             }
         })
     }
