@@ -10,7 +10,6 @@ async function seed() {
                 expReward: 20,
                 criteria: {
                     type: "quest",
-                    condition: "complete",
                     target: 1,
                 },
             },
@@ -21,7 +20,6 @@ async function seed() {
                 expReward: 40,
                 criteria: {
                     type: "quest",
-                    condition: "complete",
                     target: 5,
                 },
             },
@@ -32,7 +30,6 @@ async function seed() {
                 expReward: 80,
                 criteria: {
                     type: "quest",
-                    condition: "complete",
                     target: 10,
                 },
             },
@@ -43,7 +40,6 @@ async function seed() {
                 expReward: 200,
                 criteria: {
                     type: "quest",
-                    condition: "complete",
                     target: 50,
                 },
             },
@@ -54,7 +50,6 @@ async function seed() {
                 expReward: 25,
                 criteria: {
                     type: "reflection",
-                    condition: "create",
                     target: 1,
                 },
             },
@@ -65,7 +60,6 @@ async function seed() {
                 expReward: 60,
                 criteria: {
                     type: "reflection",
-                    condition: "create",
                     target: 5,
                 },
             },
@@ -76,7 +70,6 @@ async function seed() {
                 expReward: 120,
                 criteria: {
                     type: "reflection",
-                    condition: "create",
                     target: 20,
                 },
             },
@@ -87,7 +80,6 @@ async function seed() {
                 expReward: 70,
                 criteria: {
                     type: "level",
-                    condition: "reach",
                     target: 5,
                 },
             },
@@ -98,7 +90,6 @@ async function seed() {
                 expReward: 120,
                 criteria: {
                     type: "level",
-                    condition: "reach",
                     target: 10,
                 },
             },
@@ -109,7 +100,6 @@ async function seed() {
                 expReward: 250,
                 criteria: {
                     type: "level",
-                    condition: "reach",
                     target: 20,
                 },
             },
@@ -120,7 +110,6 @@ async function seed() {
                 expReward: 20,
                 criteria: {
                     type: "folder",
-                    condition: "create",
                     target: 1,
                 },
             },
@@ -131,7 +120,6 @@ async function seed() {
                 expReward: 80,
                 criteria: {
                     type: "folder",
-                    condition: "create",
                     target: 5,
                 },
             },
@@ -142,7 +130,6 @@ async function seed() {
                 expReward: 100,
                 criteria: {
                     type: "streak",
-                    condition: "reach",
                     target: 3,
                 },
             },
@@ -153,7 +140,6 @@ async function seed() {
                 expReward: 200,
                 criteria: {
                     type: "streak",
-                    condition: "reach",
                     target: 7,
                 },
             },
@@ -164,7 +150,6 @@ async function seed() {
                 expReward: 500,
                 criteria: {
                     type: "streak",
-                    condition: "reach",
                     target: 30,
                 },
             },

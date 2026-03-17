@@ -1,9 +1,10 @@
 import { HTTPException } from "hono/http-exception";
 import type { FolderRepository } from "./folder.repository.js";
 import type { FolderStatus } from "@prisma/client";
+import type { AchievementService } from "../achievement/achievement.service.js";
 
 export class FolderService {
-    constructor(private readonly folderRepository: FolderRepository) {
+    constructor(private readonly folderRepository: FolderRepository, private readonly achievementService: AchievementService) {
     }
 
     public async GetUserQuestFolder(userId: string) {
@@ -72,7 +73,12 @@ export class FolderService {
 
         const createdFolder = await this.folderRepository.createFolder(userId, name, endedAt, description, icon, color)
         if (!createdFolder) throw new HTTPException(400, { message: "Gagal membuat folder" })
+        const countUserFolders = await this.folderRepository.countFoldersByUserId(userId)
 
+        if (countUserFolders > 1) {
+            await this.achievementService.unlockAchievements(userId, countUserFolders, "folder", "create")
+        }
+        
         return createdFolder
     }
 

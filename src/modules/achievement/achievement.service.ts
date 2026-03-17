@@ -1,10 +1,9 @@
 import type { Achievement } from "@prisma/client";
 import type { AchievementCondition, AchievementCriteria, AchievementType } from "../../common/types/achievements.js";
-import type { UserRepository } from "../user/user.repository.js";
 import type { AchievementRepository } from "./achievement.repository.js";
 
 export class AchievementService {
-    constructor(private readonly achievementRepository: AchievementRepository, private readonly userRepository: UserRepository) { }
+    constructor(private readonly achievementRepository: AchievementRepository) { }
 
     public async getAllAchievements() {
         return await this.achievementRepository.getAchievements()
@@ -30,18 +29,34 @@ export class AchievementService {
         })
     }
 
-    public async unlockAchievements(userId: string, progressCount: number, type: AchievementType, condition: AchievementCondition) {
+    public async unlockAchievements(
+        userId: string,
+        progressValue: number,
+        type: AchievementType,
+        condition: AchievementCondition
+    ) {
         const achievements = await this.achievementRepository.getAchievementsByCriteria(type, condition)
-        let unlockedAchievements: Achievement[] = []
+        const existing = await this.achievementRepository.getUserAchievements(userId)
+        const existingIds = new Set(existing.map(a => a.achievementId))
 
+        const unlockedAchievements: Achievement[] = []
         for (const achievement of achievements) {
             const criteria = achievement.criteria as AchievementCriteria
-            if (progressCount >= criteria.target) {
+
+            if (
+                progressValue >= criteria.target &&
+                !existingIds.has(achievement.id)
+            ) {
                 unlockedAchievements.push(achievement)
             }
         }
-        const unlockedAchievementIds = unlockedAchievements.map(a => a.id)
-        await this.achievementRepository.unlockAchievements(userId, unlockedAchievementIds)
+
+        if (unlockedAchievements.length > 0) {
+            await this.achievementRepository.unlockAchievements(
+                userId,
+                unlockedAchievements.map(a => a.id)
+            )
+        }
 
         return unlockedAchievements
     }
