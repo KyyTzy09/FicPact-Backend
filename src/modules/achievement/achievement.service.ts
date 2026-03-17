@@ -31,6 +31,7 @@ export class AchievementService {
             return {
                 ...achievement,
                 isUnlocked: !!userAchievement,
+                type: (achievement.criteria as AchievementCriteria).type,
                 isClaimed: userAchievement ? userAchievement.isClaimed : false,
             }
         })

@@ -62,7 +62,7 @@ export class AchievementRepository {
             select: {
                 id: true,
                 achievementId: true,
-                isClaimed: true
+                isClaimed: true,
             }
         })
     }
