@@ -5,9 +5,14 @@ import { authMiddleware } from "../../common/middlewares/auth.middleware.js";
 import { HttpResponse } from "../../common/utils/response.js";
 import { createFolderValidation, updateFolderValidation } from "./folder.validation.js";
 import { describeRoute, validator } from "hono-openapi";
+import { AchievementRepository } from "../achievement/achievement.repository.js";
+import { AchievementService } from "../achievement/achievement.service.js";
 
+const achievementRepository = new AchievementRepository()
+const achievementService = new AchievementService(achievementRepository)
 const folderRepository = new FolderRepository()
-const folderService = new FolderService(folderRepository)
+const folderService = new FolderService(folderRepository, achievementService)
+
 export const folderController = new Hono()
     .get("/",
         describeRoute({

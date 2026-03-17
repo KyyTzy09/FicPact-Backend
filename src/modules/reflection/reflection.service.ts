@@ -6,6 +6,7 @@ import { QuestLevel, QuestReflectionType, type Quest } from "@prisma/client";
 import type { QuestRepository } from "../quest/quest.repository.js";
 import type { FolderRepository } from "../folder/folder.repository.js";
 import type { AIService } from "../ai/ai.service.js";
+import type { AchievementService } from "../achievement/achievement.service.js";
 
 export class ReflectionService {
     constructor(
@@ -13,6 +14,7 @@ export class ReflectionService {
         private readonly questRepository: QuestRepository,
         private readonly reflectionRepository: ReflectionRepository,
         private readonly userRepository: UserRepository,
+        private readonly achievementService: AchievementService,
         private readonly aiService: AIService
     ) { }
 
@@ -24,11 +26,15 @@ export class ReflectionService {
         return latestReflection
     }
 
-    async CreateQuestReflection(questId: string, reasons: string[], questStatus: boolean, questLevel: "HIGH" | "NORMAL" | "LOW") {
+    async CreateQuestReflection(userId: string, questId: string, reasons: string[], questStatus: boolean, questLevel: "HIGH" | "NORMAL" | "LOW") {
         const existingUser = await this.questRepository.findById(questId)
         if (!existingUser) throw new HTTPException(404, { message: "Quest tidak ditemukan" })
 
         const createdReflections = await this.reflectionRepository.createManyQuestReflection(questId, reasons, QuestLevel[questLevel], !questStatus ? QuestReflectionType.FAILED : QuestReflectionType.SUCCESS)
+        if (!createdReflections) throw new HTTPException(400, { message: "Gagal membuat refleksi" })
+
+        const countRelectedQuest = await this.questRepository.countUserReflectedQuest(userId)
+        if (countRelectedQuest >= 5) await this.achievementService.unlockAchievements(userId, countRelectedQuest, "reflection")
         return createdReflections
     }
 

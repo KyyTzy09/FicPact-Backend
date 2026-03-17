@@ -9,16 +9,17 @@ import { HttpResponse } from "../../common/utils/response.js";
 import { CreateQuestValidation, CreateQuestWithVoiceValidation } from "./quest.validation.js";
 import { describeRoute, validator } from "hono-openapi";
 import { AIService } from "../ai/ai.service.js";
+import { AchievementService } from "../achievement/achievement.service.js";
 
 
 const questRepository = new QuestRepository()
 const userRepository = new UserRepository()
 const folderRepository = new FolderRepository()
 const achievementRepository = new AchievementRepository()
+const achievementService = new AchievementService(achievementRepository)
 const aiService = new AIService()
 
-const questService = new QuestService(questRepository, userRepository, folderRepository, achievementRepository, aiService)
-
+const questService = new QuestService(questRepository, userRepository, folderRepository, achievementService, aiService)
 export const questController = new Hono()
   .get(
     "/",

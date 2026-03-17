@@ -1,3 +1,4 @@
+import type { AchievementCondition, AchievementType } from "../../common/types/achievements.js";
 import { prisma } from "../../common/utils/prisma.js";
 
 export class AchievementRepository {
@@ -21,6 +22,16 @@ export class AchievementRepository {
         })
     }
 
+    public async unlockAchievements(userId: string, achievementIds: string[]) {
+        return await prisma.userAchievement.createMany({
+            data: achievementIds.map(achievementId => ({
+                userId,
+                achievementId,
+            })),
+            skipDuplicates: true,
+        })
+    }
+
     public async getUserAchievements(userId: string) {
         return await prisma.userAchievement.findMany({
             where: {
@@ -30,6 +41,31 @@ export class AchievementRepository {
                 id: true,
                 achievementId: true,
                 isClaimed: true
+            }
+        })
+    }
+
+    public async getAchievementsByCriteria(type: AchievementType) {
+        return await prisma.achievement.findMany({
+            where: {
+                criteria: {
+                    path: ["type"],
+                    equals: type
+                }
+            },
+        })
+    }
+
+    public async claimAchievement(userId: string, achievementId: string) {
+        return await prisma.userAchievement.update({
+            where: {
+                userId_achievementId: {
+                    userId,
+                    achievementId,
+                }
+            },
+            data: {
+                isClaimed: true,
             }
         })
     }

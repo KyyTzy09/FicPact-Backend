@@ -90,6 +90,14 @@ export class FolderRepository {
         })
     }
 
+    public async countFoldersByUserId(userId: string) {
+        return await prisma.questFolder.count({
+            where: {
+                userId
+            }
+        })
+    }
+
     public async findAvailableFoldersByUserId(userId: string) {
         return await prisma.questFolder.findMany({
             where: {

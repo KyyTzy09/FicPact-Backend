@@ -7,13 +7,14 @@ import type { AchievementRepository } from "../achievement/achievement.repositor
 import { use } from "hono/jsx";
 import { AIService } from "../ai/ai.service.js";
 import { getNextFolderName } from "../../common/utils/name.js";
+import type { AchievementService } from "../achievement/achievement.service.js";
 
 export class QuestService {
   constructor(
     private readonly questRepository: QuestRepository,
     private readonly userRepository: UserRepository,
     private readonly folderRepository: FolderRepository,
-    private readonly achievementRepository: AchievementRepository,
+    private readonly achievementService: AchievementService,
     private readonly aiService: AIService,
   ) { }
 
@@ -171,32 +172,9 @@ export class QuestService {
       .flatMap(folder => folder.quests)
       .filter(q => q.isSuccess).length;
 
-    const achievements = await this.achievementRepository.getAchievements();
-
-    for (const achievement of achievements) {
-      let unlocked = false;
-
-      if (achievement.criteria === "complete_first_quest") {
-        unlocked = completedQuests >= 1;
-      }
-
-      if (achievement.criteria === "complete_5_quests") {
-        unlocked = completedQuests >= 5;
-      }
-
-      if (achievement.criteria === "complete_10_quests") {
-        unlocked = completedQuests >= 10;
-      }
-
-      if (achievement.criteria === "reach_level_5") {
-        unlocked = updatedUser!.level >= 5;
-      }
-
-      if (!unlocked) continue;
-
-      await this.achievementRepository.unlockAchievement(userId, achievement.id);
+    if (completedQuests >= 1) {
+      await this.achievementService.unlockAchievements(userId, completedQuests, "quest")
     }
-
     return quest;
   }
   public async createQuest(userId: string, folderId: string, title: string, description: string, deadline: string) {
