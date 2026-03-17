@@ -1,5 +1,8 @@
 export type AchievementCriteria = {
-    type: "quest" | "reflection" | "level" | "folder" | "streak"
-    condition: "complete" | "create" | "reach"
+    type: AchievementType
+    condition: AchievementCondition
     target: number
 }
+
+export type AchievementType = "quest" | "reflection" | "level" | "folder" | "streak"
+export type AchievementCondition = "complete" | "create" | "reach"
