@@ -37,6 +37,8 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_KEY }}
           script: |
+            set -e
+
             # 1. Masuk ke folder root
             cd ~/project-root
 
@@ -52,23 +54,16 @@ jobs:
               cd ..
             fi
 
-            # 3. Eksekusi Docker dari dalam folder BACKEND
-            # Ini cara paling aman agar Docker nemu .env.production tanpa drama path
+            # 3. Jalankan Docker dari ROOT (INI YANG BENAR)
             echo "Restarting Docker services..."
-            cd backend
+            docker compose --env-file backend/.env.production up -d --build backend
 
-            # Kita jalankan docker compose sambil menunjuk file yaml di root (jika ada)
-            # atau biarkan dia pakai yang ada di folder backend.
-            # Menggunakan --env-file dengan nama file lokal
-            docker compose --env-file .env.production up -d --build backend
-
-            # 4. Jalankan Prisma Migration
+            # 4. (Optional) Migration — sebenarnya sudah jalan di container
             echo "Running database migrations..."
-            sleep 5
-            # Gunakan --env-file lagi agar Prisma tahu DATABASE_URL-nya
-            docker compose --env-file .env.production exec -T backend npx prisma migrate deploy
+            docker compose --env-file backend/.env.production exec -T backend npx prisma migrate deploy
 
-            # 5. Cleanup & Selesai
+            # 5. Cleanup
             echo "Cleaning up..."
             docker image prune -f
-            echo "✅ Deployment finished successfully dari folder backend!"
+
+            echo "✅ Deployment finished successfully!"
