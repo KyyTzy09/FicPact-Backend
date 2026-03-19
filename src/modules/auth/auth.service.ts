@@ -8,6 +8,7 @@ import { VerificationTokenType } from "@prisma/client";
 import { sendWhatsApp } from "../../common/utils/fonnte.js";
 import { normalizePhone } from "../../common/utils/phone.js";
 import { getNextReflectionDate } from "../../common/utils/date.js";
+import { generateAvatar } from "../../common/utils/random-avatar.js";
 
 export class AuthService {
   constructor(
@@ -19,7 +20,9 @@ export class AuthService {
     const existingUser = await this.userRepository.findUserByEmail(email);
     if (existingUser) throw new HTTPException(409, { message: "User sudah terdaftar" })
     const hashedPassword = await hashPassword(password);
-    const create = await this.userRepository.createUser(email, name, hashedPassword);
+
+    const avatar = generateAvatar(email);
+    const create = await this.userRepository.createUser(email, name, hashedPassword, avatar);
     if (!create) throw new HTTPException(400, { message: "Gagal membuat user" })
 
     const payload = { id: create.id, email: create.email };
@@ -43,7 +46,9 @@ export class AuthService {
 
   public async loginWithGoogle(email: string) {
     const name = email.split("@")[0]
-    const user = await this.userRepository.upsertUser(email, name)
+    const avatar = generateAvatar(email);
+
+    const user = await this.userRepository.upsertUser(email, name, avatar)
     if (!user) throw new HTTPException(400, { message: "Gagal membuat user" })
 
     const payload = { id: user.id, email: user.email };

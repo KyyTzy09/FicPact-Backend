@@ -34,8 +34,9 @@ model User {
 }
 
 model Profile {
-  userId String @id
+  userId String  @id
   name   String
+  avatar String? @db.Text
 
   user User @relation(fields: [userId], references: [id])
 
