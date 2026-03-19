@@ -3,7 +3,7 @@ import { prisma } from "../../common/utils/prisma.js";
 import type { ExpLogSourceType } from "../../common/types/explog.js";
 
 export class UserRepository {
-  public async createUser(email: string, name: string, password: string) {
+  public async createUser(email: string, name: string, password: string, avatar: string) {
     return prisma.user.create({
       data: {
         email,
@@ -11,6 +11,7 @@ export class UserRepository {
         profile: {
           create: {
             name,
+            avatar
           }
         }
       },
@@ -168,7 +169,7 @@ export class UserRepository {
     });
   }
 
-  public async upsertUser(email: string, name: string) {
+  public async upsertUser(email: string, name: string, avatar: string) {
     return await prisma.user.upsert({
       where: {
         email,
@@ -178,7 +179,8 @@ export class UserRepository {
         isVerified: true,
         profile: {
           create: {
-            name
+            name,
+            avatar
           }
         }
       },
