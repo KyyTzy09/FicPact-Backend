@@ -30,3 +30,37 @@ export function updateReflectionTime(
 
   return updated;
 }
+
+export function getWeekPeriodDate() {
+  const now = new Date()
+  const day = now.getDay()
+
+  // 0 = Minggu
+  const diff = (day === 0 ? -6 : 1 - day)
+
+  // Awaal minggu
+  const startOfWeek = new Date(now)
+  startOfWeek.setDate(now.getDate() + diff)
+  startOfWeek.setHours(0, 0, 0, 0)
+
+  // Akhir minggu
+  const endOfWeek = new Date(startOfWeek)
+  endOfWeek.setDate(startOfWeek.getDate() + 6)
+  endOfWeek.setHours(23, 59, 59, 999)
+
+  return { startOfWeek, endOfWeek }
+}
+
+export function getMonthPeriodDate() {
+  const now = new Date()
+
+  // Awal bulan
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+  startOfMonth.setHours(0, 0, 0, 0)
+
+  // Akhir bulan
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  endOfMonth.setHours(23, 59, 59, 999)
+
+  return { startOfMonth, endOfMonth }
+}

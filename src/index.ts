@@ -14,6 +14,7 @@ import { aiController } from './modules/ai/ai.controller.js'
 import { fullLogger } from './common/middlewares/logger.middleware.js'
 import { apiReference } from '@scalar/hono-api-reference'
 import { achievementController } from './modules/achievement/achievement.controller.js'
+import { leaderboardController } from './modules/leaderboards/leaderboard.controller.js'
 
 const app = new Hono()
 app.use("*", fullLogger)
@@ -60,7 +61,7 @@ app.route("/quests", questController)
 app.route("/reflection", reflectionController)
 app.route("ai", aiController)
 app.route("/achievements", achievementController)
-
+app.route("/leaderboards", leaderboardController)
 
 app.onError((err, c) => {
     if (err instanceof HTTPException) {

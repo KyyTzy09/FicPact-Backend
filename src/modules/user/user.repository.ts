@@ -17,6 +17,17 @@ export class UserRepository {
     });
   }
 
+  public async findAllUsers() {
+    return await prisma.user.findMany({
+      include: {
+        profile: true,
+      },
+      omit: {
+        password: true
+      }
+    });
+  }
+
   public async findUserById(userId: string) {
     return await prisma.user.findUnique({
       where: {
@@ -265,6 +276,17 @@ export class UserRepository {
     });
   }
 
+  public async getAllExpLogs(startDate: Date, endDate: Date) {
+    return await prisma.expLog.findMany({
+      where: {
+        createdAt: {
+          gte: startDate,
+          lte: endDate
+        }
+      }
+    })
+  }
+
   public async updateLevelAndLog(
     userId: string,
     user: {
@@ -297,7 +319,7 @@ export class UserRepository {
         }
       })
 
-      return { updatedUser,  };
+      return updatedUser;
     });
   }
 }
