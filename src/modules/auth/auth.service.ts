@@ -42,7 +42,8 @@ export class AuthService {
   }
 
   public async loginWithGoogle(email: string) {
-    const user = await this.userRepository.upsertUser(email)
+    const name = email.split("@")[0]
+    const user = await this.userRepository.upsertUser(email, name)
     if (!user) throw new HTTPException(400, { message: "Gagal membuat user" })
 
     const payload = { id: user.id, email: user.email };

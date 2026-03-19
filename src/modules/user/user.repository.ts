@@ -156,7 +156,7 @@ export class UserRepository {
     });
   }
 
-  public async upsertUser(email: string) {
+  public async upsertUser(email: string, name: string) {
     return await prisma.user.upsert({
       where: {
         email,
@@ -164,6 +164,11 @@ export class UserRepository {
       create: {
         email,
         isVerified: true,
+        profile: {
+          create: {
+            name
+          }
+        }
       },
       update: {
         email,
