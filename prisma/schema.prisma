@@ -32,7 +32,6 @@ model User {
   profile            Profile?
   expLogs            ExpLog[]
 }
-
 model Profile {
   userId String  @id
   name   String
@@ -43,7 +42,6 @@ model Profile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
 model VerificationToken {
   id        String                @id @default(uuid())
   code      String
