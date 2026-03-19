@@ -278,7 +278,11 @@ export class UserRepository {
     });
   }
 
-  public async getAllExpLogs(startDate: Date, endDate: Date) {
+  public async getAllExpLogs() {
+    return await prisma.expLog.findMany()
+  }
+
+  public async getAllExpLogsBetweenDates(startDate: Date, endDate: Date) {
     return await prisma.expLog.findMany({
       where: {
         createdAt: {

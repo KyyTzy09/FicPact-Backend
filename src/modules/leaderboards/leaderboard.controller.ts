@@ -35,3 +35,15 @@ export const leaderboardController = new Hono()
             return HttpResponse(c, 200, "Monthly Leaderboard retrieved successfully", result)
         }
     )
+    .get("/all-time",
+        describeRoute({
+            tags: ["Leaderboard"],
+            summary: "Get All Time Leaderboard",
+            security: [{ bearerAuth: [] }],
+        }),
+        authMiddleware,
+        async (c) => {
+            const result = await leaderboardService.getAllTimeLeaderboard();
+            return HttpResponse(c, 200, "All Time Leaderboard retrieved successfully", result)
+        }
+    )
