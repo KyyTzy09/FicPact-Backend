@@ -1,5 +1,6 @@
 import type { User, VerificationTokenType } from "@prisma/client";
 import { prisma } from "../../common/utils/prisma.js";
+import type { ExpLogSourceType } from "../../common/types/explog.js";
 
 export class UserRepository {
   public async createUser(email: string, name: string, password: string) {
@@ -261,6 +262,42 @@ export class UserRepository {
       omit: {
         password: true,
       },
+    });
+  }
+
+  public async updateLevelAndLog(
+    userId: string,
+    user: {
+      newLevel: number,
+      remainingExp: number,
+      totalExp: number,
+      newExpToNextLevel: number,
+    },
+    expGained: number,
+    source: ExpLogSourceType,
+  ) {
+    await prisma.$transaction(async (tx) => {
+      const updatedUser = await tx.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          level: user.newLevel,
+          currentExp: user.remainingExp,
+          totalExp: user.totalExp,
+          expToNextLevel: user.newExpToNextLevel,
+        },
+      });
+
+      await tx.expLog.create({
+        data: {
+          userId,
+          amount: expGained,
+          source
+        }
+      })
+
+      return { updatedUser,  };
     });
   }
 }

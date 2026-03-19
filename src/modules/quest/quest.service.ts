@@ -3,17 +3,17 @@ import type { UserRepository } from "../user/user.repository.js";
 import type { QuestRepository } from "./quest.repository.js";
 import type { FolderRepository } from "../folder/folder.repository.js";
 import { processExpGain } from "../../common/utils/leveling.js";
-import type { AchievementRepository } from "../achievement/achievement.repository.js";
-import { use } from "hono/jsx";
 import { AIService } from "../ai/ai.service.js";
 import { getNextFolderName } from "../../common/utils/name.js";
 import type { AchievementService } from "../achievement/achievement.service.js";
+import type { UserService } from "../user/user.service.js";
 
 export class QuestService {
   constructor(
     private readonly questRepository: QuestRepository,
     private readonly userRepository: UserRepository,
     private readonly folderRepository: FolderRepository,
+    private readonly userService: UserService,
     private readonly achievementService: AchievementService,
     private readonly aiService: AIService,
   ) { }
@@ -155,15 +155,7 @@ export class QuestService {
     if (!user) throw new HTTPException(404, { message: "User tidak ditemukan" });
 
     // level up user
-    const levelUpUser = processExpGain({ ...user }, quest.expReward);
-
-    await this.userRepository.updateUserLevelAndExp(
-      userId,
-      levelUpUser.newLevel,
-      levelUpUser.remainingExp,
-      levelUpUser.totalExp,
-      levelUpUser.expToNextLevel
-    );
+    await this.userService.updateLevelAfterQuest(user, userId, quest);
 
     // ambil user terbaru setelah level up
     const updatedUser = await this.userRepository.findUserQuests(userId);
