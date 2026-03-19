@@ -1,13 +1,30 @@
 import type { User, VerificationTokenType } from "@prisma/client";
 import { prisma } from "../../common/utils/prisma.js";
+import type { ExpLogSourceType } from "../../common/types/explog.js";
 
 export class UserRepository {
-  public async createUser(email: string, password: string) {
+  public async createUser(email: string, name: string, password: string) {
     return prisma.user.create({
       data: {
         email,
         password,
+        profile: {
+          create: {
+            name,
+          }
+        }
       },
+    });
+  }
+
+  public async findAllUsers() {
+    return await prisma.user.findMany({
+      include: {
+        profile: true,
+      },
+      omit: {
+        password: true
+      }
     });
   }
 
@@ -16,9 +33,12 @@ export class UserRepository {
       where: {
         id: userId,
       },
-      omit: {
-        password: true,
+      include: {
+        profile: true,
       },
+      omit: {
+        password: true
+      }
     });
   }
 
@@ -148,7 +168,7 @@ export class UserRepository {
     });
   }
 
-  public async upsertUser(email: string) {
+  public async upsertUser(email: string, name: string) {
     return await prisma.user.upsert({
       where: {
         email,
@@ -156,6 +176,11 @@ export class UserRepository {
       create: {
         email,
         isVerified: true,
+        profile: {
+          create: {
+            name
+          }
+        }
       },
       update: {
         email,
@@ -248,6 +273,53 @@ export class UserRepository {
       omit: {
         password: true,
       },
+    });
+  }
+
+  public async getAllExpLogs(startDate: Date, endDate: Date) {
+    return await prisma.expLog.findMany({
+      where: {
+        createdAt: {
+          gte: startDate,
+          lte: endDate
+        }
+      }
+    })
+  }
+
+  public async updateLevelAndLog(
+    userId: string,
+    user: {
+      newLevel: number,
+      remainingExp: number,
+      totalExp: number,
+      newExpToNextLevel: number,
+    },
+    expGained: number,
+    source: ExpLogSourceType,
+  ) {
+    await prisma.$transaction(async (tx) => {
+      const updatedUser = await tx.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          level: user.newLevel,
+          currentExp: user.remainingExp,
+          totalExp: user.totalExp,
+          expToNextLevel: user.newExpToNextLevel,
+        },
+      });
+
+      await tx.expLog.create({
+        data: {
+          userId,
+          amount: expGained,
+          source
+        }
+      })
+
+      return updatedUser;
     });
   }
 }

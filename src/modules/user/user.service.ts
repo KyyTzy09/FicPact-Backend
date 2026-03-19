@@ -1,6 +1,8 @@
 import { HTTPException } from "hono/http-exception";
 import type { UserRepository } from "./user.repository.js";
 import { getNextReflectionDate, updateReflectionTime } from "../../common/utils/date.js";
+import { processExpGain } from "../../common/utils/leveling.js";
+import type { Quest, User } from "@prisma/client";
 
 export class UserService {
     constructor(private readonly userRepository: UserRepository) { }
@@ -31,6 +33,19 @@ export class UserService {
         const updatedUser = await this.userRepository.updateUserReflectionTime(userId, nextReflectionDate, days)
         if (!updatedUser) throw new HTTPException(500, { message: "Gagal mengubah waktu refleksi" })
 
+        return updatedUser
+    }
+
+    public async updateLevelAfterQuest(user: User, userId: string, quest: Quest) {
+        const levelUpUser = processExpGain({ ...user }, quest.expReward);
+        if (!levelUpUser) throw new HTTPException(400, { message: "Gagal memperbarui level" });
+        const updatedUser = await this.userRepository.updateLevelAndLog(userId, {
+            newLevel: levelUpUser.newLevel,
+            remainingExp: levelUpUser.remainingExp,
+            totalExp: levelUpUser.totalExp,
+            newExpToNextLevel: levelUpUser.expToNextLevel
+        }, quest.expReward, "quest");
+        
         return updatedUser
     }
 }

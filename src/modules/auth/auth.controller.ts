@@ -116,8 +116,8 @@ export const authController = new Hono()
         }),
         validator("json", registerAuthValidation),
         async (c) => {
-            const { email, password } = c.req.valid("json");
-            const result = await authService.register(email, password);
+            const { email, name, password } = c.req.valid("json");
+            const result = await authService.register(email, name, password);
 
             setCookie(c, "token", result.token, {
                 path: "/",

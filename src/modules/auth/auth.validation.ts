@@ -2,6 +2,7 @@ import z from "zod";
 
 export const registerAuthValidation = z.object({
   email: z.email(),
+  name: z.string().min(2, { message: "Minimal 2 karakter" }),
   password: z
     .string({ message: "Password wajib di isi" })
     .min(6, { message: "Minimal 6 karakter" }),

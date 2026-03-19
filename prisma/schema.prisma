@@ -29,6 +29,18 @@ model User {
   reflectionTriggers ReflectionTrigger[]
   userAchievements   UserAchievement[]
   verificationToken  VerificationToken[]
+  profile            Profile?
+  expLogs            ExpLog[]
+}
+
+model Profile {
+  userId String @id
+  name   String
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model VerificationToken {
@@ -39,6 +51,16 @@ model VerificationToken {
   createdAt DateTime              @default(now())
   expiresAt DateTime
   user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ExpLog {
+  id        String   @id @default(uuid())
+  userId    String
+  source    String
+  amount    Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Achievement {

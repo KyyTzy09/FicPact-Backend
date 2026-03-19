@@ -15,11 +15,11 @@ export class AuthService {
   ) {
   }
 
-  public async register(email: string, password: string) {
+  public async register(email: string, name: string, password: string) {
     const existingUser = await this.userRepository.findUserByEmail(email);
     if (existingUser) throw new HTTPException(409, { message: "User sudah terdaftar" })
     const hashedPassword = await hashPassword(password);
-    const create = await this.userRepository.createUser(email, hashedPassword);
+    const create = await this.userRepository.createUser(email, name, hashedPassword);
     if (!create) throw new HTTPException(400, { message: "Gagal membuat user" })
 
     const payload = { id: create.id, email: create.email };
@@ -42,7 +42,8 @@ export class AuthService {
   }
 
   public async loginWithGoogle(email: string) {
-    const user = await this.userRepository.upsertUser(email)
+    const name = email.split("@")[0]
+    const user = await this.userRepository.upsertUser(email, name)
     if (!user) throw new HTTPException(400, { message: "Gagal membuat user" })
 
     const payload = { id: user.id, email: user.email };
