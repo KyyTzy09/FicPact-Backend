@@ -191,6 +191,17 @@ export class UserRepository {
     });
   }
 
+  public async updateUserFirstReflection(userId: string) {
+    return await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        isFirstReflection: false
+      },
+    });
+  }
+
   public async verifyUser(userId: string, nextReflection: Date) {
     return await prisma.user.update({
       where: {
@@ -278,6 +289,7 @@ export class UserRepository {
     });
   }
 
+  // Leaderboard
   public async getAllExpLogs() {
     return await prisma.expLog.findMany()
   }

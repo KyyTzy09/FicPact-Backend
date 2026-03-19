@@ -9,7 +9,6 @@ import { describeRoute, validator } from "hono-openapi";
 import { QuestRepository } from "../quest/quest.repository.js";
 import { FolderRepository } from "../folder/folder.repository.js";
 import { AIService } from "../ai/ai.service.js";
-import { bearerAuth } from "hono/bearer-auth";
 import { AchievementRepository } from "../achievement/achievement.repository.js";
 import { AchievementService } from "../achievement/achievement.service.js";
 
@@ -47,21 +46,21 @@ export const reflectionController = new Hono()
             return HttpResponse(c, 201, "Quest reflection created successfully", result)
         }
     )
-    .post("/create-failed",
-        authMiddleware,
-        describeRoute({
-            tags: ["Reflection"],
-            summary: "Create User Failed Reflection",
-            security: [{ bearerAuth: [] }],
-        }),
-        validator("json", createUserFailedReflectionValidation),
-        async (c) => {
-            const { reason, addOns } = c.req.valid("json")
-            const userId = c.get("user").id
-            const result = await reflectionService.CreateUserFailedReflection(userId, reason, addOns)
-            return HttpResponse(c, 201, "Reflection created successfully", result)
-        }
-    )
+    // .post("/create-failed",
+    //     authMiddleware,
+    //     describeRoute({
+    //         tags: ["Reflection"],
+    //         summary: "Create User Failed Reflection",
+    //         security: [{ bearerAuth: [] }],
+    //     }),
+    //     validator("json", createUserFailedReflectionValidation),
+    //     async (c) => {
+    //         const { reason, addOns } = c.req.valid("json")
+    //         const userId = c.get("user").id
+    //         const result = await reflectionService.CreateUserFailedReflection(userId, reason, addOns)
+    //         return HttpResponse(c, 201, "Reflection created successfully", result)
+    //     }
+    // )
     .patch("/trigger-reflection",
         describeRoute({
             tags: ["Reflection"],

@@ -38,19 +38,19 @@ export class ReflectionService {
         return createdReflections
     }
 
-    async CreateUserFailedReflection(userId: string, reason: string[], addOns?: string) {
-        const existingUser = await this.userRepository.findUserById(userId)
-        if (!existingUser) throw new HTTPException(404, { message: "Pengguna tidak ditemukan" })
+    // async CreateUserFailedReflection(userId: string, reason: string[], addOns?: string) {
+    //     const existingUser = await this.userRepository.findUserById(userId)
+    //     if (!existingUser) throw new HTTPException(404, { message: "Pengguna tidak ditemukan" })
 
-        const formatedReflection = reflectionFormatter(reason, addOns)
-        const endPeriod = new Date();
-        const startPeriod = new Date(endPeriod.getTime() - 7 * 24 * 60 * 60 * 1000);
+    //     const formatedReflection = reflectionFormatter(reason, addOns)
+    //     const endPeriod = new Date();
+    //     const startPeriod = new Date(endPeriod.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-        const createdReflection = await this.reflectionRepository.createReflection(userId, formatedReflection, startPeriod, endPeriod)
-        if (!createdReflection) throw new HTTPException(400, { message: "Gagal membuat refleksi" })
+    //     const createdReflection = await this.reflectionRepository.createReflection(userId, formatedReflection, startPeriod, endPeriod)
+    //     if (!createdReflection) throw new HTTPException(400, { message: "Gagal membuat refleksi" })
 
-        return createdReflection
-    }
+    //     return createdReflection
+    // }
 
     async updateReflectionTrigger(userId: string, reflectionTriggerId: string, isReflection: boolean) {
         // Cari dulu RefleksiTrigger berdasarkan userId & id
@@ -69,7 +69,6 @@ export class ReflectionService {
     async CreateUserReflection(userId: string) {
         const existingUser = await this.userRepository.findUserById(userId)
         if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
-
         // Cari data quest sesuai dengan hari yang dipilih sebelumnya
         const endPeriod = new Date();
         const startPeriod = new Date(endPeriod.getTime() - existingUser.reflectionDays * 24 * 60 * 60 * 1000);
@@ -87,6 +86,8 @@ export class ReflectionService {
         if (!createdReflection) throw new HTTPException(400, { message: "Gagal membuat refleksi" })
 
         await this.userRepository.updateUserLastReflection(userId, new Date(createdReflection.createdAt || endPeriod))
+        if (existingUser.isFirstReflection) await this.userRepository.updateUserFirstReflection(userId)
+
         return createdReflection
     }
 }

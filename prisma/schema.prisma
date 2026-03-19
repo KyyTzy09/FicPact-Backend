@@ -15,7 +15,9 @@ model User {
   expToNextLevel Int     @default(100)
   level          Int     @default(1)
   totalExp       Int     @default(0)
-  isVerified     Boolean @default(false)
+
+  isVerified        Boolean @default(false)
+  isFirstReflection Boolean @default(true)
 
   reflectionDays Int       @default(7)
   nextReflection DateTime?
