@@ -29,6 +29,17 @@ model User {
   reflectionTriggers ReflectionTrigger[]
   userAchievements   UserAchievement[]
   verificationToken  VerificationToken[]
+  profile            Profile?
+}
+
+model Profile {
+  userId String @id
+  name   String
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model VerificationToken {

@@ -2,11 +2,16 @@ import type { User, VerificationTokenType } from "@prisma/client";
 import { prisma } from "../../common/utils/prisma.js";
 
 export class UserRepository {
-  public async createUser(email: string, password: string) {
+  public async createUser(email: string, name: string, password: string) {
     return prisma.user.create({
       data: {
         email,
         password,
+        profile: {
+          create: {
+            name,
+          }
+        }
       },
     });
   }
@@ -16,9 +21,12 @@ export class UserRepository {
       where: {
         id: userId,
       },
-      omit: {
-        password: true,
+      include: {
+        profile: true,
       },
+      omit: {
+        password: true
+      }
     });
   }
 
