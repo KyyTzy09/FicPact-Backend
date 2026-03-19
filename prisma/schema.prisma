@@ -30,6 +30,7 @@ model User {
   userAchievements   UserAchievement[]
   verificationToken  VerificationToken[]
   profile            Profile?
+  expLogs            ExpLog[]
 }
 
 model Profile {
@@ -50,6 +51,16 @@ model VerificationToken {
   createdAt DateTime              @default(now())
   expiresAt DateTime
   user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ExpLog {
+  id        String   @id @default(uuid())
+  userId    String
+  source    String
+  amount    Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Achievement {
