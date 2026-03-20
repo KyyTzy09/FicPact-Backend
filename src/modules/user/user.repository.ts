@@ -282,6 +282,7 @@ export class UserRepository {
       },
       data: {
         phone,
+        isOnBoarded: true
       },
       omit: {
         password: true,
