@@ -64,3 +64,39 @@ export function getMonthPeriodDate() {
 
   return { startOfMonth, endOfMonth }
 }
+
+export function isSunday(date: Date) {
+  return date.getDay() === 0
+}
+
+export function isLastDayOfMonth(date: Date) {
+  const tomorrow = new Date(date)
+  tomorrow.setDate(date.getDate() + 1)
+  return tomorrow.getDate() === 1
+}
+
+
+export function getWeekRange(date: Date) {
+  const day = date.getDay()
+  const diff = day === 0 ? -6 : 1 - day
+
+  const start = new Date(date)
+  start.setDate(date.getDate() + diff)
+  start.setHours(0, 0, 0, 0)
+
+  const end = new Date(start)
+  end.setDate(start.getDate() + 6)
+  end.setHours(23, 59, 59, 999)
+
+  return { start, end }
+}
+
+export function getMonthRange(date: Date) {
+  const start = new Date(date.getFullYear(), date.getMonth(), 1)
+  start.setHours(0, 0, 0, 0)
+
+  const end = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+  end.setHours(23, 59, 59, 999)
+
+  return { start, end }
+}

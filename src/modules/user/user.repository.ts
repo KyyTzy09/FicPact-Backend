@@ -1,4 +1,4 @@
-import type { User, VerificationTokenType } from "@prisma/client";
+import type { LeaderboardType, User, VerificationTokenType } from "@prisma/client";
 import { prisma } from "../../common/utils/prisma.js";
 import type { ExpLogSourceType } from "../../common/types/explog.js";
 
@@ -191,6 +191,17 @@ export class UserRepository {
     });
   }
 
+  public async updateUserFirstReflection(userId: string) {
+    return await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        isFirstReflection: false
+      },
+    });
+  }
+
   public async verifyUser(userId: string, nextReflection: Date) {
     return await prisma.user.update({
       where: {
@@ -271,6 +282,7 @@ export class UserRepository {
       },
       data: {
         phone,
+        isOnBoarded: true
       },
       omit: {
         password: true,
@@ -278,8 +290,34 @@ export class UserRepository {
     });
   }
 
+  // Leaderboard
   public async getAllExpLogs() {
     return await prisma.expLog.findMany()
+  }
+
+  public async refreshLeaderboard(startDate: Date, endDate: Date, type: LeaderboardType, top3: { userId: string, exp: number }[]) {
+    return await prisma.$transaction(async (tx) => {
+      const leaderboard = await tx.leaderboardHistory.create({
+        data: {
+          startDate,
+          endDate,
+          type
+        }
+      })
+
+      const winnersData = top3.map((user, index) => ({
+        leaderboardId: leaderboard.id,
+        userId: user.userId,
+        rank: index + 1,
+        exp: user.exp
+      }))
+
+      await tx.leaderboardWinner.createMany({
+        data: winnersData
+      })
+
+      return leaderboard
+    })
   }
 
   public async getAllExpLogsBetweenDates(startDate: Date, endDate: Date) {

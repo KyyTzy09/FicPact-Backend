@@ -15,7 +15,10 @@ model User {
   expToNextLevel Int     @default(100)
   level          Int     @default(1)
   totalExp       Int     @default(0)
-  isVerified     Boolean @default(false)
+
+  isVerified        Boolean @default(false)
+  isFirstReflection Boolean @default(true)
+  isOnBoarded       Boolean @default(false)
 
   reflectionDays Int       @default(7)
   nextReflection DateTime?
@@ -31,7 +34,9 @@ model User {
   verificationToken  VerificationToken[]
   profile            Profile?
   expLogs            ExpLog[]
+  leaderboardWinners LeaderboardWinner[]
 }
+
 model Profile {
   userId String  @id
   name   String
@@ -42,6 +47,7 @@ model Profile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 model VerificationToken {
   id        String                @id @default(uuid())
   code      String
@@ -60,6 +66,34 @@ model ExpLog {
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
+}
+
+model LeaderboardHistory {
+  id        String          @id @default(uuid())
+  startDate DateTime
+  endDate   DateTime
+  type      LeaderboardType
+  createdAt DateTime        @default(now())
+
+  winners LeaderboardWinner[]
+}
+
+model LeaderboardWinner {
+  id            String @id @default(uuid())
+  leaderboardId String
+  userId        String
+  rank          Int
+  exp           Int
+
+  leaderboard LeaderboardHistory @relation(fields: [leaderboardId], references: [id])
+  user        User               @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+enum LeaderboardType {
+  WEEKLY
+  MONTHLY
 }
 
 model Achievement {

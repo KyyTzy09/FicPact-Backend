@@ -47,3 +47,27 @@ export const leaderboardController = new Hono()
             return HttpResponse(c, 200, "All Time Leaderboard retrieved successfully", result)
         }
     )
+    .post("/update-weekly",
+        describeRoute({
+            tags: ["Leaderboard"],
+            summary: "Update Weekly Leaderboard",
+            security: [{ bearerAuth: [] }],
+        }),
+        authMiddleware,
+        async (c) => {
+            const result = await leaderboardService.createWeeklyLeaderboard();
+            return HttpResponse(c, 200, "Leaderboard updated successfully", result)
+        }
+    )
+    .post("/update-monthly",
+        describeRoute({
+            tags: ["Leaderboard"],
+            summary: "Update Monthly Leaderboard",
+            security: [{ bearerAuth: [] }],
+        }),
+        authMiddleware,
+        async (c) => {
+            const result = await leaderboardService.createMonthlyLeaderboard();
+            return HttpResponse(c, 200, "Leaderboard updated successfully", result)
+        }
+    )
