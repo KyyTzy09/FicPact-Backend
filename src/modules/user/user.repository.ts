@@ -290,7 +290,7 @@ export class UserRepository {
       },
       data: {
         phone,
-        isOnBoarded: true
+        isOnboarded: true
       },
       omit: {
         password: true,
