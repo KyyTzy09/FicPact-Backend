@@ -27,11 +27,11 @@ export class PunishmentService {
         return createdPunishment;
     }
 
-    async updatePunishmentStatus(questId: string, userId: string, status: boolean) {
+    async updatePunishmentStatus(userId: string, punishmentId: string, status: boolean) {
         const user = await this.userService.getUserById(userId);
         if (!user) throw new HTTPException(404, { message: "User tidak ditemukan" });
 
-        const existingPunishment = await this.punishmentRepository.findPunishmentByUserId(questId, userId);
+        const existingPunishment = await this.punishmentRepository.findPunishmentByUserId(punishmentId, userId);
         if (!existingPunishment) throw new HTTPException(404, { message: "Hukuman tidak ditemukan" });
 
         const punishmentStatus: QuestPunishmentStatus = status ? QuestPunishmentStatus.COMPLETED : QuestPunishmentStatus.FAILED;
@@ -41,7 +41,7 @@ export class PunishmentService {
             await this.userService.updateUserLevel(user, userId, 10, "quest");
         }
 
-        const updatedPunishment = await this.punishmentRepository.updatePunishmentStatus(questId, punishmentStatus);
+        const updatedPunishment = await this.punishmentRepository.updatePunishmentStatus(punishmentId, punishmentStatus);
         if (!updatedPunishment) throw new HTTPException(400, { message: "Gagal memperbarui hukuman" });
 
         return updatedPunishment;

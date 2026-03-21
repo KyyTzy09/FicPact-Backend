@@ -10,10 +10,10 @@ export class PunishmentRepository {
         })
     }
 
-    public async findPunishmentByUserId(questId: string, userId: string) {
+    public async findPunishmentByUserId(punishmentId: string, userId: string) {
         return await prisma.questPunishment.findUnique({
             where: {
-                questId,
+                questId: punishmentId,
                 userId
             }
         })
