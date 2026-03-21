@@ -48,6 +48,9 @@ export class UserRepository {
             where: {
               isClaimed: true
             },
+            include: {
+              achievement: true
+            }
           },
           questFolders: {
             include: {
