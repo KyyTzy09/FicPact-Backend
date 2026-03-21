@@ -1,6 +1,6 @@
 import { FONNTE_API_KEY, FONNTE_BASE_URL } from "./env.js";
 
-type whatsappTopicType = "reminder_quest" | "quest_failed" | "punishment" | "streak_lost" | "quest_completed" | "phone_verification"
+type whatsappTopicType = "reminder_quest" | "quest_failed" | "punishment" | "streak_lost" | "quest_completed" | "phone_verification" | "reflection"
 
 export function generateWhatsappMessage(topic: whatsappTopicType, value: string, url?: string, deadlineAt?: string) {
     switch (topic) {
@@ -54,6 +54,14 @@ Kode kamu: *${value}*
 
 Jangan share ke siapa-siapa ya.
 Masukin kodenya biar bisa lanjut 🚀`
+
+        case "reflection":
+            return `🧠 Nice...
+
+Refleksi kamu buat quest *"${value}"* sudah tersimpan.
+
+Sedikit-sedikit kamu mulai ngerti pola kamu sendiri.
+Lanjutkan, ini yang bikin progress kamu beda 🔥`
 
         default:
             return `👋 Ada update dari TaskQuest!

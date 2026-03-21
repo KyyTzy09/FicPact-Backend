@@ -1,5 +1,5 @@
 import { HTTPException } from "hono/http-exception";
-import { reflectionFormatter, ReflectionGroupper } from "../../common/utils/reflection.js";
+import { ReflectionGroupper } from "../../common/utils/reflection.js";
 import type { UserRepository } from "../user/user.repository.js";
 import type { ReflectionRepository } from "./reflection.repository.js";
 import { QuestLevel, QuestReflectionType, type Quest } from "@prisma/client";
@@ -7,6 +7,7 @@ import type { QuestRepository } from "../quest/quest.repository.js";
 import type { FolderRepository } from "../folder/folder.repository.js";
 import type { AIService } from "../ai/ai.service.js";
 import type { AchievementService } from "../achievement/achievement.service.js";
+import { generateWhatsappMessage, sendWhatsApp } from "../../common/utils/fonnte.js";
 
 export class ReflectionService {
     constructor(
@@ -27,14 +28,23 @@ export class ReflectionService {
     }
 
     async CreateQuestReflection(userId: string, questId: string, reasons: string[], questStatus: boolean, questLevel: "HIGH" | "NORMAL" | "LOW") {
-        const existingUser = await this.questRepository.findById(questId)
-        if (!existingUser) throw new HTTPException(404, { message: "Quest tidak ditemukan" })
+        const existingUser = await this.userRepository.findUserById(userId)
+        if (!existingUser) throw new HTTPException(404, { message: "Pengguna tidak ditemukan" })
+
+        const existingQuest = await this.questRepository.findById(questId)
+        if (!existingQuest) throw new HTTPException(404, { message: "Quest tidak ditemukan" })
 
         const createdReflections = await this.reflectionRepository.createManyQuestReflection(questId, reasons, QuestLevel[questLevel], !questStatus ? QuestReflectionType.FAILED : QuestReflectionType.SUCCESS)
         if (!createdReflections) throw new HTTPException(400, { message: "Gagal membuat refleksi" })
 
         const countRelectedQuest = await this.questRepository.countUserReflectedQuest(userId)
         if (countRelectedQuest >= 5) await this.achievementService.unlockAchievements(userId, countRelectedQuest, "reflection")
+
+        if (existingUser.phone) {
+            const message = generateWhatsappMessage("reflection", existingQuest.name)
+            await sendWhatsApp(existingUser.phone, message)
+        }
+
         return createdReflections
     }
 
