@@ -32,6 +32,14 @@ export class UserRepository {
   public async findUserById(userId: string) {
     return await prisma.user.findUnique({
       where: {
+        id: userId
+      }
+    })
+  }
+
+  public async findUserByIdWithProfile(userId: string) {
+    return await prisma.user.findUnique({
+      where: {
         id: userId,
       },
       include: {
