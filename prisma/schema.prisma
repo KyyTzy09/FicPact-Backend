@@ -18,7 +18,7 @@ model User {
 
   isVerified        Boolean @default(false)
   isFirstReflection Boolean @default(true)
-  isOnBoarded       Boolean @default(false)
+  isOnboarded       Boolean @default(false)
 
   reflectionDays Int       @default(7)
   nextReflection DateTime?
