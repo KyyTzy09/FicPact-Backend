@@ -35,6 +35,7 @@ model User {
   profile            Profile?
   expLogs            ExpLog[]
   leaderboardWinners LeaderboardWinner[]
+  punishments        QuestPunishment[]
 }
 
 model Profile {
@@ -91,11 +92,6 @@ model LeaderboardWinner {
   createdAt DateTime @default(now())
 }
 
-enum LeaderboardType {
-  WEEKLY
-  MONTHLY
-}
-
 model Achievement {
   id          String            @id @default(uuid())
   name        String            @unique
@@ -137,17 +133,19 @@ model QuestFolder {
 }
 
 model Quest {
-  id          String            @id @default(uuid())
+  id          String    @id @default(uuid())
   name        String
   description String?
-  expReward   Int               @default(10)
-  isSuccess   Boolean           @default(false)
+  expReward   Int       @default(10)
+  isSuccess   Boolean   @default(false)
   folderId    String
-  createdAt   DateTime          @default(now())
+  createdAt   DateTime  @default(now())
   deadLineAt  DateTime
   completedAt DateTime?
-  folder      QuestFolder       @relation(fields: [folderId], references: [id], onDelete: Cascade)
-  reflection  QuestReflection[]
+
+  folder     QuestFolder       @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  reflection QuestReflection[]
+  punishment QuestPunishment?
 
   @@unique([folderId, name])
 }
@@ -163,6 +161,20 @@ model QuestReflection {
   quest      Quest               @relation(fields: [questId], references: [id], onDelete: Cascade)
 
   @@unique([questId, reason])
+}
+
+model QuestPunishment {
+  questId String @id
+  userId  String
+
+  name   String
+  status QuestPunishmentStatus @default(PENDING)
+
+  user  User  @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  quest Quest @relation(fields: [questId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  createdAt  DateTime @default(now())
+  deadlineAt DateTime
 }
 
 model Reflection {
@@ -204,5 +216,16 @@ enum QuestLevel {
 
 enum QuestReflectionType {
   SUCCESS
+  FAILED
+}
+
+enum LeaderboardType {
+  WEEKLY
+  MONTHLY
+}
+
+enum QuestPunishmentStatus {
+  PENDING
+  COMPLETED
   FAILED
 }

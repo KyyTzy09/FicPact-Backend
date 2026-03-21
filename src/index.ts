@@ -15,6 +15,7 @@ import { fullLogger } from './common/middlewares/logger.middleware.js'
 import { apiReference } from '@scalar/hono-api-reference'
 import { achievementController } from './modules/achievement/achievement.controller.js'
 import { leaderboardController } from './modules/leaderboards/leaderboard.controller.js'
+import { punishmentController } from './modules/punishment/punishment.controller.js'
 
 const app = new Hono()
 app.use("*", fullLogger)
@@ -62,6 +63,7 @@ app.route("/reflection", reflectionController)
 app.route("ai", aiController)
 app.route("/achievements", achievementController)
 app.route("/leaderboards", leaderboardController)
+app.route("/punishments", punishmentController)
 
 app.onError((err, c) => {
     if (err instanceof HTTPException) {
