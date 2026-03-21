@@ -7,6 +7,7 @@ import { AIService } from "../ai/ai.service.js";
 import { getNextFolderName } from "../../common/utils/name.js";
 import type { AchievementService } from "../achievement/achievement.service.js";
 import type { UserService } from "../user/user.service.js";
+import { generateWhatsappMessage, sendWhatsApp } from "../../common/utils/fonnte.js";
 
 export class QuestService {
   constructor(
@@ -167,8 +168,15 @@ export class QuestService {
     if (completedQuests >= 1) {
       await this.achievementService.unlockAchievements(userId, completedQuests, "quest")
     }
+
+    if (user.phone) {
+      const message = generateWhatsappMessage("quest_completed", quest.name)
+      await sendWhatsApp(user.phone, message)
+    }
+
     return quest;
   }
+
   public async createQuest(userId: string, folderId: string, title: string, description: string, deadline: string) {
     // Cek apakah user dengan userId yang diberikan ada
     const user = await this.userRepository.findUserById(userId);

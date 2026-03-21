@@ -42,7 +42,7 @@ export const punishmentController = new Hono()
         async (c) => {
             const userId = c.get("user").id
             const { questId, name, deadlineAt } = c.req.valid("json")
-            const result = await punishmentService.createPunishment(questId, userId, name, deadlineAt)
+            const result = await punishmentService.createPunishment(questId, userId, name, new Date(deadlineAt))
             return HttpResponse(c, 201, "Punishment created successfully", result)
         }
     )
