@@ -5,7 +5,7 @@ import { FRONTEND_BASE_URL, JWT_SECRET } from "../../common/utils/env.js";
 import { generateToken } from "../../common/utils/jwt.js";
 import { sendEmail } from "../../common/utils/email.js";
 import { VerificationTokenType } from "@prisma/client";
-import { sendWhatsApp } from "../../common/utils/fonnte.js";
+import { generateWhatsappMessage, sendWhatsApp } from "../../common/utils/fonnte.js";
 import { normalizePhone } from "../../common/utils/phone.js";
 import { getNextReflectionDate } from "../../common/utils/date.js";
 import { generateAvatar } from "../../common/utils/random-avatar.js";
@@ -132,11 +132,44 @@ export class AuthService {
     const token = await otpGenerator(6);
     const updatedUserToken = await this.userRepository.createToken(existingUser.id, token, new Date(Date.now() + 1000 * 60 * 15), VerificationTokenType.ACCOUNT)
 
-    const html = `<h2>Verifikasi Akun</h2>
-        <p>Masukan token berikut untuk verifikasi akun kamu:</p>
-        <p>${token}</p>
-        <p>Token berlaku 15 menit.</p>
-        `
+    const html = `
+  <div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto; padding: 20px; color: #333;">
+    
+    <h2 style="margin-bottom: 10px;">🔐 Verifikasi Akun</h2>
+    
+    <p style="margin-bottom: 16px;">
+      Hampir selesai! Tinggal satu langkah lagi buat aktifin akun kamu di <b>TaskQuest</b>.
+    </p>
+
+    <p style="margin-bottom: 8px;">
+      Masukkan kode verifikasi berikut:
+    </p>
+
+    <div style="
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 4px;
+      background: #f4f4f4;
+      padding: 12px;
+      text-align: center;
+      border-radius: 8px;
+      margin: 16px 0;
+    ">
+      ${token}
+    </div>
+
+    <p style="margin-bottom: 16px;">
+      Kode ini berlaku selama <b>15 menit</b>. Jangan dibagikan ke siapa pun ya.
+    </p>
+
+    <hr style="margin: 24px 0; border: none; border-top: 1px solid #eee;" />
+
+    <p style="font-size: 12px; color: #888;">
+      Kalau kamu tidak merasa melakukan ini, abaikan saja email ini.
+    </p>
+
+  </div>
+`
 
     await sendEmail({
       to: existingUser.email,
@@ -148,11 +181,44 @@ export class AuthService {
   }
 
   private async sendEmailVerificationToken(email: string, token: string) {
-    const html = `<h2>Verifikasi Akun</h2>
-        <p>Masukan token berikut untuk verifikasi akun kamu:</p>
-        <p>${token}</p>
-        <p>Token berlaku 15 menit.</p>
-        `
+    const html = `
+  <div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto; padding: 20px; color: #333;">
+    
+    <h2 style="margin-bottom: 10px;">🔐 Verifikasi Akun</h2>
+    
+    <p style="margin-bottom: 16px;">
+      Hampir selesai! Tinggal satu langkah lagi buat aktifin akun kamu di <b>TaskQuest</b>.
+    </p>
+
+    <p style="margin-bottom: 8px;">
+      Masukkan kode verifikasi berikut:
+    </p>
+
+    <div style="
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 4px;
+      background: #f4f4f4;
+      padding: 12px;
+      text-align: center;
+      border-radius: 8px;
+      margin: 16px 0;
+    ">
+      ${token}
+    </div>
+
+    <p style="margin-bottom: 16px;">
+      Kode ini berlaku selama <b>15 menit</b>. Jangan dibagikan ke siapa pun ya.
+    </p>
+
+    <hr style="margin: 24px 0; border: none; border-top: 1px solid #eee;" />
+
+    <p style="font-size: 12px; color: #888;">
+      Kalau kamu tidak merasa melakukan ini, abaikan saja email ini.
+    </p>
+
+  </div>
+`
 
     await sendEmail({
       to: email,
@@ -184,15 +250,7 @@ export class AuthService {
     const updatedUserToken = await this.userRepository.createToken(existingUser.id, token, new Date(Date.now() + 1000 * 60 * 15), VerificationTokenType.PHONE)
 
     const normalizedPhone = normalizePhone(phone)
-    const message = `📲 Verifikasi Nomor Telepon
-
-    Hai! Gunakan kode berikut untuk memverifikasi nomor telepon kamu:
-
-    ➡️ Kode OTP: ${token}
-
-    ⚠️ Token ini berlaku selama 15 menit.
-
-    Terima kasih telah menggunakan layanan kami!`
+    const message = generateWhatsappMessage("phone_verification", token)
 
     await sendWhatsApp(normalizedPhone, message)
     return { updatedUserToken }

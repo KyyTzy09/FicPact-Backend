@@ -1,5 +1,5 @@
 import { FRONTEND_BASE_URL } from "../../common/utils/env.js";
-import { sendWhatsApp } from "../../common/utils/fonnte.js";
+import { generateWhatsappMessage, sendWhatsApp } from "../../common/utils/fonnte.js";
 import type { QuestRepository } from "../quest/quest.repository.js";
 import type { ReflectionRepository } from "../reflection/reflection.repository.js";
 import type { UserRepository } from "../user/user.repository.js";
@@ -40,10 +40,9 @@ export class JobService {
             const user = users.find((user) => user.id === userId)
             if (!user) continue
 
-            const message = `Quest: ${name} dari folder ${folderName} belum selesai!!
-            ${deadLineAt}
-            ${FRONTEND_BASE_URL}/quest/${id}`
+            const message = generateWhatsappMessage("reminder_quest", `${name} dari folder ${folderName}`, `${FRONTEND_BASE_URL}/quest/${id}`, deadLineAt?.toString())
 
+            if (!user.phone) continue
             await sendWhatsApp(user?.phone || "", message)
         }
 
