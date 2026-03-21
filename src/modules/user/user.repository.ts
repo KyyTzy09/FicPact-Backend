@@ -37,19 +37,29 @@ export class UserRepository {
     })
   }
 
-  public async findUserByIdWithProfile(userId: string) {
-    return await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-      include: {
-        profile: true,
-      },
-      omit: {
-        password: true
-      }
-    });
-  }
+    public async findUserByIdWithProfile(userId: string) {
+      return await prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        include: {
+          profile: true,
+          userAchievements:{
+            where: {
+              isClaimed: true
+            },
+          },
+          questFolders: {
+            include: {
+              quests: true,
+            },
+          },
+        },
+        omit: {
+          password: true
+        }
+      });
+    }
 
   public async findUserWithProfileById(userId: string) {
     return await prisma.user.findUnique({

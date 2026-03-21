@@ -14,6 +14,17 @@ export class QuestRepository {
     });
   }
 
+  public async countCompletedQuest(userId: string) {
+    return await prisma.quest.count({
+      where: {
+        folder: {
+          userId,
+        },
+        isSuccess: true
+      }
+    })
+  }
+
   public async countUserReflectedQuest(userId: string) {
     return await prisma.quest.count({
       where: {

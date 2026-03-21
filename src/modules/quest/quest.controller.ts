@@ -18,7 +18,7 @@ const userRepository = new UserRepository()
 const folderRepository = new FolderRepository()
 const achievementRepository = new AchievementRepository()
 const achievementService = new AchievementService(achievementRepository)
-const userService = new UserService(userRepository)
+const userService = new UserService(userRepository, questRepository)
 const aiService = new AIService()
 
 
@@ -65,7 +65,7 @@ export const questController = new Hono()
     async (c) => {
       const userId = c.get("user").id
       const { deadline, description, folderId, title } = c.req.valid("json")
-      const result = await questService.createQuest(userId, folderId, title, description, deadline)
+      const result = await questService.createQuest(userId, folderId, title, description ? description : "", deadline)
       return HttpResponse(c, 201, "Quest created successfully", result)
     }
   )

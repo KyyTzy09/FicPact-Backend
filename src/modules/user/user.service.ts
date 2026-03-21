@@ -4,9 +4,10 @@ import { getNextReflectionDate, updateReflectionTime } from "../../common/utils/
 import { processExpGain } from "../../common/utils/leveling.js";
 import type { Quest, User } from "@prisma/client";
 import type { ExpLogSourceType } from "../../common/types/explog.js";
+import type { QuestRepository } from "../quest/quest.repository.js";
 
 export class UserService {
-    constructor(private readonly userRepository: UserRepository) { }
+    constructor(private readonly userRepository: UserRepository, private readonly questRepository: QuestRepository) { }
 
     public async getUserById(userId: string) {
         const existingUser = this.userRepository.findUserById(userId)
@@ -16,17 +17,34 @@ export class UserService {
     }
 
     public async getSession(userId: string) {
-        const existingUser = this.userRepository.findUserByIdWithProfile(userId)
+        const existingUser = this.userRepository.findUserById(userId)
         if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
 
         return existingUser
     }
 
     public async getProfile(userId: string) {
-        const existingUser = this.userRepository.findUserByIdWithProfile(userId)
+        const existingUser = await this.userRepository.findUserByIdWithProfile(userId)
         if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
+        const totalQuestCompleted = await this.questRepository.countCompletedQuest(userId)
+        console.log("Total quests completed:", totalQuestCompleted);
+        //const expToLevel
+        const questFolderProgress = existingUser.questFolders.map(folder => {
+            const totalQuests = folder.quests.length;
+            const completedQuests = folder.quests.filter(quest => quest.isSuccess).length;
+            const progress = totalQuests > 0 ? (completedQuests / totalQuests) * 100 : 0;
+            return {
+                ...folder,
+                progress: Math.round(progress)
 
-        return existingUser
+            }
+        })
+
+        return {
+            ...existingUser,
+            questFolders: questFolderProgress,
+            totalQuestCompleted
+        }
     }
 
     public async updateReflectionTime(userId: string, days: number, hours: number) {
@@ -47,6 +65,7 @@ export class UserService {
     public async updateUserLevel(user: User, userId: string, expGained: number, source: ExpLogSourceType) {
         const levelUpUser = processExpGain({ ...user }, expGained);
         if (!levelUpUser) throw new HTTPException(400, { message: "Gagal memperbarui level" });
+
         const updatedUser = await this.userRepository.updateLevelAndLog(userId, {
             newLevel: levelUpUser.newLevel,
             remainingExp: levelUpUser.remainingExp,

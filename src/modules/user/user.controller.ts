@@ -6,9 +6,11 @@ import { HttpResponse } from "../../common/utils/response.js";
 import { describeRoute, validator } from "hono-openapi";
 import { bearerAuth } from "hono/bearer-auth";
 import { updateUserReflectionTimeValidation } from "./user.validation.js";
+import { QuestRepository } from "../quest/quest.repository.js";
 
 const userRepository = new UserRepository()
-const userService = new UserService(userRepository)
+const questRepository = new QuestRepository()
+const userService = new UserService(userRepository, questRepository)
 
 export const userController = new Hono()
     .get(
