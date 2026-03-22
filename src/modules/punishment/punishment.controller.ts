@@ -12,7 +12,7 @@ import { QuestRepository } from "../quest/quest.repository.js";
 const punishmentRepository = new PunishmentRepository()
 const questRepository = new QuestRepository()
 const userRepository = new UserRepository()
-const userService = new UserService(userRepository)
+const userService = new UserService(userRepository, questRepository)
 const punishmentService = new PunishmentService(punishmentRepository, questRepository, userService)
 
 export const punishmentController = new Hono()
@@ -31,7 +31,6 @@ export const punishmentController = new Hono()
         }
     )
     .post("/",
-
         describeRoute({
             tags: ["Punishment"],
             summary: "Create Punishment",
@@ -47,7 +46,6 @@ export const punishmentController = new Hono()
         }
     )
     .patch("/:punishmentId/status",
-
         describeRoute({
             tags: ["Punishment"],
             summary: "Update Punishment Status",
