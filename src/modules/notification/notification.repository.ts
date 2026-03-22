@@ -29,7 +29,7 @@ export class NotificationRepository {
             }
         })
     }
-
+    
     public async findPendingUsersNotification(userIds: string[], type: NotificationType) {
         return await prisma.notification.findMany({
             where: {
@@ -45,11 +45,24 @@ export class NotificationRepository {
         })
     }
 
-    public async findPendingNotification(userId: string, type: NotificationType) {
+    public async findLatestUsersNotification(userIds: string[], type: NotificationType) {
+        return await prisma.notification.findMany({
+            where: {
+                userId: {
+                    in: userIds
+                },
+                type,
+            },
+            orderBy: {
+                createdAt: "desc"
+            }
+        })
+    }
+
+    public async findLatestNotification(userId: string, type: NotificationType) {
         return await prisma.notification.findFirst({
             where: {
                 userId,
-                isRead: false,
                 type,
             },
             orderBy: {

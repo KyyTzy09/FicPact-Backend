@@ -68,6 +68,21 @@ export class QuestRepository {
     });
   }
 
+  public async findFailedQuestsBeforeDate(now: Date, twoHoursAgo: Date) {
+    return await prisma.quest.findMany({
+      where: {
+        deadLineAt: {
+          gte: twoHoursAgo, // setelah 2 jam lalu
+          lte: now
+        },
+        isSuccess: false
+      },
+      include: {
+        folder: true
+      }
+    })
+  }
+
   public async findPendingQuestsBetweenDates(userIds: string[], startDate: Date, endDate: Date) {
     return await prisma.quest.findMany({
       where: {

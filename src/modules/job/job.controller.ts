@@ -11,7 +11,7 @@ import { NotificationRepository } from "../notification/notification.repository.
 const userRepository = new UserRepository()
 const notificationRepository = new NotificationRepository()
 const questRepository = new QuestRepository()
-const jobService = new JobService(userRepository, notificationRepository , questRepository)
+const jobService = new JobService(userRepository, notificationRepository, questRepository)
 // Sengaja ini di taruh di controller nanti ku bikin di servicenya soalnya ini masih belum 100% persen jobnya berhasil
 export const jobController = new Hono()
     .post(
@@ -20,7 +20,6 @@ export const jobController = new Hono()
             tags: ["Job"],
             summary: "Trigger Reflection for Users",
             description: "Mencari user yang belum melakukan reflection di hari yang ditentukan dan membuat reflection trigger untuk mereka.",
-            security: [{ bearerAuth: [] }],
         }),
         async (c) => {
             const result = await jobService.createReflectionTrigger()
@@ -33,10 +32,22 @@ export const jobController = new Hono()
             tags: ["Job"],
             summary: "Send WhatsApp Notification for Pending Quests",
             description: "Mengirim notifikasi WhatsApp untuk quest yang pending (belum selesai) dan deadline-nya dalam 2 jam terakhir.",
-            security: [{ bearerAuth: [] }],
         }),
         async (c) => {
             const result = await jobService.whatshappNotification()
             return HttpResponse(c, 200, "Whatsapp notification sent successfully", result)
+        }
+    )
+    // Ini 
+    .post(
+        "/quest-failed-notification",
+        describeRoute({
+            tags: ["Job"],
+            summary: "Send Notifications for Failed Quests",
+            description: "Mengirim notifikasi untuk quest yang gagal (failed) dan deadline-nya sudah lewat.",
+        }),
+        async (c) => {
+            const result = await jobService.createFailedQuestNotification()
+            return HttpResponse(c, 200, "Notification sent successfully", result)
         }
     )
