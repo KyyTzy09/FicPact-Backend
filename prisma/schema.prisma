@@ -29,13 +29,13 @@ model User {
 
   questFolders       QuestFolder[]
   reflections        Reflection[]
-  reflectionTriggers ReflectionTrigger[]
   userAchievements   UserAchievement[]
   verificationToken  VerificationToken[]
   profile            Profile?
   expLogs            ExpLog[]
   leaderboardWinners LeaderboardWinner[]
   punishments        QuestPunishment[]
+  notifications      Notification[]
 }
 
 model Profile {
@@ -47,6 +47,21 @@ model Profile {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id      String           @id @default(uuid())
+  userId  String
+  type    NotificationType
+  title   String?
+  message String?
+  data    Json?
+  isRead  Boolean          @default(false)
+
+  createdAt DateTime  @default(now())
+  readedAt  DateTime?
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model VerificationToken {
@@ -186,13 +201,12 @@ model Reflection {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model ReflectionTrigger {
-  id           String   @id @default(uuid())
-  isReflection Boolean  @default(false)
-  userId       String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+enum NotificationType {
+  QUEST_FAILED
+  QUEST_COMPLETED
+  REFLECTION_TRIGGER
+  PUNISHMENT_REQUIRED
+  STREAK_LOST
 }
 
 enum VerificationTokenType {

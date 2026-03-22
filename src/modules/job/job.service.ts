@@ -1,11 +1,12 @@
 import { FRONTEND_BASE_URL } from "../../common/utils/env.js";
 import { generateWhatsappMessage, sendWhatsApp } from "../../common/utils/fonnte.js";
+import type { NotificationRepository } from "../notification/notification.repository.js";
 import type { QuestRepository } from "../quest/quest.repository.js";
 import type { ReflectionRepository } from "../reflection/reflection.repository.js";
 import type { UserRepository } from "../user/user.repository.js";
 
 export class JobService {
-    constructor(private readonly userRepository: UserRepository, private readonly reflectionRepository: ReflectionRepository, private readonly questRepository: QuestRepository) { }
+    constructor(private readonly userRepository: UserRepository, private readonly notificationRepository: NotificationRepository, private readonly questRepository: QuestRepository) { }
 
     public async createReflectionTrigger() {
         const now = new Date()
@@ -14,9 +15,24 @@ export class JobService {
 
         // Cari user yang NextReflection nya kurang 10 menit lagi
         const users = await this.userRepository.findUsersByNextReflectionDate(now, tenMinutesLater)
-        const userIds = users.map(({ id }) => { return id })
+        let userIds = users.map(({ id }) => { return id })
+        const existingNotifications = await this.notificationRepository.findPendingUsersNotification(userIds, "REFLECTION_TRIGGER")
+
+        const mappedExistingNotificationUserIds = new Map(existingNotifications.map((notification) => [notification.userId, true]))
+
+        // Cari user yang belum memiliki notification REFLECTION_TRIGGER
+        const newUserIds = users
+            .filter(user => !mappedExistingNotificationUserIds.has(user.id))
+            .map(user => user.id)
+
         // Langsung buat reflectionTrigger
-        const createdReflectionTrigger = await this.reflectionRepository.createManyReflectionTrigger(userIds)
+        const createdReflectionTrigger = await this.notificationRepository.createManyNotification(newUserIds.map((userId) => ({
+            userId,
+            title: "🧠 Waktunya refleksi",
+            message: "Yuk luangkan sebentar buat lihat progresmu hari ini. AI bakal bantu kasih insight dari aktivitasmu.",
+            type: "REFLECTION_TRIGGER",
+            data: {}
+        })))
 
         return { users, reflectionTrigger: createdReflectionTrigger }
     }

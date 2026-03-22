@@ -4,14 +4,13 @@ import { ReflectionService } from "./reflection.service.js";
 import { authMiddleware } from "../../common/middlewares/auth.middleware.js";
 import { HttpResponse } from "../../common/utils/response.js";
 import { UserRepository } from "../user/user.repository.js";
-import { createQuestReflectionValidation, createUserFailedReflectionValidation, updateReflectionTriggerValidation } from "./reflection.validation.js";
+import { createQuestReflectionValidation } from "./reflection.validation.js";
 import { describeRoute, validator } from "hono-openapi";
 import { QuestRepository } from "../quest/quest.repository.js";
 import { FolderRepository } from "../folder/folder.repository.js";
 import { AIService } from "../ai/ai.service.js";
 import { AchievementRepository } from "../achievement/achievement.repository.js";
 import { AchievementService } from "../achievement/achievement.service.js";
-
 const reflectionRepository = new ReflectionRepository()
 const userRepository = new UserRepository()
 const folderRepository = new FolderRepository()
@@ -61,21 +60,21 @@ export const reflectionController = new Hono()
     //         return HttpResponse(c, 201, "Reflection created successfully", result)
     //     }
     // )
-    .patch("/trigger-reflection",
-        describeRoute({
-            tags: ["Reflection"],
-            summary: "Update Reflection trigger",
-            security: [{ bearerAuth: [] }]
-        }),
-        authMiddleware,
-        validator("json", updateReflectionTriggerValidation),
-        async (c) => {
-            const userId = c.get("user").id
-            const { reflectionTriggerId, isReflection } = c.req.valid("json")
-            const result = await reflectionService.updateReflectionTrigger(userId, reflectionTriggerId, isReflection)
-            return HttpResponse(c, 200, "Reflection trigger updated successfully", result)
-        }
-    )
+    // .patch("/trigger-reflection",
+    //     describeRoute({
+    //         tags: ["Reflection"],
+    //         summary: "Update Reflection trigger",
+    //         security: [{ bearerAuth: [] }]
+    //     }),
+    //     authMiddleware,
+    //     validator("json", updateReflectionTriggerValidation),
+    //     async (c) => {
+    //         const userId = c.get("user").id
+    //         const { reflectionTriggerId, isReflection } = c.req.valid("json")
+    //         const result = await reflectionService.updateReflectionTrigger(userId, reflectionTriggerId, isReflection)
+    //         return HttpResponse(c, 200, "Reflection trigger updated successfully", result)
+    //     }
+    // )
     .post("/create-reflection",
         authMiddleware,
         describeRoute({
