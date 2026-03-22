@@ -23,14 +23,6 @@ export class ReflectionRepository {
         })
     }
 
-    async createManyReflectionTrigger(userIds: string[]) {
-        return await prisma.reflectionTrigger.createManyAndReturn({
-            data: userIds.map((userId) => ({
-                userId
-            })),
-        })
-    }
-
     async createManyQuestReflection(questId: string, reasons: string[], questLevel: QuestLevel, type: QuestReflectionType,) {
         return await prisma.questReflection.createManyAndReturn({
             data: reasons.map((reason) => ({
@@ -48,27 +40,6 @@ export class ReflectionRepository {
             data: {
                 userId,
                 content,
-            }
-        })
-    }
-
-    async findReflectionTriggerById(userId: string, id: string) {
-        return await prisma.reflectionTrigger.findUnique({
-            where: {
-                id,
-                userId
-            }
-        })
-    }
-
-    async updateReflectionTrigger(userId: string, id: string, isReflection: boolean) {
-        return await prisma.reflectionTrigger.update({
-            where: {
-                id,
-                userId
-            },
-            data: {
-                isReflection
             }
         })
     }

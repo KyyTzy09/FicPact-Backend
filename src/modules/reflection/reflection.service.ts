@@ -8,7 +8,6 @@ import type { FolderRepository } from "../folder/folder.repository.js";
 import type { AIService } from "../ai/ai.service.js";
 import type { AchievementService } from "../achievement/achievement.service.js";
 import { generateWhatsappMessage, sendWhatsApp } from "../../common/utils/fonnte.js";
-
 export class ReflectionService {
     constructor(
         private readonly folderRepository: FolderRepository,
@@ -62,19 +61,19 @@ export class ReflectionService {
     //     return createdReflection
     // }
 
-    async updateReflectionTrigger(userId: string, reflectionTriggerId: string, isReflection: boolean) {
-        // Cari dulu RefleksiTrigger berdasarkan userId & id
-        const existingReflectionTrigger = await this.reflectionRepository.findReflectionTriggerById(userId, reflectionTriggerId)
-        if (!existingReflectionTrigger) throw new HTTPException(404, { message: "Reflection trigger tidak ditemukan" })
+    // async updateReflectionTrigger(userId: string, reflectionTriggerId: string, isReflection: boolean) {
+    //     // Cari dulu RefleksiTrigger berdasarkan userId & id
+    //     const existingReflectionTrigger = await this.notificationRepository.findPendingNotification(userId, "REFLECTION_TRIGGER")
+    //     if (!existingReflectionTrigger) throw new HTTPException(404, { message: "Reflection trigger tidak ditemukan" })
 
-        // Update status trigger
-        const updatedReflectionTrigger = await this.reflectionRepository.updateReflectionTrigger(userId, reflectionTriggerId, isReflection)
-        if (!updatedReflectionTrigger) throw new HTTPException(500, { message: "Gagal mengubah reflection trigger" })
+    //     // Update status trigger
+    //     const updatedReflectionTrigger = await this.reflectionRepository.updateReflectionTrigger(userId, reflectionTriggerId, isReflection)
+    //     if (!updatedReflectionTrigger) throw new HTTPException(500, { message: "Gagal mengubah reflection trigger" })
 
-        // Jika true langsung buat refleksi (Saran optimasi sih jalanin di background)
-        if (updatedReflectionTrigger.isReflection) await this.CreateUserReflection(userId)
-        return updatedReflectionTrigger
-    }
+    //     // Jika true langsung buat refleksi (Saran optimasi sih jalanin di background)
+    //     if (updatedReflectionTrigger.isReflection) await this.CreateUserReflection(userId)
+    //     return updatedReflectionTrigger
+    // }
 
     async CreateUserReflection(userId: string) {
         const existingUser = await this.userRepository.findUserById(userId)

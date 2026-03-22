@@ -6,11 +6,12 @@ import { JobService } from "./job.service.js";
 import { HttpResponse } from "../../common/utils/response.js";
 import { QuestRepository } from "../quest/quest.repository.js";
 import { describeRoute } from "hono-openapi";
+import { NotificationRepository } from "../notification/notification.repository.js";
 
 const userRepository = new UserRepository()
-const reflectionRepository = new ReflectionRepository()
+const notificationRepository = new NotificationRepository()
 const questRepository = new QuestRepository()
-const jobService = new JobService(userRepository, reflectionRepository, questRepository)
+const jobService = new JobService(userRepository, notificationRepository , questRepository)
 // Sengaja ini di taruh di controller nanti ku bikin di servicenya soalnya ini masih belum 100% persen jobnya berhasil
 export const jobController = new Hono()
     .post(
@@ -18,7 +19,7 @@ export const jobController = new Hono()
         describeRoute({
             tags: ["Job"],
             summary: "Trigger Reflection for Users",
-            description: "Mencari user yang belum melakukan reflection dalam 7 hari terakhir dan membuat reflection trigger untuk mereka. Endpoint ini juga akan update tanggal terakhir reflection user.",
+            description: "Mencari user yang belum melakukan reflection di hari yang ditentukan dan membuat reflection trigger untuk mereka.",
             security: [{ bearerAuth: [] }],
         }),
         async (c) => {
@@ -31,7 +32,7 @@ export const jobController = new Hono()
         describeRoute({
             tags: ["Job"],
             summary: "Send WhatsApp Notification for Pending Quests",
-            description: "Mencari user yang belum melakukan reflection dalam 7 hari terakhir dan memiliki nomor phone terdaftar. Kemudian mengirim notifikasi WhatsApp untuk quest yang pending (belum selesai) dan deadline-nya dalam 2 jam terakhir.",
+            description: "Mengirim notifikasi WhatsApp untuk quest yang pending (belum selesai) dan deadline-nya dalam 2 jam terakhir.",
             security: [{ bearerAuth: [] }],
         }),
         async (c) => {
