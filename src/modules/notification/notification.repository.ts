@@ -1,6 +1,22 @@
 import type { NotificationType } from "@prisma/client";
 import { prisma } from "../../common/utils/prisma.js";
 export class NotificationRepository {
+    public async findById(notificationId: string) {
+        return await prisma.notification.findUnique({
+            where: {
+                id: notificationId
+            }
+        })
+    }
+
+    public async findByUserId(userId: string) {
+        return await prisma.notification.findMany({
+            where: {
+                userId
+            }
+        })
+    }
+
     public async createNotfication(userId: string, title: string, message: string, type: NotificationType, data: Record<string, any>) {
         return await prisma.notification.create({
             data: {
@@ -29,7 +45,7 @@ export class NotificationRepository {
             }
         })
     }
-    
+
     public async findPendingUsersNotification(userIds: string[], type: NotificationType) {
         return await prisma.notification.findMany({
             where: {
@@ -84,14 +100,6 @@ export class NotificationRepository {
             },
             orderBy: {
                 createdAt: "desc"
-            }
-        })
-    }
-
-    public async findByUserId(userId: string) {
-        return await prisma.notification.findMany({
-            where: {
-                userId
             }
         })
     }
