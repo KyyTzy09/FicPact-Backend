@@ -62,6 +62,8 @@ model Notification {
   readedAt  DateTime?
 
   user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, type, isRead])
 }
 
 model VerificationToken {

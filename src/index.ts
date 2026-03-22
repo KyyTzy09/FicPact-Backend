@@ -17,6 +17,7 @@ import { achievementController } from './modules/achievement/achievement.control
 import { leaderboardController } from './modules/leaderboards/leaderboard.controller.js'
 import { punishmentController } from './modules/punishment/punishment.controller.js'
 import { jobController } from './modules/job/job.controller.js'
+import { notificationController } from './modules/notification/notification.controller.js'
 
 const app = new Hono()
 app.use("*", fullLogger)
@@ -66,6 +67,7 @@ app.route("/achievements", achievementController)
 app.route("/leaderboards", leaderboardController)
 app.route("/punishments", punishmentController)
 app.route("/jobs", jobController)
+app.route("/notifications", notificationController)
 
 app.onError((err, c) => {
     if (err instanceof HTTPException) {

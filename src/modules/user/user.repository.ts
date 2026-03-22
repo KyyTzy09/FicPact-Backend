@@ -18,6 +18,19 @@ export class UserRepository {
     });
   }
 
+  public async findUserByIds(ids: string[]) {
+    return await prisma.user.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+      include: {
+        profile: true
+      }
+    })
+  }
+
   public async findAllUsers() {
     return await prisma.user.findMany({
       include: {
@@ -37,32 +50,32 @@ export class UserRepository {
     })
   }
 
-    public async findUserByIdWithProfile(userId: string) {
-      return await prisma.user.findUnique({
-        where: {
-          id: userId,
-        },
-        include: {
-          profile: true,
-          userAchievements:{
-            where: {
-              isClaimed: true
-            },
-            include: {
-              achievement: true
-            }
+  public async findUserByIdWithProfile(userId: string) {
+    return await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        profile: true,
+        userAchievements: {
+          where: {
+            isClaimed: true
           },
-          questFolders: {
-            include: {
-              quests: true,
-            },
+          include: {
+            achievement: true
+          }
+        },
+        questFolders: {
+          include: {
+            quests: true,
           },
         },
-        omit: {
-          password: true
-        }
-      });
-    }
+      },
+      omit: {
+        password: true
+      }
+    });
+  }
 
   public async findUserWithProfileById(userId: string) {
     return await prisma.user.findUnique({

@@ -39,10 +39,8 @@ export class JobService {
 
     public async whatshappNotification() {
         const now = new Date()
-        const sevenDaysAgo = new Date(now)
-        sevenDaysAgo.setDate(now.getDate() - 7)
-        // Cari semua User dengan LTE last reflection
-        const users = await this.userRepository.findUsersByLastReflectionDate(sevenDaysAgo)
+        
+        const users = await this.userRepository.findAllUsers()
         const userIds = users
             .filter((user) => user.phone)
             .map((user) => user.id)
@@ -63,5 +61,52 @@ export class JobService {
         }
 
         return users.filter((user) => user.phone)
+    }
+
+    public async createFailedQuestNotification() {
+        const now = new Date()
+        const twoHoursAgo = new Date(now)
+        twoHoursAgo.setHours(now.getHours() - 2)
+
+        const quests = await this.questRepository.findFailedQuestsBeforeDate(now, twoHoursAgo)
+        const userIds = quests.map((quest) => quest.folder.userId)
+
+        // Masukan ke map untuk cari tau user mana yang udah punya notification QUEST_FAILED
+        const users = await this.userRepository.findUserByIds(userIds)
+        const userMap = new Map(users.map((user) => [user.id, user]))
+
+        // Cari notification QUEST_FAILED yang belum dibaca untuk user-user tersebut
+        const existingNotifications = await this.notificationRepository.findLatestUsersNotification(userIds, "QUEST_FAILED")
+        const mappedExistingNotificationUserIds = new Map(existingNotifications.map((notification) => [`${notification.userId}-${(notification.data as { questId: string })?.questId}`, true]))
+
+        const notificationsToCreate = quests
+            .filter(q => !mappedExistingNotificationUserIds.has(`${q.folder.userId}-${q.id}`))
+            .map(q => {
+                const user = userMap.get(q.folder.userId)
+                if (!user) return null
+
+                return {
+                    userId: user.id,
+                    title: "⏰ Quest gagal diselesaikan",
+                    message: `Yah, quest ${q.name} dari folder ${q.folder.name} gagal diselesaikan tepat waktu.`,
+                    type: "QUEST_FAILED",
+                    data: {
+                        questId: q.id,
+                        questName: q.name,
+                        folderName: q.folder.name
+                    }
+                }
+            })
+            .filter(Boolean) as Parameters<NotificationRepository["createManyNotification"]>[0]
+        if (!notificationsToCreate.length) return []
+        await this.notificationRepository.createManyNotification(notificationsToCreate)
+
+        return users.filter((user) => user.phone).map((user) => {
+            return {
+                id: user.id,
+                name: user.profile?.name,
+                phone: user.phone
+            }
+        })
     }
 }
