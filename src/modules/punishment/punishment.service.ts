@@ -1,7 +1,7 @@
 import { HTTPException } from "hono/http-exception";
 import type { QuestRepository } from "../quest/quest.repository.js";
 import type { PunishmentRepository } from "./punishment.repository.js";
-import { QuestPunishmentStatus, type User } from "@prisma/client";
+import { QuestPunishmentStatus } from "@prisma/client";
 import type { UserService } from "../user/user.service.js";
 
 export class PunishmentService {
