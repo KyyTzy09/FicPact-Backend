@@ -16,6 +16,11 @@ model User {
   level          Int     @default(1)
   totalExp       Int     @default(0)
 
+  streak       Int @default(0)
+  higestStreak Int @default(0)
+
+  LastActiveStreak DateTime?
+
   isVerified        Boolean @default(false)
   isFirstReflection Boolean @default(true)
   isOnboarded       Boolean @default(false)
