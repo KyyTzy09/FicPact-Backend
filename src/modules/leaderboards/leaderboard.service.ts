@@ -109,7 +109,7 @@ export class LeaderboardService {
         }))
     }
 
-    private async createLeaderboard(
+    public async createLeaderboard(
         startDate: Date,
         endDate: Date,
         type: LeaderboardType

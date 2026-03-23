@@ -1,12 +1,16 @@
+import { HTTPException } from "hono/http-exception";
 import { FRONTEND_BASE_URL } from "../../common/utils/env.js";
 import { generateWhatsappMessage, sendWhatsApp } from "../../common/utils/fonnte.js";
 import type { NotificationRepository } from "../notification/notification.repository.js";
 import type { QuestRepository } from "../quest/quest.repository.js";
 import type { ReflectionRepository } from "../reflection/reflection.repository.js";
 import type { UserRepository } from "../user/user.repository.js";
+import { getMonthRange, getWeekRange, isLastDayOfMonth, isSunday } from "../../common/utils/date.js";
+import type { LeaderboardService } from "../leaderboards/leaderboard.service.js";
+import { LeaderboardType } from "@prisma/client";
 
 export class JobService {
-    constructor(private readonly userRepository: UserRepository, private readonly notificationRepository: NotificationRepository, private readonly questRepository: QuestRepository) { }
+    constructor(private readonly userRepository: UserRepository, private readonly notificationRepository: NotificationRepository, private readonly questRepository: QuestRepository, private readonly leaderBoardService: LeaderboardService) { }
 
     public async createReflectionTrigger() {
         const now = new Date()
@@ -39,7 +43,7 @@ export class JobService {
 
     public async whatshappNotification() {
         const now = new Date()
-        
+
         const users = await this.userRepository.findAllUsers()
         const userIds = users
             .filter((user) => user.phone)
@@ -108,5 +112,31 @@ export class JobService {
                 phone: user.phone
             }
         })
+    }
+
+    public async createWeeklyLeaderboard() {
+        const now = new Date()
+
+        if (!isSunday(now)) {
+            throw new HTTPException(400, {
+                message: "Leaderboard mingguan hanya dibuat hari Minggu"
+            })
+        }
+
+        const { start, end } = getWeekRange(now)
+        return await this.leaderBoardService.createLeaderboard(start, end, LeaderboardType.WEEKLY)
+    }
+
+    public async createMonthlyLeaderboard() {
+        const now = new Date()
+
+        if (!isLastDayOfMonth(now)) {
+            throw new HTTPException(400, {
+                message: "Leaderboard bulanan hanya dibuat di akhir bulan"
+            })
+        }
+
+        const { start, end } = getMonthRange(now)
+        return await this.leaderBoardService.createLeaderboard(start, end, LeaderboardType.MONTHLY)
     }
 }

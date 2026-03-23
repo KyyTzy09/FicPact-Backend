@@ -7,13 +7,16 @@ import { HttpResponse } from "../../common/utils/response.js";
 import { QuestRepository } from "../quest/quest.repository.js";
 import { describeRoute } from "hono-openapi";
 import { NotificationRepository } from "../notification/notification.repository.js";
+import { LeaderboardService } from "../leaderboards/leaderboard.service.js";
 
 const userRepository = new UserRepository()
 const notificationRepository = new NotificationRepository()
 const questRepository = new QuestRepository()
-const jobService = new JobService(userRepository, notificationRepository, questRepository)
+const leaderBoardService = new LeaderboardService(userRepository)
+const jobService = new JobService(userRepository, notificationRepository, questRepository, leaderBoardService)
 // Sengaja ini di taruh di controller nanti ku bikin di servicenya soalnya ini masih belum 100% persen jobnya berhasil
 export const jobController = new Hono()
+    // Ini setiap 5 menit
     .post(
         "/reflection-trigger",
         describeRoute({
@@ -26,6 +29,7 @@ export const jobController = new Hono()
             return HttpResponse(c, 200, "Reflection triggered successfully", result)
         }
     )
+    // Ini setiap 10 menit
     .post(
         "/whatsapp-notification",
         describeRoute({
@@ -38,7 +42,7 @@ export const jobController = new Hono()
             return HttpResponse(c, 200, "Whatsapp notification sent successfully", result)
         }
     )
-    // Ini 
+    // Ini setiap 10 menit
     .post(
         "/quest-failed-notification",
         describeRoute({
@@ -49,5 +53,29 @@ export const jobController = new Hono()
         async (c) => {
             const result = await jobService.createFailedQuestNotification()
             return HttpResponse(c, 200, "Notification sent successfully", result)
+        }
+    )
+    // Ini setiap jam 3 sore
+    .post("/update-weekly",
+        describeRoute({
+            tags: ["Leaderboard"],
+            summary: "Update Weekly Leaderboard",
+            security: [{ bearerAuth: [] }],
+        }),
+        async (c) => {
+            const result = await jobService.createWeeklyLeaderboard();
+            return HttpResponse(c, 200, "Leaderboard updated successfully", result)
+        }
+    )
+    // Ini setiap 1 bulan sekali di tanggal 1 jam 3 sore
+    .post("/update-monthly",
+        describeRoute({
+            tags: ["Leaderboard"],
+            summary: "Update Monthly Leaderboard",
+            security: [{ bearerAuth: [] }],
+        }),
+        async (c) => {
+            const result = await jobService.createMonthlyLeaderboard();
+            return HttpResponse(c, 200, "Leaderboard updated successfully", result)
         }
     )
