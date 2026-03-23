@@ -1,7 +1,5 @@
 import { Hono } from "hono";
-import { ReflectionRepository } from "../reflection/reflection.repository.js";
 import { UserRepository } from "../user/user.repository.js";
-import { prisma } from "../../common/utils/prisma.js";
 import { JobService } from "./job.service.js";
 import { HttpResponse } from "../../common/utils/response.js";
 import { QuestRepository } from "../quest/quest.repository.js";
@@ -58,7 +56,7 @@ export const jobController = new Hono()
     // Ini setiap jam 3 sore
     .post("/update-weekly",
         describeRoute({
-            tags: ["Leaderboard"],
+            tags: ["Job"],
             summary: "Update Weekly Leaderboard",
             security: [{ bearerAuth: [] }],
         }),
@@ -70,7 +68,7 @@ export const jobController = new Hono()
     // Ini setiap 1 bulan sekali di tanggal 1 jam 3 sore
     .post("/update-monthly",
         describeRoute({
-            tags: ["Leaderboard"],
+            tags: ["Job"],
             summary: "Update Monthly Leaderboard",
             security: [{ bearerAuth: [] }],
         }),

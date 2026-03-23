@@ -45,6 +45,7 @@ export class JobService {
         const now = new Date()
 
         const users = await this.userRepository.findAllUsers()
+        const userMap = new Map(users.map((user) => [user.id, user]))
         const userIds = users
             .filter((user) => user.phone)
             .map((user) => user.id)
@@ -55,7 +56,7 @@ export class JobService {
         const quests = await this.questRepository.findPendingQuestsBetweenDates(userIds, twoHoursAgo, now)
         for (const quest of quests) {
             const { id, name, deadLineAt, folder: { name: folderName, userId } } = quest
-            const user = users.find((user) => user.id === userId)
+            const user = userMap.get(userId)
             if (!user) continue
 
             const message = generateWhatsappMessage("reminder_quest", `${name} dari folder ${folderName}`, `${FRONTEND_BASE_URL}/quest/${id}`, deadLineAt?.toString())

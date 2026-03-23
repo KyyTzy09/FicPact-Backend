@@ -146,8 +146,10 @@ export class QuestService {
   }
 
   public async updateCompleteQuest(questId: string, userId: string) {
-    // const existingQuest = await this.questRepository.findPendingQuests(questId);
-    // if (!existingQuest) throw new HTTPException(404, { message: "Quest tidak ditemukan" });
+    const existingQuest = await this.questRepository.findById(questId);
+    if (!existingQuest) throw new HTTPException(404, { message: "Quest tidak ditemukan" });
+
+    if (existingQuest.isSuccess) return existingQuest;
 
     const quest = await this.questRepository.updateComplete(questId, new Date());
     if (!quest) throw new HTTPException(400, { message: "Gagal memperbarui quest" });
