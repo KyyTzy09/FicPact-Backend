@@ -12,19 +12,23 @@ import { AIService } from "../ai/ai.service.js";
 import { AchievementService } from "../achievement/achievement.service.js";
 import { UserService } from "../user/user.service.js";
 import { StreakService } from "../streak/streak.service.js";
+import { NotificationService } from "../notification/notification.service.js";
+import { NotificationRepository } from "../notification/notification.repository.js";
 
 
 const questRepository = new QuestRepository()
 const userRepository = new UserRepository()
 const folderRepository = new FolderRepository()
 const achievementRepository = new AchievementRepository()
+const notificationRepository = new NotificationRepository()
 const achievementService = new AchievementService(achievementRepository)
 const userService = new UserService(userRepository, questRepository)
 const streakService = new StreakService(userRepository)
+const notificationService = new NotificationService(notificationRepository, userRepository)
 const aiService = new AIService()
 
 
-const questService = new QuestService(questRepository, userRepository, folderRepository, userService, achievementService, aiService, streakService)
+const questService = new QuestService(questRepository, userRepository, folderRepository, userService, achievementService, aiService, streakService, notificationService)
 export const questController = new Hono()
   .get(
     "/",
