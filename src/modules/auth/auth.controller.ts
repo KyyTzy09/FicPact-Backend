@@ -45,6 +45,7 @@ export const authController = new Hono()
 
             setCookie(c, "token", result.token, {
                 path: "/",
+                domain:".taskquestku.online",
                 maxAge: 60 * 60 * 24 * 2,
                 httpOnly: true,
                 secure: true,
@@ -86,6 +87,7 @@ export const authController = new Hono()
                 maxAge: 60 * 60 * 24 * 2,
                 httpOnly: true,
                 secure: true,
+                domain:".taskquestku.online",
                 sameSite: "none",
                 partitioned: true
             });
@@ -127,7 +129,8 @@ export const authController = new Hono()
                 httpOnly: true,
                 secure: true,
                 sameSite: "none",
-                partitioned: true
+                partitioned: true,
+                domain:".taskquestku.online"
             });
             return HttpResponse(c, 201, "Register successful", result.create);
         }
@@ -300,6 +303,7 @@ export const authController = new Hono()
                 path: "/",
                 maxAge: -1,
                 httpOnly: true,
+                domain:".taskquestku.online",
                 secure: true,
                 sameSite: "none",
                 partitioned: true
