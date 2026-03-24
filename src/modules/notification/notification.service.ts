@@ -24,6 +24,14 @@ export class NotificationService {
         return notifications
     }
 
+    public async getLatestReflectionTriggerNotification(userId: string) {
+        const existingUser = await this.userRepository.findUserById(userId)
+        if (!existingUser) throw new Error("User tidak ditemukan")
+
+        const notifications = await this.notificationRepository.findReflectionTriggerNotificationsByUserId(userId)
+        return notifications[0] || null
+    }
+
     public async createNotification(userId: string, title: string, message: string, type: NotificationType, data: Record<string, any>) {
         const existingUser = await this.userRepository.findUserById(userId)
         if (!existingUser) throw new Error("User tidak ditemukan")
