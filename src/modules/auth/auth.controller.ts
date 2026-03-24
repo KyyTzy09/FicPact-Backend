@@ -49,6 +49,7 @@ export const authController = new Hono()
                 httpOnly: true,
                 secure: true,
                 sameSite: "none",
+                partitioned: true
             });
             return c.redirect(FRONTEND_DASHBOARD_URL)
         }
@@ -86,6 +87,7 @@ export const authController = new Hono()
                 httpOnly: true,
                 secure: true,
                 sameSite: "none",
+                partitioned: true
             });
 
             return HttpResponse(c, 200, "Login successful", result);
@@ -125,6 +127,7 @@ export const authController = new Hono()
                 httpOnly: true,
                 secure: true,
                 sameSite: "none",
+                partitioned: true
             });
             return HttpResponse(c, 201, "Register successful", result.create);
         }
@@ -299,6 +302,7 @@ export const authController = new Hono()
                 httpOnly: true,
                 secure: true,
                 sameSite: "none",
+                partitioned: true
             })
             return HttpResponse(c, 200, "Logout berhasil", { message: "Logout berhasil" })
         }
