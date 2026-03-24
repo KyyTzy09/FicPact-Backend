@@ -97,6 +97,10 @@ export class ReflectionService {
         await this.userRepository.updateUserLastReflection(userId, new Date(createdReflection.createdAt || endPeriod))
         if (existingUser.isFirstReflection) await this.userRepository.updateUserFirstReflection(userId)
 
+        if (existingUser.phone) {
+          const message = generateWhatsappMessage("reflection-ai", AIResult)
+          await sendWhatsApp(existingUser.phone, message)
+        }
         return createdReflection
     }
 }

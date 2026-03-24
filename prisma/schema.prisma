@@ -12,7 +12,7 @@ model User {
   password       String?
   phone          String?
   currentExp     Int     @default(0)
-  expToNextLevel Int     @default(100)
+  expToNextLevel Int     @default(30)
   level          Int     @default(1)
   totalExp       Int     @default(0)
 
