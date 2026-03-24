@@ -19,7 +19,7 @@ import { punishmentController } from './modules/punishment/punishment.controller
 import { jobController } from './modules/job/job.controller.js'
 import { notificationController } from './modules/notification/notification.controller.js'
 
-const app = new Hono()
+const app = new Hono().basePath('/api')
 app.use("*", fullLogger)
 
 
