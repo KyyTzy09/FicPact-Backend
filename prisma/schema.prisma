@@ -16,7 +16,7 @@ model User {
   level          Int     @default(1)
   totalExp       Int     @default(0)
 
-  streak       Int @default(0)
+  streak        Int @default(0)
   highestStreak Int @default(0)
 
   LastActiveStreak DateTime?
@@ -155,12 +155,15 @@ model QuestFolder {
 }
 
 model Quest {
-  id          String    @id @default(uuid())
+  id          String  @id @default(uuid())
   name        String
   description String?
-  expReward   Int       @default(10)
-  isSuccess   Boolean   @default(false)
+  expReward   Int     @default(10)
+  isSuccess   Boolean @default(false)
   folderId    String
+
+  isReminded Boolean @default(false)
+
   createdAt   DateTime  @default(now())
   deadLineAt  DateTime
   completedAt DateTime?

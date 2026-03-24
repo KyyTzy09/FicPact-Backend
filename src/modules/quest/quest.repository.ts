@@ -114,6 +114,19 @@ export class QuestRepository {
     });
   }
 
+  public async updateManyQuestIsReminded(questIds: string[], isReminded: boolean) {
+    return await prisma.quest.updateMany({
+      where: {
+        id: {
+          in: questIds
+        }
+      },
+      data: {
+        isReminded
+      }
+    })
+  }
+
   public async updateComplete(questId: string, completedDate: Date) {
     return await prisma.quest.update({
       where: {

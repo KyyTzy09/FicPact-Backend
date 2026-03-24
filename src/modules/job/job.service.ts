@@ -23,7 +23,7 @@ export class JobService {
     private readonly notificationRepository: NotificationRepository,
     private readonly questRepository: QuestRepository,
     private readonly leaderBoardService: LeaderboardService,
-  ) {}
+  ) { }
   public async postAllUser() {
     const allUsers = await this.userRepository.findAllUsers();
     const filteredUser = allUsers.filter((user) => user.phone);
@@ -94,7 +94,9 @@ export class JobService {
       now,
       twoHoursLater,
     );
-    for (const quest of quests) {
+
+    const filteredQuests = quests.filter((quest) => quest.isReminded === false);
+    for (const quest of filteredQuests) {
       const {
         name,
         deadLineAt,
@@ -114,6 +116,9 @@ export class JobService {
       if (!user.phone) continue;
       await sendWhatsApp(user?.phone || "", message);
     }
+
+    const questIds = filteredQuests.map((quest) => quest.id);
+    await this.questRepository.updateManyQuestIsReminded(questIds, true);
 
     return users.filter((user) => user.phone);
   }
@@ -168,8 +173,8 @@ export class JobService {
         };
       })
       .filter(Boolean) as Parameters<
-      NotificationRepository["createManyNotification"]
-    >[0];
+        NotificationRepository["createManyNotification"]
+      >[0];
     if (!notificationsToCreate.length) return [];
     await this.notificationRepository.createManyNotification(
       notificationsToCreate,
