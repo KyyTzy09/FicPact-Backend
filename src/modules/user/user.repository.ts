@@ -324,6 +324,19 @@ export class UserRepository {
     });
   }
 
+  // Streak
+  public async updateUserStreak(userId: string, newStreak: number, newHighestStreak: number, lastActiveStreak: Date) {
+    return await prisma.user.update({
+      where: {
+        id: userId
+      },
+      data: {
+        streak: newStreak,
+        highestStreak: newHighestStreak
+      }
+    })
+  }
+
   // Leaderboard
   public async getAllExpLogs() {
     return await prisma.expLog.findMany()
