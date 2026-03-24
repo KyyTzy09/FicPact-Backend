@@ -96,9 +96,9 @@ export class JobService {
     );
     for (const quest of quests) {
       const {
-        id,
         name,
         deadLineAt,
+        folderId,
         folder: { name: folderName, userId },
       } = quest;
       const user = userMap.get(userId);
@@ -107,7 +107,7 @@ export class JobService {
       const message = generateWhatsappMessage(
         "reminder_quest",
         `${name} dari folder ${folderName}`,
-        `${FRONTEND_BASE_URL}/quest/${id}`,
+        `${FRONTEND_BASE_URL}/dashboard/folder/${folderId}`,
         formatDeadline(deadLineAt.toString()) || "",
       );
 
