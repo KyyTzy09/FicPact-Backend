@@ -37,6 +37,10 @@ export class JobService {
 
   public async createReflectionTrigger() {
     const now = new Date();
+    const startOfToday = new Date(now);
+    startOfToday.setHours(0, 0, 0, 0);
+    const endOfToday = new Date(now);
+    endOfToday.setHours(23, 59, 59, 999);
     const tenMinutesLater = new Date();
     tenMinutesLater.setMinutes(now.getMinutes() + 10);
 
@@ -48,10 +52,13 @@ export class JobService {
     let userIds = users.map(({ id }) => {
       return id;
     });
+
     const existingNotifications =
       await this.notificationRepository.findPendingUsersNotification(
         userIds,
         "REFLECTION_TRIGGER",
+        startOfToday,
+        endOfToday,
       );
 
     const mappedExistingNotificationUserIds = new Map(
@@ -64,17 +71,16 @@ export class JobService {
       .map((user) => user.id);
 
     // Langsung buat reflectionTrigger
-    const createdReflectionTrigger =
-      await this.notificationRepository.createManyNotification(
-        newUserIds.map((userId) => ({
-          userId,
-          title: "🧠 Waktunya refleksi",
-          message:
-            "Yuk luangkan sebentar buat lihat progresmu hari ini. AI bakal bantu kasih insight dari aktivitasmu.",
-          type: "REFLECTION_TRIGGER",
-          data: {},
-        })),
-      );
+    const createdReflectionTrigger = await this.notificationRepository.createManyNotification(
+      newUserIds.map((userId) => ({
+        userId,
+        title: "🧠 Waktunya refleksi",
+        message:
+          "Yuk luangkan sebentar buat lihat progresmu hari ini. AI bakal bantu kasih insight dari aktivitasmu.",
+        type: "REFLECTION_TRIGGER",
+        data: {},
+      })),
+    );
 
     return { users, reflectionTrigger: createdReflectionTrigger };
   }

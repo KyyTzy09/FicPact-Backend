@@ -17,7 +17,7 @@ export class NotificationRepository {
         })
     }
 
-    public async createNotfication(userId: string, title: string, message: string, type: NotificationType, data: Record<string, any>) {
+    public async createNotification(userId: string, title: string, message: string, type: NotificationType, data: Record<string, any>) {
         return await prisma.notification.create({
             data: {
                 userId,
@@ -46,7 +46,7 @@ export class NotificationRepository {
         })
     }
 
-    public async findPendingUsersNotification(userIds: string[], type: NotificationType) {
+    public async findPendingUsersNotification(userIds: string[], type: NotificationType, startDate: Date, endDate: Date) {
         return await prisma.notification.findMany({
             where: {
                 userId: {
@@ -54,6 +54,10 @@ export class NotificationRepository {
                 },
                 isRead: false,
                 type,
+                createdAt: {
+                    gte: startDate,
+                    lte: endDate
+                }
             },
             orderBy: {
                 createdAt: "desc"

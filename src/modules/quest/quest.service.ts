@@ -8,6 +8,7 @@ import type { AchievementService } from "../achievement/achievement.service.js";
 import type { UserService } from "../user/user.service.js";
 import { generateWhatsappMessage, sendWhatsApp } from "../../common/utils/fonnte.js";
 import type { StreakService } from "../streak/streak.service.js";
+import type { NotificationService } from "../notification/notification.service.js";
 
 export class QuestService {
   constructor(
@@ -17,7 +18,8 @@ export class QuestService {
     private readonly userService: UserService,
     private readonly achievementService: AchievementService,
     private readonly aiService: AIService,
-    private readonly streakService: StreakService
+    private readonly streakService: StreakService,
+    private readonly notificationService: NotificationService,
   ) { }
 
   public async findAllQuest(userId: string) {
@@ -149,7 +151,7 @@ export class QuestService {
   public async updateCompleteQuest(questId: string, userId: string) {
     const existingQuest = await this.questRepository.findById(questId);
     if (!existingQuest) throw new HTTPException(404, { message: "Quest tidak ditemukan" });
-    
+
     if (existingQuest.isSuccess) return existingQuest;
     if (existingQuest.deadLineAt < new Date()) throw new HTTPException(400, { message: "Tidak dapat menyelesaikan quest yang sudah melewati deadline" });
 
@@ -170,7 +172,16 @@ export class QuestService {
       .filter(q => q.isSuccess).length;
 
     if (completedQuests >= 1) {
+      // unlock achievement
       await this.achievementService.unlockAchievements(userId, completedQuests, "quest")
+
+      if (completedQuests === 1) await this.notificationService.createNotification(
+        userId,
+        "Selamat! Kamu telah menyelesaikan quest pertamamu!",
+        "Kamu berhasil menyelesaikan quest pertamamu. Apakah kamu ingin melakukan refleksi?",
+        "REFLECTION_TRIGGER",
+        {},
+      )
     }
 
     if (user.phone) {

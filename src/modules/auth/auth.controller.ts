@@ -15,7 +15,7 @@ import { AuthService } from "./auth.service.js";
 import { UserRepository } from "../user/user.repository.js";
 import { setCookie } from "hono/cookie";
 import { googleAuth } from "@hono/oauth-providers/google";
-import { FRONTEND_DASHBOARD_URL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from "../../common/utils/env.js";
+import { FRONTEND_BASE_URL, FRONTEND_DASHBOARD_URL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from "../../common/utils/env.js";
 import { authMiddleware } from "../../common/middlewares/auth.middleware.js";
 
 const userRepository = new UserRepository();
@@ -37,6 +37,8 @@ export const authController = new Hono()
         googleAuth({
             client_id: GOOGLE_CLIENT_ID,
             client_secret: GOOGLE_CLIENT_SECRET,
+            access_type: "online",
+            redirect_uri: `${FRONTEND_BASE_URL}/api/auth/google`,
             scope: ['openid', 'email', 'profile']
         }),
         async (c) => {
