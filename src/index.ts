@@ -19,7 +19,7 @@ import { punishmentController } from './modules/punishment/punishment.controller
 import { jobController } from './modules/job/job.controller.js'
 import { notificationController } from './modules/notification/notification.controller.js'
 
-const app = new Hono()
+const app = new Hono().basePath('/api')
 app.use("*", fullLogger)
 
 
@@ -46,7 +46,17 @@ app.get(
 app.use(
     "*",
     cors({
-        origin: ["http://localhost:3000", "https://taskquestku.online"],
+        origin: (origin) => {
+            const allowedOrigins = [
+                "http://localhost:3000",
+                "https://taskquestku.online"
+            ];
+            // Jika origin kosong (same-site) atau ada di daftar putih, ijinkan
+            if (!origin || allowedOrigins.includes(origin)) {
+                return origin;
+            }
+            return "https://taskquestku.online";
+        },
         allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         credentials: true,
     })
