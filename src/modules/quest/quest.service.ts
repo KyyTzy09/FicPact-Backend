@@ -8,6 +8,7 @@ import { getNextFolderName } from "../../common/utils/name.js";
 import type { AchievementService } from "../achievement/achievement.service.js";
 import type { UserService } from "../user/user.service.js";
 import { generateWhatsappMessage, sendWhatsApp } from "../../common/utils/fonnte.js";
+import type { StreakService } from "../streak/streak.service.js";
 
 export class QuestService {
   constructor(
@@ -17,6 +18,7 @@ export class QuestService {
     private readonly userService: UserService,
     private readonly achievementService: AchievementService,
     private readonly aiService: AIService,
+    private readonly streakService: StreakService
   ) { }
 
   public async findAllQuest(userId: string) {
@@ -146,8 +148,10 @@ export class QuestService {
   }
 
   public async updateCompleteQuest(questId: string, userId: string) {
-    // const existingQuest = await this.questRepository.findPendingQuests(questId);
-    // if (!existingQuest) throw new HTTPException(404, { message: "Quest tidak ditemukan" });
+    const existingQuest = await this.questRepository.findById(questId);
+    if (!existingQuest) throw new HTTPException(404, { message: "Quest tidak ditemukan" });
+
+    if (existingQuest.isSuccess) return existingQuest;
 
     const quest = await this.questRepository.updateComplete(questId, new Date());
     if (!quest) throw new HTTPException(400, { message: "Gagal memperbarui quest" });
@@ -174,6 +178,7 @@ export class QuestService {
       await sendWhatsApp(user.phone, message)
     }
 
+    await this.streakService.updateUserStreak(userId, user.streak, user.highestStreak, user.LastActiveStreak);
     return quest;
   }
 
