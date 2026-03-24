@@ -46,7 +46,11 @@ app.get(
 app.use(
     "*",
     cors({
-        origin: ["http://localhost:3000", "https://taskquestku.online"],
+        origin: (origin) => {
+            // Cek apakah origin yang merequest ada dalam daftar putih
+            const allowedOrigins = ["http://localhost:3000", "https://taskquestku.online"];
+            return allowedOrigins.includes(origin) ? origin : "https://taskquestku.online";
+        },
         allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         credentials: true,
     })
