@@ -25,6 +25,20 @@ export const notificationController = new Hono()
             return HttpResponse(c, 200, "Success get all user notifications", result)
         }
     )
+    .get("/reflection-trigger",
+        describeRoute({
+            tags: ["Notification"],
+            summary: "Get reflection trigger notifications",
+            description: "Get reflection trigger notifications",
+            security: [{ bearerAuth: [] }],
+        }),
+        authMiddleware,
+        async (c) => {
+            const userId = c.get("user").id
+            const result = await notificationService.getReflectionTriggerNotifications(userId)
+            return HttpResponse(c, 200, "Success get reflection trigger notifications", result)
+        }
+    )
     .get("/:id/detail",
         describeRoute({
             tags: ["Notification"],

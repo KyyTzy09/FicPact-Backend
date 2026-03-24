@@ -17,6 +17,18 @@ export class NotificationRepository {
         })
     }
 
+    public async findReflectionTriggerNotificationsByUserId(userId: string) {
+        return await prisma.notification.findMany({
+            where: {
+                userId,
+                type: "REFLECTION_TRIGGER",
+            },
+            orderBy: {
+                createdAt: "desc"
+            }
+        })
+    }
+
     public async createNotification(userId: string, title: string, message: string, type: NotificationType, data: Record<string, any>) {
         return await prisma.notification.create({
             data: {
