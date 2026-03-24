@@ -2,7 +2,6 @@ import { HTTPException } from "hono/http-exception";
 import type { UserRepository } from "../user/user.repository.js";
 import type { QuestRepository } from "./quest.repository.js";
 import type { FolderRepository } from "../folder/folder.repository.js";
-import { processExpGain } from "../../common/utils/leveling.js";
 import { AIService } from "../ai/ai.service.js";
 import { getNextFolderName } from "../../common/utils/name.js";
 import type { AchievementService } from "../achievement/achievement.service.js";
