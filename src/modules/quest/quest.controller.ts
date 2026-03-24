@@ -11,6 +11,7 @@ import { describeRoute, validator } from "hono-openapi";
 import { AIService } from "../ai/ai.service.js";
 import { AchievementService } from "../achievement/achievement.service.js";
 import { UserService } from "../user/user.service.js";
+import { StreakService } from "../streak/streak.service.js";
 
 
 const questRepository = new QuestRepository()
@@ -19,10 +20,11 @@ const folderRepository = new FolderRepository()
 const achievementRepository = new AchievementRepository()
 const achievementService = new AchievementService(achievementRepository)
 const userService = new UserService(userRepository, questRepository)
+const streakService = new StreakService(userRepository)
 const aiService = new AIService()
 
 
-const questService = new QuestService(questRepository, userRepository, folderRepository, userService, achievementService, aiService)
+const questService = new QuestService(questRepository, userRepository, folderRepository, userService, achievementService, aiService, streakService)
 export const questController = new Hono()
   .get(
     "/",
