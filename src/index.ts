@@ -47,9 +47,15 @@ app.use(
     "*",
     cors({
         origin: (origin) => {
-            // Cek apakah origin yang merequest ada dalam daftar putih
-            const allowedOrigins = ["http://localhost:3000", "https://taskquestku.online"];
-            return allowedOrigins.includes(origin) ? origin : "https://taskquestku.online";
+            const allowedOrigins = [
+                "http://localhost:3000",
+                "https://taskquestku.online"
+            ];
+            // Jika origin kosong (same-site) atau ada di daftar putih, ijinkan
+            if (!origin || allowedOrigins.includes(origin)) {
+                return origin;
+            }
+            return "https://taskquestku.online";
         },
         allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         credentials: true,
