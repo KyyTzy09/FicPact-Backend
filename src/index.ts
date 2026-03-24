@@ -46,7 +46,7 @@ app.get(
 app.use(
     "*",
     cors({
-        origin: ["http://localhost:3000"],
+        origin: ["http://localhost:3000", "https://taskquestku.online"],
         allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         credentials: true,
     })
