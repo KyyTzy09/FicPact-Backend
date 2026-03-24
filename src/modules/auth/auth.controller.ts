@@ -48,7 +48,7 @@ export const authController = new Hono()
                 maxAge: 60 * 60 * 24 * 2,
                 httpOnly: true,
                 secure: false,
-                sameSite: "lax",
+                sameSite: "none",
             });
             return c.redirect(FRONTEND_DASHBOARD_URL)
         }
@@ -85,7 +85,7 @@ export const authController = new Hono()
                 maxAge: 60 * 60 * 24 * 2,
                 httpOnly: true,
                 secure: false,
-                sameSite: "lax",
+                sameSite: "none",
             });
 
             return HttpResponse(c, 200, "Login successful", result);
@@ -124,7 +124,7 @@ export const authController = new Hono()
                 maxAge: 60 * 60 * 24 * 2,
                 httpOnly: true,
                 secure: false,
-                sameSite: "lax",
+                sameSite: "none",
             });
             return HttpResponse(c, 201, "Register successful", result.create);
         }
@@ -298,7 +298,7 @@ export const authController = new Hono()
                 maxAge: -1,
                 httpOnly: true,
                 secure: false,
-                sameSite: "lax",
+                sameSite: "none",
             })
             return HttpResponse(c, 200, "Logout berhasil", { message: "Logout berhasil" })
         }
