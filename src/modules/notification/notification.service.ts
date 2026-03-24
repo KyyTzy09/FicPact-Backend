@@ -1,3 +1,4 @@
+import type { NotificationType } from "@prisma/client";
 import type { UserRepository } from "../user/user.repository.js";
 import type { NotificationRepository } from "./notification.repository.js";
 
@@ -13,6 +14,14 @@ export class NotificationService {
             readed: notifications.filter((notification) => notification.isRead),
             unread: notifications.filter((notification) => !notification.isRead)
         }
+    }
+
+    public async createNotification(userId: string, title: string, message: string, type: NotificationType, data: Record<string, any>) {
+        const existingUser = await this.userRepository.findUserById(userId)
+        if (!existingUser) throw new Error("User tidak ditemukan")
+
+        const notification = await this.notificationRepository.createNotification(userId, title, message, type, data)
+        return notification
     }
 
     public async getNotificationById(notificationId: string) {

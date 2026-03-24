@@ -17,7 +17,7 @@ export class NotificationRepository {
         })
     }
 
-    public async createNotfication(userId: string, title: string, message: string, type: NotificationType, data: Record<string, any>) {
+    public async createNotification(userId: string, title: string, message: string, type: NotificationType, data: Record<string, any>) {
         return await prisma.notification.create({
             data: {
                 userId,
