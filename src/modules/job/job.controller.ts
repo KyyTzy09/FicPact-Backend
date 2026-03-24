@@ -19,17 +19,37 @@ const jobService = new JobService(
 );
 // Sengaja ini di taruh di controller nanti ku bikin di servicenya soalnya ini masih belum 100% persen jobnya berhasil
 export const jobController = new Hono()
+  // Test corn
+  .post(
+    "/test-cron",
+    describeRoute({
+      tags: ["Job"],
+      summary: "Test Cron",
+      description: "Test route to trigger cron job.",
+    }),
+    async (c) => {
+      const now = new Date();
+      return HttpResponse(
+        c,
+        200,
+        "Cron ini dijalankan setiap 1 menit",
+        now.toLocaleDateString("id-ID", { hour: "2-digit", minute: "2-digit" }),
+      );
+    },
+  )
   // Ini cuma test aja ke semua user
-  .post("/post-all-user",
+  .post(
+    "/post-all-user",
     describeRoute({
       tags: ["Job"],
       summary: "Post All Users",
       description: "Test route to post all users.",
     }),
     async (c) => {
-    const result = await jobService.postAllUser();
-    return HttpResponse(c, 200, "All users posted successfully", result);
-  })
+      const result = await jobService.postAllUser();
+      return HttpResponse(c, 200, "All users posted successfully", result);
+    },
+  )
   // Ini setiap 5 menit
   .post(
     "/reflection-trigger",
