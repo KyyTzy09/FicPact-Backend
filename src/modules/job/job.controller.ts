@@ -37,19 +37,6 @@ export const jobController = new Hono()
       );
     },
   )
-  // Ini cuma test aja ke semua user
-  .post(
-    "/post-all-user",
-    describeRoute({
-      tags: ["Job"],
-      summary: "Post All Users",
-      description: "Test route to post all users.",
-    }),
-    async (c) => {
-      const result = await jobService.postAllUser();
-      return HttpResponse(c, 200, "All users posted successfully", result);
-    },
-  )
   // Ini setiap 5 menit
   .post(
     "/reflection-trigger",
@@ -64,7 +51,7 @@ export const jobController = new Hono()
       return HttpResponse(c, 200, "Reflection triggered successfully", result);
     },
   )
-  // Ini setiap 10 menit
+  // Ini setiap 1 menit
   .post(
     "/whatsapp-notification",
     describeRoute({
@@ -83,7 +70,7 @@ export const jobController = new Hono()
       );
     },
   )
-  // Ini setiap 10 menit
+  // Ini setiap 1 menit
   .post(
     "/quest-failed-notification",
     describeRoute({
