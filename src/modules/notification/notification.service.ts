@@ -76,8 +76,11 @@ export class NotificationService {
       await this.notificationRepository.findById(notificationId);
     if (!existingNotification) throw new Error("Notification tidak ditemukan");
 
+    if (existingNotification.isRead === true) return existingNotification;
+
     const updatedNotification =
       await this.notificationRepository.markAsRead(notificationId);
+
     return updatedNotification;
   }
 
