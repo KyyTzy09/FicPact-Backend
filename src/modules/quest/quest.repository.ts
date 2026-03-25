@@ -9,8 +9,8 @@ export class QuestRepository {
         },
       },
       omit: {
-        isSuccess: true
-      }
+        isSuccess: true,
+      },
     });
   }
 
@@ -20,9 +20,9 @@ export class QuestRepository {
         folder: {
           userId,
         },
-        isSuccess: true
-      }
-    })
+        isSuccess: true,
+      },
+    });
   }
 
   public async countUserReflectedQuest(userId: string) {
@@ -32,10 +32,10 @@ export class QuestRepository {
           userId,
         },
         reflection: {
-          some: {}
-        }
-      }
-    })
+          some: {},
+        },
+      },
+    });
   }
 
   public async countUserCompletedQuest(userId: string) {
@@ -44,9 +44,9 @@ export class QuestRepository {
         folder: {
           userId,
         },
-        isSuccess: true
-      }
-    })
+        isSuccess: true,
+      },
+    });
   }
 
   public async findByUnique(folderId: string, questName: string) {
@@ -54,16 +54,19 @@ export class QuestRepository {
       where: {
         folderId_name: {
           folderId,
-          name: questName
-        }
-      }
-    })
+          name: questName,
+        },
+      },
+    });
   }
 
   public async findById(questId: string) {
     return await prisma.quest.findUnique({
       where: {
         id: questId,
+      },
+      include: {
+        punishment: true,
       },
     });
   }
@@ -73,22 +76,26 @@ export class QuestRepository {
       where: {
         deadLineAt: {
           gte: twoHoursAgo, // setelah 2 jam lalu
-          lte: now
+          lte: now,
         },
-        isSuccess: false
+        isSuccess: false,
       },
       include: {
-        folder: true
-      }
-    })
+        folder: true,
+      },
+    });
   }
 
-  public async findPendingQuestsBetweenDates(userIds: string[], startDate: Date, endDate: Date) {
+  public async findPendingQuestsBetweenDates(
+    userIds: string[],
+    startDate: Date,
+    endDate: Date,
+  ) {
     return await prisma.quest.findMany({
       where: {
         folder: {
           userId: {
-            in: userIds
+            in: userIds,
           },
         },
         deadLineAt: {
@@ -98,9 +105,9 @@ export class QuestRepository {
         isSuccess: false,
       },
       include: {
-        folder: true
-      }
-    })
+        folder: true,
+      },
+    });
   }
 
   public async findPendingQuests(userId: string) {
@@ -114,17 +121,20 @@ export class QuestRepository {
     });
   }
 
-  public async updateManyQuestIsReminded(questIds: string[], isReminded: boolean) {
+  public async updateManyQuestIsReminded(
+    questIds: string[],
+    isReminded: boolean,
+  ) {
     return await prisma.quest.updateMany({
       where: {
         id: {
-          in: questIds
-        }
+          in: questIds,
+        },
       },
       data: {
-        isReminded
-      }
-    })
+        isReminded,
+      },
+    });
   }
 
   public async updateComplete(questId: string, completedDate: Date) {
@@ -134,7 +144,7 @@ export class QuestRepository {
       },
       data: {
         isSuccess: true,
-        completedAt: completedDate
+        completedAt: completedDate,
       },
     });
   }
@@ -142,15 +152,23 @@ export class QuestRepository {
   public async updateQuestStatus(questId: string) {
     return await prisma.quest.update({
       where: {
-        id: questId
+        id: questId,
       },
       data: {
-        isSuccess: false
-      }
-    })
+        isSuccess: false,
+      },
+    });
   }
 
-  public async createBatchQuest(folderId: string, quests: { name: string; description: string | null; deadLineAt: Date; expReward: number; }[]) {
+  public async createBatchQuest(
+    folderId: string,
+    quests: {
+      name: string;
+      description: string | null;
+      deadLineAt: Date;
+      expReward: number;
+    }[],
+  ) {
     return await prisma.quest.createMany({
       data: quests.map((quest) => ({
         folderId,
@@ -171,7 +189,12 @@ export class QuestRepository {
     });
   }
 
-  public async createQuest(folderId: string, title: string, description: string, deadline: string) {
+  public async createQuest(
+    folderId: string,
+    title: string,
+    description: string,
+    deadline: string,
+  ) {
     return await prisma.quest.create({
       data: {
         folderId,
@@ -190,7 +213,12 @@ export class QuestRepository {
     });
   }
 
-  public async updateQuest(questId: string, title: string, description: string, deadline: Date) {
+  public async updateQuest(
+    questId: string,
+    title: string,
+    description: string,
+    deadline: Date,
+  ) {
     return await prisma.quest.update({
       where: {
         id: questId,
