@@ -111,6 +111,7 @@ export async function sendWhatsApp(phone: string, message: string) {
 
     return await res.json();
   } catch (error) {
+    console.log("FONTE ERR")
     throw error;
   }
 }

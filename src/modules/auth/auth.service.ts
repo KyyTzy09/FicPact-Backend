@@ -245,11 +245,11 @@ export class AuthService {
   public async resendPhoneVerificationToken(userId: string, phone: string) {
     const existingUser = await this.userRepository.findUserById(userId);
     if (!existingUser) throw new HTTPException(404, { message: "User tidak ditemukan" })
-
+    console.log("TOLONG", phone)
     const token = await otpGenerator(6);
     const updatedUserToken = await this.userRepository.createToken(existingUser.id, token, new Date(Date.now() + 1000 * 60 * 15), VerificationTokenType.PHONE)
-
     const normalizedPhone = normalizePhone(phone)
+    console.log("TOLONG", normalizedPhone)
     const message = generateWhatsappMessage("phone_verification", token)
 
     await sendWhatsApp(normalizedPhone, message)

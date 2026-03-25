@@ -36,7 +36,7 @@ app.get(
 app.get(
     '/docs',
     apiReference({
-        url: '/openapi.json',
+        url: '/api/openapi.json',
         theme: 'purple',
         pageTitle: 'Quest API Reference'
     })
@@ -101,6 +101,6 @@ serve({
     port: port
 }, (info) => {
     console.log(`🚀 Server berjalan di http://localhost:${info.port}`)
-    console.log(`📖 Dokumentasi (Scalar): http://localhost:${info.port}/docs`)
-    console.log(`📄 JSON OpenAPI: http://localhost:${info.port}/openapi.json`)
+    console.log(`📖 Dokumentasi (Scalar): http://localhost:${info.port}/api/docs`)
+    console.log(`📄 JSON OpenAPI: http://localhost:${info.port}/api/openapi.json`)
 })
