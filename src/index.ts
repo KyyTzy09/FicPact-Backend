@@ -58,7 +58,7 @@ app.use(
             }
             return "https://taskquestku.online";
         },
-        allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         credentials: true,
     })
 )
