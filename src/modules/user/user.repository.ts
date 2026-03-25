@@ -1,9 +1,18 @@
-import type { LeaderboardType, User, VerificationTokenType } from "@prisma/client";
+import type {
+  LeaderboardType,
+  User,
+  VerificationTokenType,
+} from "@prisma/client";
 import { prisma } from "../../common/utils/prisma.js";
 import type { ExpLogSourceType } from "../../common/types/explog.js";
 
 export class UserRepository {
-  public async createUser(email: string, name: string, password: string, avatar: string) {
+  public async createUser(
+    email: string,
+    name: string,
+    password: string,
+    avatar: string,
+  ) {
     return prisma.user.create({
       data: {
         email,
@@ -11,9 +20,9 @@ export class UserRepository {
         profile: {
           create: {
             name,
-            avatar
-          }
-        }
+            avatar,
+          },
+        },
       },
     });
   }
@@ -26,9 +35,9 @@ export class UserRepository {
         },
       },
       include: {
-        profile: true
-      }
-    })
+        profile: true,
+      },
+    });
   }
 
   public async findAllUsers() {
@@ -37,17 +46,17 @@ export class UserRepository {
         profile: true,
       },
       omit: {
-        password: true
-      }
+        password: true,
+      },
     });
   }
 
   public async findUserById(userId: string) {
     return await prisma.user.findUnique({
       where: {
-        id: userId
-      }
-    })
+        id: userId,
+      },
+    });
   }
 
   public async findUserByIdWithProfile(userId: string) {
@@ -59,11 +68,11 @@ export class UserRepository {
         profile: true,
         userAchievements: {
           where: {
-            isClaimed: true
+            isClaimed: true,
           },
           include: {
-            achievement: true
-          }
+            achievement: true,
+          },
         },
         questFolders: {
           include: {
@@ -72,8 +81,8 @@ export class UserRepository {
         },
       },
       omit: {
-        password: true
-      }
+        password: true,
+      },
     });
   }
 
@@ -94,9 +103,9 @@ export class UserRepository {
         nextReflection: {
           gte: startDate,
           lte: endDate,
-        }
-      }
-    })
+        },
+      },
+    });
   }
 
   public async findUserQuests(userId: string) {
@@ -169,22 +178,26 @@ export class UserRepository {
     });
   }
 
-  public async updateUserReflectionTime(userId: string, nextReflection: Date, reflectionDays: number) {
+  public async updateUserReflectionTime(
+    userId: string,
+    nextReflection: Date,
+    reflectionDays: number,
+  ) {
     return await prisma.user.update({
       where: {
-        id: userId
+        id: userId,
       },
       data: {
         nextReflection,
-        reflectionDays
+        reflectionDays,
       },
       select: {
         id: true,
         nextReflection: true,
         reflectionDays: true,
-        lastReflection: true
-      }
-    })
+        lastReflection: true,
+      },
+    });
   }
 
   public async updateUsersLastReflection(
@@ -214,9 +227,9 @@ export class UserRepository {
         profile: {
           create: {
             name,
-            avatar
-          }
-        }
+            avatar,
+          },
+        },
       },
       update: {
         email,
@@ -231,7 +244,7 @@ export class UserRepository {
         id: userId,
       },
       data: {
-        isFirstReflection: false
+        isFirstReflection: false,
       },
     });
   }
@@ -243,7 +256,7 @@ export class UserRepository {
       },
       data: {
         isVerified: true,
-        nextReflection
+        nextReflection,
       },
     });
   }
@@ -316,7 +329,7 @@ export class UserRepository {
       },
       data: {
         phone,
-        isOnboarded: true
+        isOnboarded: true,
       },
       omit: {
         password: true,
@@ -324,47 +337,72 @@ export class UserRepository {
     });
   }
 
+  public async updateUsername(userId: string, username: string) {
+    return await prisma.profile.update({
+      where: {
+        userId,
+      },
+      data: {
+        name: username,
+      },
+      select: {
+        userId: true,
+        name: true,
+      },
+    });
+  }
+
   // Streak
-  public async updateUserStreak(userId: string, newStreak: number, newHighestStreak: number, lastActiveStreak: Date) {
+  public async updateUserStreak(
+    userId: string,
+    newStreak: number,
+    newHighestStreak: number,
+    lastActiveStreak: Date,
+  ) {
     return await prisma.user.update({
       where: {
-        id: userId
+        id: userId,
       },
       data: {
         streak: newStreak,
-        highestStreak: newHighestStreak
-      }
-    })
+        highestStreak: newHighestStreak,
+      },
+    });
   }
 
   // Leaderboard
   public async getAllExpLogs() {
-    return await prisma.expLog.findMany()
+    return await prisma.expLog.findMany();
   }
 
-  public async refreshLeaderboard(startDate: Date, endDate: Date, type: LeaderboardType, top3: { userId: string, exp: number }[]) {
+  public async refreshLeaderboard(
+    startDate: Date,
+    endDate: Date,
+    type: LeaderboardType,
+    top3: { userId: string; exp: number }[],
+  ) {
     return await prisma.$transaction(async (tx) => {
       const leaderboard = await tx.leaderboardHistory.create({
         data: {
           startDate,
           endDate,
-          type
-        }
-      })
+          type,
+        },
+      });
 
       const winnersData = top3.map((user, index) => ({
         leaderboardId: leaderboard.id,
         userId: user.userId,
         rank: index + 1,
-        exp: user.exp
-      }))
+        exp: user.exp,
+      }));
 
       await tx.leaderboardWinner.createMany({
-        data: winnersData
-      })
+        data: winnersData,
+      });
 
-      return leaderboard
-    })
+      return leaderboard;
+    });
   }
 
   public async getAllExpLogsBetweenDates(startDate: Date, endDate: Date) {
@@ -372,19 +410,19 @@ export class UserRepository {
       where: {
         createdAt: {
           gte: startDate,
-          lte: endDate
-        }
-      }
-    })
+          lte: endDate,
+        },
+      },
+    });
   }
 
   public async updateLevelAndLog(
     userId: string,
     user: {
-      newLevel: number,
-      remainingExp: number,
-      totalExp: number,
-      newExpToNextLevel: number,
+      newLevel: number;
+      remainingExp: number;
+      totalExp: number;
+      newExpToNextLevel: number;
     },
     expGained: number,
     source: ExpLogSourceType,
@@ -406,9 +444,9 @@ export class UserRepository {
         data: {
           userId,
           amount: expGained,
-          source
-        }
-      })
+          source,
+        },
+      });
 
       return updatedUser;
     });

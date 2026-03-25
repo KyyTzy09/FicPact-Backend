@@ -18,6 +18,7 @@ import { leaderboardController } from './modules/leaderboards/leaderboard.contro
 import { punishmentController } from './modules/punishment/punishment.controller.js'
 import { jobController } from './modules/job/job.controller.js'
 import { notificationController } from './modules/notification/notification.controller.js'
+import { profileController } from './modules/profile/profile.controller.js'
 
 const app = new Hono().basePath('/api')
 app.use("*", fullLogger)
@@ -68,6 +69,7 @@ app.get('/health', (c) => c.json({ status: 'OK' }))
 
 
 app.route("/user", userController)
+app.route("/profile", profileController)
 app.route("/auth", authController)
 app.route("/folders", folderController)
 app.route("/quests", questController)
