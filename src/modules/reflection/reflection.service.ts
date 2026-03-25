@@ -2,7 +2,12 @@ import { HTTPException } from "hono/http-exception";
 import { ReflectionGroupper } from "../../common/utils/reflection.js";
 import type { UserRepository } from "../user/user.repository.js";
 import type { ReflectionRepository } from "./reflection.repository.js";
-import { QuestLevel, QuestReflectionType, type Quest } from "@prisma/client";
+import {
+  QuestLevel,
+  QuestReflectionType,
+  type Quest,
+  type User,
+} from "@prisma/client";
 import type { QuestRepository } from "../quest/quest.repository.js";
 import type { FolderRepository } from "../folder/folder.repository.js";
 import type { AIService } from "../ai/ai.service.js";
@@ -12,22 +17,21 @@ import {
   sendWhatsApp,
 } from "../../common/utils/fonnte.js";
 import type { NotificationService } from "../notification/notification.service.js";
+import type { UserService } from "../user/user.service.js";
 export class ReflectionService {
   constructor(
     private readonly folderRepository: FolderRepository,
     private readonly questRepository: QuestRepository,
     private readonly reflectionRepository: ReflectionRepository,
     private readonly userRepository: UserRepository,
+    private readonly userService: UserService,
     private readonly achievementService: AchievementService,
     private readonly aiService: AIService,
     private readonly notificationService: NotificationService,
   ) {}
 
   async GetLatestReflection(userId: string) {
-    const existingUser = await this.userRepository.findUserById(userId);
-    if (!existingUser)
-      throw new HTTPException(404, { message: "Pengguna tidak ditemukan" });
-
+    await this.userService.getUserById(userId);
     const latestReflection =
       await this.reflectionRepository.findLatestReflection(userId, 2);
     return latestReflection;
@@ -40,9 +44,7 @@ export class ReflectionService {
     questStatus: boolean,
     questLevel: "HIGH" | "NORMAL" | "LOW",
   ) {
-    const existingUser = await this.userRepository.findUserById(userId);
-    if (!existingUser)
-      throw new HTTPException(404, { message: "Pengguna tidak ditemukan" });
+    const existingUser = await this.userService.getUserById(userId);
 
     const existingQuest = await this.questRepository.findById(questId);
     if (!existingQuest)
@@ -67,7 +69,14 @@ export class ReflectionService {
         "reflection",
       );
 
-    if (existingUser.phone) {
+    await this.userService.updateUserLevel(
+      existingUser as User,
+      userId,
+      20,
+      "reflection",
+    );
+
+    if (existingUser?.phone) {
       const message = generateWhatsappMessage("reflection", existingQuest.name);
       await sendWhatsApp(existingUser.phone, message);
     }
@@ -84,7 +93,7 @@ export class ReflectionService {
         },
       );
     }
-    
+
     return createdReflections;
   }
 
@@ -117,13 +126,12 @@ export class ReflectionService {
   // }
 
   async CreateUserReflection(userId: string) {
-    const existingUser = await this.userRepository.findUserById(userId);
-    if (!existingUser)
-      throw new HTTPException(404, { message: "User tidak ditemukan" });
+    const existingUser = await this.userService.getUserById(userId);
     // Cari data quest sesuai dengan hari yang dipilih sebelumnya
     const endPeriod = new Date();
     const startPeriod = new Date(
-      endPeriod.getTime() - existingUser.reflectionDays * 24 * 60 * 60 * 1000,
+      endPeriod.getTime() -
+        (existingUser?.reflectionDays || 7) * 24 * 60 * 60 * 1000,
     );
     const existingQuest =
       await this.folderRepository.findUserFolderWithQuestReflectionByPeriod(
@@ -151,10 +159,10 @@ export class ReflectionService {
       userId,
       new Date(createdReflection.createdAt || endPeriod),
     );
-    if (existingUser.isFirstReflection)
+    if (existingUser?.isFirstReflection)
       await this.userRepository.updateUserFirstReflection(userId);
 
-    if (existingUser.phone) {
+    if (existingUser?.phone) {
       const message = generateWhatsappMessage("reflection-ai", AIResult);
       await sendWhatsApp(existingUser.phone, message);
     }
