@@ -30,6 +30,7 @@ export class ReflectionService {
     private readonly notificationService: NotificationService,
   ) {}
 
+  // Dapatkan refleksi terbaru
   async GetLatestReflection(userId: string) {
     await this.userService.getUserById(userId);
     const latestReflection =
@@ -37,6 +38,7 @@ export class ReflectionService {
     return latestReflection;
   }
 
+  //  Ini Reflection Setelah Selesai atau Gagal menyelesaikan quest
   async CreateQuestReflection(
     userId: string,
     questId: string,
@@ -125,7 +127,8 @@ export class ReflectionService {
   //     return updatedReflectionTrigger
   // }
 
-  async CreateUserReflection(userId: string) {
+  // Ini Reflection AI
+  async CreateUserReflection(userId: string, notificationId: string) {
     const existingUser = await this.userService.getUserById(userId);
     // Cari data quest sesuai dengan hari yang dipilih sebelumnya
     const endPeriod = new Date();
@@ -133,6 +136,8 @@ export class ReflectionService {
       endPeriod.getTime() -
         (existingUser?.reflectionDays || 7) * 24 * 60 * 60 * 1000,
     );
+
+    // Cari quest berdasarkan periode
     const existingQuest =
       await this.folderRepository.findUserFolderWithQuestReflectionByPeriod(
         userId,
@@ -150,18 +155,26 @@ export class ReflectionService {
     if (!AIResult)
       throw new HTTPException(500, { message: "Refleksi tidak ada" });
 
+    // Inset Ke table Reflection
     const createdReflection =
       await this.reflectionRepository.CreateAIReflection(userId, AIResult);
     if (!createdReflection)
       throw new HTTPException(400, { message: "Gagal membuat refleksi" });
 
+    // Update Last reflection User
     await this.userRepository.updateUserLastReflection(
       userId,
       new Date(createdReflection.createdAt || endPeriod),
     );
+
+    // Update Notification sebagai Done
+    await this.notificationService.markNotificationAsDone(notificationId);
+
+    // Kalau Reflection pertama ubah FirstReflection jadi false
     if (existingUser?.isFirstReflection)
       await this.userRepository.updateUserFirstReflection(userId);
 
+    // Kirim ke wa kalau ada nomornya
     if (existingUser?.phone) {
       const message = generateWhatsappMessage("reflection-ai", AIResult);
       await sendWhatsApp(existingUser.phone, message);
