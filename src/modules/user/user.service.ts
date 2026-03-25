@@ -8,11 +8,13 @@ import { processExpGain } from "../../common/utils/leveling.js";
 import type { Quest, User } from "@prisma/client";
 import type { ExpLogSourceType } from "../../common/types/explog.js";
 import type { QuestRepository } from "../quest/quest.repository.js";
+import type { NotificationRepository } from "../notification/notification.repository.js";
 
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly questRepository: QuestRepository,
+    private readonly notificationRepository?: NotificationRepository,
   ) {}
 
   public async getUserById(userId: string) {
@@ -139,10 +141,20 @@ export class UserService {
     const user = await this.userRepository.findUserById(userId);
     if (!user) return false;
 
+    const firstReflectionTrigger =
+      await this.notificationRepository?.findLatestNotification(
+        userId,
+        "REFLECTION_TRIGGER",
+      );
+    if (!firstReflectionTrigger) return false;
+
     const completedQuest =
       await this.questRepository.countCompletedQuest(userId);
     if (completedQuest === 0) return false;
 
-    return user?.isFirstReflection ?? false;
+    return {
+      status: user?.isFirstReflection ?? false,
+      notificationId: firstReflectionTrigger.id,
+    };
   }
 }
