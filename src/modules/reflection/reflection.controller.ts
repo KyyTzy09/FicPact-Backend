@@ -13,16 +13,19 @@ import { AchievementRepository } from "../achievement/achievement.repository.js"
 import { AchievementService } from "../achievement/achievement.service.js";
 import { NotificationService } from "../notification/notification.service.js";
 import { NotificationRepository } from "../notification/notification.repository.js";
+import { UserService } from "../user/user.service.js";
+
 const reflectionRepository = new ReflectionRepository()
 const userRepository = new UserRepository()
 const folderRepository = new FolderRepository()
 const notificationRepository = new NotificationRepository()
 const questRepository = new QuestRepository()
+const userService = new UserService(userRepository, questRepository)
 const aiService = new AIService()
 const achievementRepository = new AchievementRepository()
 const achievementService = new AchievementService(achievementRepository)
 const notificationService = new NotificationService(notificationRepository, userRepository)
-const reflectionService = new ReflectionService(folderRepository, questRepository, reflectionRepository, userRepository, achievementService, aiService, notificationService)
+const reflectionService = new ReflectionService(folderRepository, questRepository, reflectionRepository, userRepository, userService, achievementService, aiService, notificationService)
 
 export const reflectionController = new Hono()
     .get("/latest",
