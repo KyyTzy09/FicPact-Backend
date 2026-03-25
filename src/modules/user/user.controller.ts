@@ -7,10 +7,12 @@ import { describeRoute, validator } from "hono-openapi";
 import { bearerAuth } from "hono/bearer-auth";
 import { updateUserReflectionTimeValidation } from "./user.validation.js";
 import { QuestRepository } from "../quest/quest.repository.js";
+import { NotificationRepository } from "../notification/notification.repository.js";
 
 const userRepository = new UserRepository();
 const questRepository = new QuestRepository();
-const userService = new UserService(userRepository, questRepository);
+const notificationRepository = new NotificationRepository()
+const userService = new UserService(userRepository, questRepository, notificationRepository);
 
 export const userController = new Hono()
   .get(
