@@ -427,7 +427,7 @@ export class UserRepository {
     expGained: number,
     source: ExpLogSourceType,
   ) {
-    await prisma.$transaction(async (tx) => {
+    return await prisma.$transaction(async (tx) => {
       const updatedUser = await tx.user.update({
         where: {
           id: userId,
