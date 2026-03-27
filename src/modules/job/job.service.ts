@@ -23,7 +23,7 @@ export class JobService {
     private readonly notificationRepository: NotificationRepository,
     private readonly questRepository: QuestRepository,
     private readonly leaderBoardService: LeaderboardService,
-  ) { }
+  ) {}
   public async postAllUser() {
     const allUsers = await this.userRepository.findAllUsers();
     const filteredUser = allUsers.filter((user) => user.phone);
@@ -71,16 +71,17 @@ export class JobService {
       .map((user) => user.id);
 
     // Langsung buat reflectionTrigger
-    const createdReflectionTrigger = await this.notificationRepository.createManyNotification(
-      newUserIds.map((userId) => ({
-        userId,
-        title: "🧠 Waktunya refleksi",
-        message:
-          "Yuk luangkan sebentar buat lihat progresmu hari ini. AI bakal bantu kasih insight dari aktivitasmu.",
-        type: "REFLECTION_TRIGGER",
-        data: {},
-      })),
-    );
+    const createdReflectionTrigger =
+      await this.notificationRepository.createManyNotification(
+        newUserIds.map((userId) => ({
+          userId,
+          title: "🧠 Waktunya refleksi",
+          message:
+            "Yuk luangkan sebentar buat lihat progresmu hari ini. AI bakal bantu kasih insight dari aktivitasmu.",
+          type: "REFLECTION_TRIGGER",
+          data: {},
+        })),
+      );
 
     return { users, reflectionTrigger: createdReflectionTrigger };
   }
@@ -140,50 +141,41 @@ export class JobService {
     );
     const userIds = quests.map((quest) => quest.folder.userId);
 
-    // Masukan ke map untuk cari tau user mana yang udah punya notification QUEST_FAILED
     const users = await this.userRepository.findUserByIds(userIds);
-    const userMap = new Map(users.map((user) => [user.id, user]));
-
-    // Cari notification QUEST_FAILED yang belum dibaca untuk user-user tersebut
     const existingNotifications =
-      await this.notificationRepository.findLatestUsersNotification(
+      await this.notificationRepository.findPendingUsersNotification(
         userIds,
         "QUEST_FAILED",
+        twoHoursAgo,
+        now,
       );
-    const mappedExistingNotificationUserIds = new Map(
-      existingNotifications.map((notification) => [
-        `${notification.userId}-${(notification.data as { questId: string })?.questId}`,
-        true,
-      ]),
+
+    const existingSet = new Set(
+      existingNotifications.map(
+        (n) => `${n.userId}-${(n.data as any)?.questId}`,
+      ),
     );
 
+    // Cari notification QUEST_FAILED yang belum dibaca untuk user-user tersebu
     const notificationsToCreate = quests
-      .filter(
-        (q) =>
-          !mappedExistingNotificationUserIds.has(`${q.folder.userId}-${q.id}`),
-      )
-      .map((q) => {
-        const user = userMap.get(q.folder.userId);
-        if (!user) return null;
+      .filter((q) => !existingSet.has(`${q.folder.userId}-${q.id}`))
+      .map((q) => ({
+        userId: q.folder.userId,
+        title: "⏰ Quest gagal diselesaikan",
+        message: `Yah, quest ${q.name} dari folder ${q.folder.name} gagal diselesaikan tepat waktu.`,
+        type: "QUEST_FAILED",
+        data: {
+          questId: q.id,
+          questName: q.name,
+          folderName: q.folder.name,
+        },
+      }));
 
-        return {
-          userId: user.id,
-          title: "⏰ Quest gagal diselesaikan",
-          message: `Yah, quest ${q.name} dari folder ${q.folder.name} gagal diselesaikan tepat waktu.`,
-          type: "QUEST_FAILED",
-          data: {
-            questId: q.id,
-            questName: q.name,
-            folderName: q.folder.name,
-          },
-        };
-      })
-      .filter(Boolean) as Parameters<
-        NotificationRepository["createManyNotification"]
-      >[0];
     if (!notificationsToCreate.length) return [];
     await this.notificationRepository.createManyNotification(
-      notificationsToCreate,
+      notificationsToCreate as Parameters<
+        NotificationRepository["createManyNotification"]
+      >[0],
     );
 
     return users
