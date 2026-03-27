@@ -73,11 +73,7 @@ export class UserService {
 
     const nextReflectionDate =
       existingUser.reflectionDays === days
-        ? updateReflectionTime(
-            existingUser.nextReflection!,
-            existingUser.reflectionDays,
-            hours,
-          )
+        ? updateReflectionTime(existingUser.nextReflection!, hours)
         : getNextReflectionDate(days, hours);
 
     const updatedUser = await this.userRepository.updateUserReflectionTime(
