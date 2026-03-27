@@ -45,6 +45,7 @@ export class ReflectionService {
     reasons: string[],
     questStatus: boolean,
     questLevel: "HIGH" | "NORMAL" | "LOW",
+    notificationId?: string,
   ) {
     const existingUser = await this.userService.getUserById(userId);
 
@@ -81,6 +82,10 @@ export class ReflectionService {
     if (existingUser?.phone) {
       const message = generateWhatsappMessage("reflection", existingQuest.name);
       await sendWhatsApp(existingUser.phone, message);
+    }
+
+    if (questStatus === false && notificationId) {
+      await this.notificationService.markNotificationAsDone(notificationId);
     }
 
     if (existingQuest.punishment && questStatus === false) {
