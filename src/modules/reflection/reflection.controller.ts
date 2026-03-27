@@ -60,13 +60,14 @@ export const reflectionController = new Hono()
     validator("json", createQuestReflectionValidation),
     async (c) => {
       const userId = c.get("user").id;
-      const { questId, reasons, questStatus, questLevel } = c.req.valid("json");
+      const { questId, reasons, questStatus, questLevel, notificationId } = c.req.valid("json");
       const result = await reflectionService.CreateQuestReflection(
         userId,
         questId,
         reasons,
         questStatus,
         questLevel,
+        notificationId,
       );
 
       return HttpResponse(
