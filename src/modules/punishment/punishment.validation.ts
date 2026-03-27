@@ -7,5 +7,6 @@ export const createPunishmentValidation = z.object({
 })
 
 export const updatePunishmentStatusValidation = z.object({
-    status: z.boolean()
+  status: z.boolean(),
+  notificationId: z.string().optional(),
 })

@@ -94,7 +94,6 @@ export class NotificationRepository {
         userId: {
           in: userIds,
         },
-        isRead: false,
         type,
         createdAt: {
           gte: startDate,
@@ -117,6 +116,25 @@ export class NotificationRepository {
           in: userIds,
         },
         type,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  }
+
+  public async findLatestFailedQuestNotification(
+    data: {
+      userId: string;
+      questIds: string[];
+    }[],
+  ) {
+    return await prisma.notification.findMany({
+      where: {
+        userId: {
+          in: data.map((item) => item.userId),
+        },
+        type: "QUEST_FAILED",
       },
       orderBy: {
         createdAt: "desc",
